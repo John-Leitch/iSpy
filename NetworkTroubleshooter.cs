@@ -1,10 +1,10 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Net;
 using System.Threading;
 using System.Windows.Forms;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication
 {
@@ -19,16 +19,13 @@ namespace iSpyApplication
             LocRm.GetString("retry");
         }
 
-        public override sealed string Text
+        public sealed override string Text
         {
-            get { return base.Text; }
-            set { base.Text = value; }
+            get => base.Text;
+            set => base.Text = value;
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
+        private void button1_Click(object sender, EventArgs e) => Close();
 
         private void NetworkTroubleshooter_Load(object sender, EventArgs e)
         {
@@ -43,10 +40,7 @@ namespace iSpyApplication
         {
             private static ISynchronizeInvoke _sync;
 
-            public static void Init(ISynchronizeInvoke sync)
-            {
-                _sync = sync;
-            }
+            public static void Init(ISynchronizeInvoke sync) => _sync = sync;
 
             public static void Execute(Action action)
             {
@@ -78,38 +72,37 @@ namespace iSpyApplication
             {
                 Logger.LogException(ex);
             }
-            
+
             bool portMapOk = false;
             bool bIPv6 = MainForm.Conf.IPMode == "IPv6";
             UISync.Execute(() => button2.Enabled = false);
 
-            
 
-            string localserver = (MainForm.Conf.SSLEnabled?"https":"http")+"://" + MainForm.IPAddress + ":" + MainForm.Conf.LANPort;
-            
+
+            string localserver = (MainForm.Conf.SSLEnabled ? "https" : "http") + "://" + MainForm.IPAddress + ":" + MainForm.Conf.LANPort;
+
             UISync.Execute(() => rtbOutput.Text = $"Local iSpy Server: {localserver}{NL}");
-            if (webports.IndexOf(","+MainForm.Conf.LANPort+",", StringComparison.Ordinal)==-1)
+            if (webports.IndexOf("," + MainForm.Conf.LANPort + ",", StringComparison.Ordinal) == -1)
             {
                 UISync.Execute(() => rtbOutput.Text +=
                     $"Warning: Running a local server on a non-standard port ({MainForm.Conf.LANPort}) may cause web-browser security errors. Click the link above to test in your web browser.{NL}");
             }
             if (MainForm.IPAddress.StartsWith("169.254"))
             {
-                UISync.Execute(() => rtbOutput.Text += NL+"Warning: Your network adaptor has assigned itself a link-local address (169.254.x.x). This means your PC is setup for DHCP but can't find a DHCP server and iSpy will be unavailable over your LAN. Try resetting your router."+NL);
+                UISync.Execute(() => rtbOutput.Text += NL + "Warning: Your network adaptor has assigned itself a link-local address (169.254.x.x). This means your PC is setup for DHCP but can't find a DHCP server and iSpy will be unavailable over your LAN. Try resetting your router." + NL);
             }
             if (MainForm.Conf.SSLEnabled)
-                UISync.Execute(() => rtbOutput.Text += "Warning: Using SSL - disable SSL in settings if you are having problems with connecting."+NL);
+                UISync.Execute(() => rtbOutput.Text += "Warning: Using SSL - disable SSL in settings if you are having problems with connecting." + NL);
             if (MainForm.Conf.SpecificIP)
                 UISync.Execute(
                     () =>
                         rtbOutput.Text +=
                             "Warning: You are binding to a specific IP address. This can cause issues on systems with multiple NICs. Try unchecking the Bind To IP Address option in settings/ web server if you have problems." +
                             NL);
-            
+
             UISync.Execute(() => rtbOutput.Text += "Checking local server... ");
             Application.DoEvents();
-            string res = "";
-            if (!loadurl(localserver, out res))
+            if (!loadurl(localserver, out string res))
             {
                 string res1 = res;
                 UISync.Execute(() => rtbOutput.Text += $"Failed: {res1}{NL}");
@@ -122,7 +115,7 @@ namespace iSpyApplication
 
                 UISync.Execute(() => rtbOutput.Text += "Do you have a third party firewall or antivirus running (AVG/ zonealarm etc)?" + NL);
 
-                
+
 
             }
             else
@@ -147,7 +140,7 @@ namespace iSpyApplication
             }
             else
             {
-                if (res.IndexOf("error occurred while", StringComparison.Ordinal)!=-1)
+                if (res.IndexOf("error occurred while", StringComparison.Ordinal) != -1)
                     UISync.Execute(() => rtbOutput.Text += "Error with webservices. Please try again later (check your internet connection).");
                 else
                     UISync.Execute(() => rtbOutput.Text += "OK");
@@ -160,8 +153,7 @@ namespace iSpyApplication
                 var fw = new FireWall();
                 fw.Initialize();
 
-                bool bOn;
-                var r = fw.IsWindowsFirewallOn(out bOn);
+                var r = fw.IsWindowsFirewallOn(out bool bOn);
 
                 if (r == FireWall.FwErrorCode.FwNoerror)
                 {
@@ -199,7 +191,7 @@ namespace iSpyApplication
             }
             UISync.Execute(() => rtbOutput.Text += NL);
 
-            
+
             UISync.Execute(() => rtbOutput.Text += "Checking your account... ");
 
             var result = WsWrapper.TestConnection(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, false);
@@ -283,8 +275,8 @@ namespace iSpyApplication
                                     catch (Exception ex)
                                     {
                                         UISync.Execute(
-                                            () => rtbOutput.Text += "Port mapping lookup failed ("+ex.Message.Trim()+"). If the connection fails try resetting your router or manually configure port forwarding. " + NL);
-                                        if (maps==0)
+                                            () => rtbOutput.Text += "Port mapping lookup failed (" + ex.Message.Trim() + "). If the connection fails try resetting your router or manually configure port forwarding. " + NL);
+                                        if (maps == 0)
                                             throw;
                                     }
                                     if (!portMapOk)
@@ -308,19 +300,19 @@ namespace iSpyApplication
                         catch (Exception ex)
                         {
                             Logger.LogException(ex);
-                           
+
                         }
                     }
-                    
 
-                    UISync.Execute(() => rtbOutput.Text += "Checking external access... "+NL);
+
+                    UISync.Execute(() => rtbOutput.Text += "Checking external access... " + NL);
 
                     result = WsWrapper.TestConnection(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, true);
 
-                    if (result.Length>3 && result[3] != "")
+                    if (result.Length > 3 && result[3] != "")
                     {
                         MainForm.Conf.Loopback = MainForm.LoopBack = false;
-                        UISync.Execute(() => rtbOutput.Text += "iSpyConnect is trying to contact your server at: "+result[6] + NL);
+                        UISync.Execute(() => rtbOutput.Text += "iSpyConnect is trying to contact your server at: " + result[6] + NL);
                         UISync.Execute(() => rtbOutput.Text += "Failed: " + result[3] + NL);
                         if (!bIPv6)
                         {
@@ -345,7 +337,7 @@ namespace iSpyApplication
 
                         if (MainForm.AddressListIPv4.Length > 1)
                         {
-                            UISync.Execute(() => rtbOutput.Text += NL+"Warning: There are multiple network adaptors in your PC. Try selecting a different IP address to listen on in iSpy web settings or disable unused network adaptors and restart iSpy: " + NL);
+                            UISync.Execute(() => rtbOutput.Text += NL + "Warning: There are multiple network adaptors in your PC. Try selecting a different IP address to listen on in iSpy web settings or disable unused network adaptors and restart iSpy: " + NL);
                             foreach (var ip in MainForm.AddressListIPv4)
                             {
                                 string ip1 = ip.ToString();
@@ -371,7 +363,7 @@ namespace iSpyApplication
 
                             MainForm.Conf.Loopback = MainForm.LoopBack = true;
                         }
-                            
+
                     }
                 }
                 else
@@ -381,27 +373,24 @@ namespace iSpyApplication
 
                 }
             }
-            UISync.Execute(() => rtbOutput.Text+=NL);
+            UISync.Execute(() => rtbOutput.Text += NL);
             Application.DoEvents();
             UISync.Execute(() => button2.Enabled = true);
         }
 
-        private void rtbOutput_LinkClicked(object sender, LinkClickedEventArgs e)
-        {
-            MainForm.OpenUrl(e.LinkText);
-        }
+        private void rtbOutput_LinkClicked(object sender, LinkClickedEventArgs e) => MainForm.OpenUrl(e.LinkText);
 
 
-        private bool loadurl(string url, out string result)
+        private static bool loadurl(string url, out string result)
         {
             result = "";
             try
             {
-                var httpWReq = (HttpWebRequest) WebRequest.Create(url);
+                var httpWReq = (HttpWebRequest)WebRequest.Create(url);
                 httpWReq.Timeout = 5000;
                 httpWReq.Method = "GET";
 
-                var myResponse = (HttpWebResponse) httpWReq.GetResponse();
+                var myResponse = (HttpWebResponse)httpWReq.GetResponse();
                 var s = myResponse.GetResponseStream();
                 if (s != null)
                 {
@@ -409,7 +398,7 @@ namespace iSpyApplication
                     result = read.ReadToEnd();
                 }
                 myResponse.Close();
-                
+
                 return true;
             }
             catch (Exception ex)
@@ -425,10 +414,7 @@ namespace iSpyApplication
             t.Start();
         }
 
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            Clipboard.SetText(rtbOutput.Text);
-        }
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => Clipboard.SetText(rtbOutput.Text);
 
     }
 }

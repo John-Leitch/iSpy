@@ -7,14 +7,8 @@ namespace iSpyApplication.Onvif
         public DateTime Timestamp { get; } = DateTime.UtcNow;
         public string Description { get; }
 
-        public ConnectionStateInfo(string description)
-        {
-            Description = description;
-        }
+        public ConnectionStateInfo(string description) => Description = description;
 
-        public override string ToString()
-        {
-            return $"[{Timestamp.ToLocalTime():HH:mm:ss}]: {Description}";
-        }
+        public override string ToString() => $"[{Timestamp.ToLocalTime():HH:mm:ss}]: {Description}";
     }
 }

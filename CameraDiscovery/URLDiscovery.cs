@@ -1,11 +1,11 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.CameraDiscovery
 {
@@ -85,28 +85,9 @@ namespace iSpyApplication.CameraDiscovery
             return b;
         }
 
-        private int GetPort(ManufacturersManufacturerUrl s)
-        {
-            if (s.prefix.ToLowerInvariant().StartsWith("http"))
-            {
-                if (s.portSpecified && s.port != HttpPort)
-                {
-                    if (TestPort(s.port))
-                        return s.port;
-
-                }
-                return HttpPort;
-            }
-
-            if (s.portSpecified && s.port != MediaPort)
-            {
-                if (TestPort(s.port))
-                    return s.port;
-
-            }
-
-            return MediaPort;
-        }
+        private int GetPort(ManufacturersManufacturerUrl s) => s.prefix.ToLowerInvariant().StartsWith("http")
+                ? s.portSpecified && s.port != HttpPort && TestPort(s.port) ? s.port : HttpPort
+                : s.portSpecified && s.port != MediaPort && TestPort(s.port) ? s.port : MediaPort;
 
         public Uri GetAddr(ManufacturersManufacturerUrl s, int channel, string username, string password, bool audio = false)
         {
@@ -147,20 +128,18 @@ namespace iSpyApplication.CameraDiscovery
             var connectUrl = urlStart + BaseUri.DnsSafeHost + ":" + GetPort(s);
             connectUrl += url;
 
-            Uri uri = null;
-            Uri.TryCreate(connectUrl, UriKind.Absolute, out uri);
+            Uri.TryCreate(connectUrl, UriKind.Absolute, out Uri uri);
             return uri;
         }
 
 
-        private bool TestHttpUrl(Uri source, string cookies, string username, string password)
+        private static bool TestHttpUrl(Uri source, string cookies, string username, string password)
         {
             bool b = false;
 
             ConnectionFactory connectionFactory = new ConnectionFactory();
-            HttpWebRequest _req;
             using (
-                var res = connectionFactory.GetResponse(source.ToString(), cookies, "", "", username, password, "GET", "", "", false, out _req))
+                var res = connectionFactory.GetResponse(source.ToString(), cookies, "", "", username, password, "GET", "", "", false, out HttpWebRequest _req))
             {
                 var sc = res?.StatusCode;
                 if (sc == HttpStatusCode.OK)
@@ -176,7 +155,7 @@ namespace iSpyApplication.CameraDiscovery
             return b;
         }
 
-        private bool TestRtspUrl(Uri uri, string username, string password)
+        private static bool TestRtspUrl(Uri uri, string username, string password)
         {
             try
             {
@@ -228,7 +207,7 @@ namespace iSpyApplication.CameraDiscovery
             return false;
         }
 
-        public bool TestSocket(Uri uri)
+        public static bool TestSocket(Uri uri)
         {
             try
             {
@@ -250,22 +229,16 @@ namespace iSpyApplication.CameraDiscovery
         {
             if (!TestPort(addr.Port))
                 return false;
-
-            bool found;
             switch (u.prefix.ToLowerInvariant())
             {
                 case "http://":
                 case "https://":
-                    found = TestHttpUrl(addr, "", username, password);
-                    break;
+                    return TestHttpUrl(addr, "", username, password);
                 case "rtsp://":
-                    found = TestRtspUrl(addr, username, password);
-                    break;
+                    return TestRtspUrl(addr, username, password);
                 default:
-                    found = true;
-                    break;
+                    return true;
             }
-            return found;
         }
 
     }

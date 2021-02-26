@@ -4,13 +4,10 @@ using System.Text;
 
 namespace iSpyApplication.Server
 {
-    public class DataReceivedEventArgs: EventArgs
+    public class DataReceivedEventArgs : EventArgs
     {
-        public string Data { get; private set; }
-        public DataReceivedEventArgs(string data)
-        {
-            Data = data;
-        }
+        public string Data { get; }
+        public DataReceivedEventArgs(string data) => Data = data;
     }
 
     public delegate void DataReceivedEventHandler(object sender, DataReceivedEventArgs e);
@@ -45,7 +42,7 @@ namespace iSpyApplication.Server
         /// <summary>
         /// Gets the original request used for the connection
         /// </summary>
-        public HttpRequest Request { get; private set; }
+        public HttpRequest Request { get; }
 
         #region Constructors
         /// <summary>
@@ -69,25 +66,19 @@ namespace iSpyApplication.Server
             ConnectionSocket = req.TcpClient.Client;
             _dataBuffer = new byte[bufferSize];
             GUID = Guid.NewGuid();
-            Listen();            
+            Listen();
         }
         #endregion
 
         /// <summary>
         /// Invoke the DataReceived event, called whenever the client has finished sending data.
         /// </summary>
-        protected virtual void OnDataReceived(DataReceivedEventArgs e)
-        {
-            DataReceived?.Invoke(this, e);
-        }
+        protected virtual void OnDataReceived(DataReceivedEventArgs e) => DataReceived?.Invoke(this, e);
 
         /// <summary>
         /// Listens for incoming data
         /// </summary>
-        private void Listen()
-        {
-            ConnectionSocket.BeginReceive(_dataBuffer, _dataBufferOffset, _dataBuffer.Length - _dataBufferOffset, 0, Read, null);
-        }
+        private void Listen() => ConnectionSocket.BeginReceive(_dataBuffer, _dataBufferOffset, _dataBuffer.Length - _dataBufferOffset, 0, Read, null);
 
         /// <summary>
         /// Send a string to the client
@@ -95,7 +86,7 @@ namespace iSpyApplication.Server
         /// <param name="str">the string to send to the client</param>
         public void Send(string str)
         {
-            if (ConnectionSocket!=null && ConnectionSocket.Connected)
+            if (ConnectionSocket?.Connected == true)
             {
                 try
                 {
@@ -108,7 +99,7 @@ namespace iSpyApplication.Server
             }
         }
 
-        private string DecodeMessage(byte[] bytes, out bool complete)
+        private static string DecodeMessage(byte[] bytes, out bool complete)
         {
             complete = false;
             byte b = bytes[1];
@@ -125,14 +116,14 @@ namespace iSpyApplication.Server
 
             if (b - 128 == 126)
             {
-                dataLength = BitConverter.ToInt16(new [] { bytes[3], bytes[2] }, 0);
+                dataLength = BitConverter.ToInt16(new[] { bytes[3], bytes[2] }, 0);
                 keyIndex = 4;
                 totalLength = dataLength + 8;
             }
 
             if (b - 128 == 127)
             {
-                dataLength = (int)BitConverter.ToInt64(new [] { bytes[9], bytes[8], bytes[7], bytes[6], bytes[5], bytes[4], bytes[3], bytes[2] }, 0);
+                dataLength = (int)BitConverter.ToInt64(new[] { bytes[9], bytes[8], bytes[7], bytes[6], bytes[5], bytes[4], bytes[3], bytes[2] }, 0);
                 keyIndex = 10;
                 totalLength = dataLength + 14;
             }
@@ -238,8 +229,7 @@ namespace iSpyApplication.Server
 
             if (sizeOfReceivedData > 0)
             {
-                bool complete;
-                var msg = DecodeMessage(_dataBuffer, out complete);
+                var msg = DecodeMessage(_dataBuffer, out bool complete);
 
                 if (complete)
                 {
@@ -284,10 +274,7 @@ namespace iSpyApplication.Server
 
         private bool _disposed;
         // Public implementation of Dispose pattern callable by consumers. 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         // Protected implementation of Dispose pattern. 
         protected virtual void Dispose(bool disposing)

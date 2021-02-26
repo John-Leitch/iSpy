@@ -6,10 +6,10 @@
 // contacts@aforgenet.com
 //
 
-using System;
-using System.Drawing.Imaging;
 using AForge.Imaging;
 using AForge.Imaging.Filters;
+using System;
+using System.Drawing.Imaging;
 
 namespace iSpyApplication.Vision
 {
@@ -92,11 +92,11 @@ namespace iSpyApplication.Vision
         private int _pixelsChanged;
 
         // suppress noise
-        private bool _suppressNoise   = true;
+        private bool _suppressNoise = true;
         private bool _keepObjectEdges;
 
         // threshold values
-        private int _differenceThreshold    =  15;
+        private int _differenceThreshold = 15;
         private int _differenceThresholdNeg = -15;
 
         private int _framesPerBackgroundUpdate = 2;
@@ -107,12 +107,12 @@ namespace iSpyApplication.Vision
         private DateTime _lastTimeMeasurment;
 
         // binary erosion filter
-        private readonly BinaryErosion3x3 _erosionFilter = new BinaryErosion3x3( );
+        private readonly BinaryErosion3x3 _erosionFilter = new BinaryErosion3x3();
         // binary dilatation filter
-        private readonly BinaryDilatation3x3 _dilatationFilter = new BinaryDilatation3x3( );
+        private readonly BinaryDilatation3x3 _dilatationFilter = new BinaryDilatation3x3();
 
         // dummy object to lock for synchronization
-        private readonly object _sync = new object( );
+        private readonly object _sync = new object();
 
         /// <summary>
         /// Difference threshold value, [1, 255].
@@ -126,12 +126,12 @@ namespace iSpyApplication.Vision
         /// 
         public int DifferenceThreshold
         {
-            get { return _differenceThreshold; }
+            get => _differenceThreshold;
             set
             {
-                lock ( _sync )
+                lock (_sync)
                 {
-                    _differenceThreshold = Math.Max( 1, Math.Min( 255, value ) );
+                    _differenceThreshold = Math.Max(1, Math.Min(255, value));
                     _differenceThresholdNeg = -_differenceThreshold;
                 }
             }
@@ -150,9 +150,9 @@ namespace iSpyApplication.Vision
         {
             get
             {
-                lock ( _sync )
+                lock (_sync)
                 {
-                    return (float) _pixelsChanged / ( _width * _height );
+                    return (float)_pixelsChanged / (_width * _height);
                 }
             }
         }
@@ -173,7 +173,7 @@ namespace iSpyApplication.Vision
         {
             get
             {
-                lock ( _sync )
+                lock (_sync)
                 {
                     return _motionFrame;
                 }
@@ -196,23 +196,23 @@ namespace iSpyApplication.Vision
         /// 
         public bool SuppressNoise
         {
-            get { return _suppressNoise; }
+            get => _suppressNoise;
             set
             {
-                lock ( _sync )
+                lock (_sync)
                 {
                     _suppressNoise = value;
 
                     // allocate temporary frame if required
-                    if ( ( _suppressNoise ) && ( _tempFrame == null ) && ( _motionFrame != null ) )
+                    if ((_suppressNoise) && (_tempFrame == null) && (_motionFrame != null))
                     {
-                        _tempFrame = UnmanagedImage.Create( _width, _height, PixelFormat.Format8bppIndexed );
+                        _tempFrame = UnmanagedImage.Create(_width, _height, PixelFormat.Format8bppIndexed);
                     }
 
                     // check if temporary frame is not required
-                    if ( ( !_suppressNoise ) && ( _tempFrame != null ) )
+                    if ((!_suppressNoise) && (_tempFrame != null))
                     {
-                        _tempFrame.Dispose( );
+                        _tempFrame.Dispose();
                         _tempFrame = null;
                     }
                 }
@@ -234,10 +234,10 @@ namespace iSpyApplication.Vision
         /// 
         public bool KeepObjectsEdges
         {
-            get { return _keepObjectEdges; }
+            get => _keepObjectEdges;
             set
             {
-                lock ( _sync )
+                lock (_sync)
                 {
                     _keepObjectEdges = value;
                 }
@@ -262,8 +262,8 @@ namespace iSpyApplication.Vision
         /// 
         public int FramesPerBackgroundUpdate
         {
-            get { return _framesPerBackgroundUpdate; }
-            set { _framesPerBackgroundUpdate = Math.Max( 1, Math.Min( 50, value ) ); }
+            get => _framesPerBackgroundUpdate;
+            set => _framesPerBackgroundUpdate = Math.Max(1, Math.Min(50, value));
         }
 
         /// <summary>
@@ -302,14 +302,14 @@ namespace iSpyApplication.Vision
         /// 
         public int MillisecondsPerBackgroundUpdate
         {
-            get { return _millisecondsPerBackgroundUpdate; }
-            set { _millisecondsPerBackgroundUpdate = Math.Max( 0, Math.Min( 5000, value ) ); }
+            get => _millisecondsPerBackgroundUpdate;
+            set => _millisecondsPerBackgroundUpdate = Math.Max(0, Math.Min(5000, value));
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SimpleBackgroundModelingDetector"/> class.
         /// </summary>
-        public SimpleBackgroundModelingDetector( ) { }
+        public SimpleBackgroundModelingDetector() { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SimpleBackgroundModelingDetector"/> class.
@@ -317,10 +317,7 @@ namespace iSpyApplication.Vision
         /// 
         /// <param name="suppressNoise">Suppress noise in video frames or not (see <see cref="SuppressNoise"/> property).</param>
         /// 
-        public SimpleBackgroundModelingDetector( bool suppressNoise )
-        {
-            _suppressNoise = suppressNoise;
-        }
+        public SimpleBackgroundModelingDetector(bool suppressNoise) => _suppressNoise = suppressNoise;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SimpleBackgroundModelingDetector"/> class.
@@ -329,9 +326,9 @@ namespace iSpyApplication.Vision
         /// <param name="suppressNoise">Suppress noise in video frames or not (see <see cref="SuppressNoise"/> property).</param>
         /// <param name="keepObjectEdges">Restore objects edges after noise suppression or not (see <see cref="KeepObjectsEdges"/> property).</param>
         /// 
-        public SimpleBackgroundModelingDetector( bool suppressNoise, bool keepObjectEdges )
+        public SimpleBackgroundModelingDetector(bool suppressNoise, bool keepObjectEdges)
         {
-            _suppressNoise   = suppressNoise;
+            _suppressNoise = suppressNoise;
             _keepObjectEdges = keepObjectEdges;
         }
 
@@ -347,43 +344,43 @@ namespace iSpyApplication.Vision
         /// (changes) in the processed frame.</para>
         /// </remarks>
         ///
-        public unsafe void ProcessFrame( UnmanagedImage videoFrame )
+        public unsafe void ProcessFrame(UnmanagedImage videoFrame)
         {
-            lock ( _sync )
+            lock (_sync)
             {
                 // check background frame
-                if ( _backgroundFrame == null )
+                if (_backgroundFrame == null)
                 {
                     _lastTimeMeasurment = DateTime.Now;
 
                     // save image dimension
-                    _width  = videoFrame.Width;
+                    _width = videoFrame.Width;
                     _height = videoFrame.Height;
 
                     // alocate memory for previous and current frames
-                    _backgroundFrame = UnmanagedImage.Create( _width, _height, PixelFormat.Format8bppIndexed );
-                    _motionFrame = UnmanagedImage.Create( _width, _height, PixelFormat.Format8bppIndexed );
+                    _backgroundFrame = UnmanagedImage.Create(_width, _height, PixelFormat.Format8bppIndexed);
+                    _motionFrame = UnmanagedImage.Create(_width, _height, PixelFormat.Format8bppIndexed);
 
                     _frameSize = _motionFrame.Stride * _height;
 
                     // temporary buffer
-                    if ( _suppressNoise )
+                    if (_suppressNoise)
                     {
-                        _tempFrame = UnmanagedImage.Create( _width, _height, PixelFormat.Format8bppIndexed );
+                        _tempFrame = UnmanagedImage.Create(_width, _height, PixelFormat.Format8bppIndexed);
                     }
 
                     // convert source frame to grayscale
-                    Tools.ConvertToGrayscale( videoFrame, _backgroundFrame );
+                    Tools.ConvertToGrayscale(videoFrame, _backgroundFrame);
 
                     return;
                 }
 
                 // check image dimension
-                if ( ( videoFrame.Width != _width ) || ( videoFrame.Height != _height ) )
+                if ((videoFrame.Width != _width) || (videoFrame.Height != _height))
                     return;
 
                 // convert current image to grayscale
-                Tools.ConvertToGrayscale( videoFrame, _motionFrame );
+                Tools.ConvertToGrayscale(videoFrame, _motionFrame);
 
                 // pointers to background and current frames
                 byte* backFrame;
@@ -391,26 +388,26 @@ namespace iSpyApplication.Vision
                 int diff;
 
                 // update background frame
-                if ( _millisecondsPerBackgroundUpdate == 0 )
+                if (_millisecondsPerBackgroundUpdate == 0)
                 {
                     // update background frame using frame counter as a base
-                    if ( ++_framesCounter == _framesPerBackgroundUpdate )
+                    if (++_framesCounter == _framesPerBackgroundUpdate)
                     {
                         _framesCounter = 0;
 
-                        backFrame = (byte*) _backgroundFrame.ImageData.ToPointer( );
-                        currFrame = (byte*) _motionFrame.ImageData.ToPointer( );
+                        backFrame = (byte*)_backgroundFrame.ImageData.ToPointer();
+                        currFrame = (byte*)_motionFrame.ImageData.ToPointer();
 
-                        for ( int i = 0; i < _frameSize; i++, backFrame++, currFrame++ )
+                        for (int i = 0; i < _frameSize; i++, backFrame++, currFrame++)
                         {
                             diff = *currFrame - *backFrame;
-                            if ( diff > 0 )
+                            if (diff > 0)
                             {
-                                ( *backFrame )++;
+                                (*backFrame)++;
                             }
-                            else if ( diff < 0 )
+                            else if (diff < 0)
                             {
-                                ( *backFrame )--;
+                                (*backFrame)--;
                             }
                         }
                     }
@@ -425,63 +422,63 @@ namespace iSpyApplication.Vision
                     // save current time as the last measurment
                     _lastTimeMeasurment = currentTime;
 
-                    int millisonds = (int) timeDff.TotalMilliseconds + _millisecondsLeftUnprocessed;
+                    int millisonds = (int)timeDff.TotalMilliseconds + _millisecondsLeftUnprocessed;
 
                     // save remainder so it could be taken into account in the future
                     _millisecondsLeftUnprocessed = millisonds % _millisecondsPerBackgroundUpdate;
                     // get amount for background update 
-                    int updateAmount =  ( millisonds / _millisecondsPerBackgroundUpdate );
+                    int updateAmount = (millisonds / _millisecondsPerBackgroundUpdate);
 
-                    backFrame = (byte*) _backgroundFrame.ImageData.ToPointer( );
-                    currFrame = (byte*) _motionFrame.ImageData.ToPointer( );
+                    backFrame = (byte*)_backgroundFrame.ImageData.ToPointer();
+                    currFrame = (byte*)_motionFrame.ImageData.ToPointer();
 
-                    for ( int i = 0; i < _frameSize; i++, backFrame++, currFrame++ )
+                    for (int i = 0; i < _frameSize; i++, backFrame++, currFrame++)
                     {
                         diff = *currFrame - *backFrame;
-                        if ( diff > 0 )
+                        if (diff > 0)
                         {
-                            ( *backFrame ) += (byte) ( (  diff < updateAmount ) ? diff :  updateAmount );
+                            (*backFrame) += (byte)((diff < updateAmount) ? diff : updateAmount);
                         }
-                        else if ( diff < 0 )
+                        else if (diff < 0)
                         {
-                            ( *backFrame ) += (byte) ( ( -diff < updateAmount ) ? diff : -updateAmount );
+                            (*backFrame) += (byte)((-diff < updateAmount) ? diff : -updateAmount);
                         }
                     }
                 }
 
-                backFrame = (byte*) _backgroundFrame.ImageData.ToPointer( );
-                currFrame = (byte*) _motionFrame.ImageData.ToPointer( );
+                backFrame = (byte*)_backgroundFrame.ImageData.ToPointer();
+                currFrame = (byte*)_motionFrame.ImageData.ToPointer();
 
                 // 1 - get difference between frames
                 // 2 - threshold the difference
-                for ( int i = 0; i < _frameSize; i++, backFrame++, currFrame++ )
+                for (int i = 0; i < _frameSize; i++, backFrame++, currFrame++)
                 {
                     // difference
-                    diff =  *currFrame - *backFrame;
+                    diff = *currFrame - *backFrame;
                     // treshold
-                    *currFrame = ( ( diff >= _differenceThreshold ) || ( diff <= _differenceThresholdNeg ) ) ? (byte) 255 : (byte) 0;
+                    *currFrame = ((diff >= _differenceThreshold) || (diff <= _differenceThresholdNeg)) ? (byte)255 : (byte)0;
                 }
 
-                if ( _suppressNoise )
+                if (_suppressNoise)
                 {
                     // suppress noise and calculate motion amount
-                    AForge.SystemTools.CopyUnmanagedMemory( _tempFrame.ImageData, _motionFrame.ImageData, _frameSize );
-                    _erosionFilter.Apply( _tempFrame, _motionFrame );
+                    AForge.SystemTools.CopyUnmanagedMemory(_tempFrame.ImageData, _motionFrame.ImageData, _frameSize);
+                    _erosionFilter.Apply(_tempFrame, _motionFrame);
 
-                    if ( _keepObjectEdges )
+                    if (_keepObjectEdges)
                     {
-                        AForge.SystemTools.CopyUnmanagedMemory( _tempFrame.ImageData, _motionFrame.ImageData, _frameSize );
-                        _dilatationFilter.Apply( _tempFrame, _motionFrame );
+                        AForge.SystemTools.CopyUnmanagedMemory(_tempFrame.ImageData, _motionFrame.ImageData, _frameSize);
+                        _dilatationFilter.Apply(_tempFrame, _motionFrame);
                     }
                 }
 
                 // calculate amount of motion pixels
                 _pixelsChanged = 0;
-                byte* motion = (byte*) _motionFrame.ImageData.ToPointer( );
+                byte* motion = (byte*)_motionFrame.ImageData.ToPointer();
 
-                for ( int i = 0; i < _frameSize; i++, motion++ )
+                for (int i = 0; i < _frameSize; i++, motion++)
                 {
-                    _pixelsChanged += ( *motion & 1 );
+                    _pixelsChanged += (*motion & 1);
                 }
             }
         }
@@ -495,25 +492,25 @@ namespace iSpyApplication.Vision
         /// may be also done at any time to restart motion detection algorithm.</para>
         /// </remarks>
         /// 
-        public void Reset( )
+        public void Reset()
         {
-            lock ( _sync )
+            lock (_sync)
             {
-                if ( _backgroundFrame != null )
+                if (_backgroundFrame != null)
                 {
-                    _backgroundFrame.Dispose( );
+                    _backgroundFrame.Dispose();
                     _backgroundFrame = null;
                 }
 
-                if ( _motionFrame != null )
+                if (_motionFrame != null)
                 {
-                    _motionFrame.Dispose( );
+                    _motionFrame.Dispose();
                     _motionFrame = null;
                 }
 
-                if ( _tempFrame != null )
+                if (_tempFrame != null)
                 {
-                    _tempFrame.Dispose( );
+                    _tempFrame.Dispose();
                     _tempFrame = null;
                 }
 

@@ -39,19 +39,13 @@ namespace iSpyApplication
             _currentBufferPosition = 0;
         }
 
-        public override void Flush()
-        {
-            _inner.Flush();
-        }
+        public override void Flush() => _inner.Flush();
 
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            return 0L;
-        }
+        public override long Seek(long offset, SeekOrigin origin) => 0L;
 
         public override void SetLength(long value)
         {
-            
+
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -108,10 +102,7 @@ namespace iSpyApplication
             return ncount;
         }
 
-        public override void Write(byte[] buffer, int offset, int count)
-        {
-            _inner.Write(buffer,offset,count);
-        }
+        public override void Write(byte[] buffer, int offset, int count) => _inner.Write(buffer, offset, count);
 
         public override bool CanRead => true;
 
@@ -120,7 +111,7 @@ namespace iSpyApplication
         public override bool CanWrite => true;
 
         public override long Length => 0L;
-        
+
         public override long Position { get; set; }
     }
 }

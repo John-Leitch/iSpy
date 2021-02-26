@@ -3,7 +3,7 @@ using System.Net;
 
 namespace iSpyApplication.Onvif
 {
-    class ConnectionParameters : IConnectionParameters
+    internal class ConnectionParameters : IConnectionParameters
     {
         public Uri ConnectionUri { get; }
         public NetworkCredential Credentials { get; }

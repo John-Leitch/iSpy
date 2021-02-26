@@ -12,11 +12,9 @@ namespace iSpyApplication
         {
             Rectangle xrect = (Rectangle)x;
             Rectangle yrect = (Rectangle)y;
-            if (xrect.Height < yrect.Height) return 1;
-            if (xrect.Height > yrect.Height) return -1;
-            if (xrect.Width < yrect.Width) return 1;
-            if (xrect.Width > yrect.Width) return -1;
-            return 0;
+            return xrect.Height < yrect.Height
+                ? 1
+                : xrect.Height > yrect.Height ? -1 : xrect.Width < yrect.Width ? 1 : xrect.Width > yrect.Width ? -1 : 0;
         }
     }
 
@@ -29,11 +27,9 @@ namespace iSpyApplication
         {
             Rectangle xrect = (Rectangle)x;
             Rectangle yrect = (Rectangle)y;
-            if (xrect.Width < yrect.Width) return 1;
-            if (xrect.Width > yrect.Width) return -1;
-            if (xrect.Height < yrect.Height) return 1;
-            if (xrect.Height > yrect.Height) return -1;
-            return 0;
+            return xrect.Width < yrect.Width
+                ? 1
+                : xrect.Width > yrect.Width ? -1 : xrect.Height < yrect.Height ? 1 : xrect.Height > yrect.Height ? -1 : 0;
         }
     }
 
@@ -48,13 +44,13 @@ namespace iSpyApplication
             Rectangle yrect = (Rectangle)y;
             int xarea = xrect.Width * xrect.Height;
             int yarea = yrect.Width * yrect.Height;
-            if (xarea < yarea) return 1;
-            if (xarea > yarea) return -1;
-            if (xrect.Height < yrect.Height) return 1;
-            if (xrect.Height > yrect.Height) return -1;
-            if (xrect.Width < yrect.Width) return 1;
-            if (xrect.Width > yrect.Width) return -1;
-            return 0;
+            return xarea < yarea
+                ? 1
+                : xarea > yarea
+                ? -1
+                : xrect.Height < yrect.Height
+                ? 1
+                : xrect.Height > yrect.Height ? -1 : xrect.Width < yrect.Width ? 1 : xrect.Width > yrect.Width ? -1 : 0;
         }
     }
 
@@ -73,13 +69,13 @@ namespace iSpyApplication
             if (xsq > ysq) return 1;
             int xarea = xrect.Width * xrect.Height;
             int yarea = yrect.Width * yrect.Height;
-            if (xarea < yarea) return 1;
-            if (xarea > yarea) return -1;
-            if (xrect.Height < yrect.Height) return 1;
-            if (xrect.Height > yrect.Height) return -1;
-            if (xrect.Width < yrect.Width) return 1;
-            if (xrect.Width > yrect.Width) return -1;
-            return 0;
+            return xarea < yarea
+                ? 1
+                : xarea > yarea
+                ? -1
+                : xrect.Height < yrect.Height
+                ? 1
+                : xrect.Height > yrect.Height ? -1 : xrect.Width < yrect.Width ? 1 : xrect.Width > yrect.Width ? -1 : 0;
         }
     }
 }

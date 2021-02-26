@@ -4,12 +4,6 @@ namespace iSpyApplication.Onvif
 {
     public static class NetworkCredentialExtensions
     {
-        public static bool IsEmpty(this NetworkCredential networkCredential)
-        {
-            if (string.IsNullOrEmpty(networkCredential.UserName) || networkCredential.Password == null)
-                return true;
-
-            return false;
-        }
+        public static bool IsEmpty(this NetworkCredential networkCredential) => string.IsNullOrEmpty(networkCredential.UserName) || networkCredential.Password == null;
     }
 }

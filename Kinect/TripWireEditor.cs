@@ -1,11 +1,10 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
-using iSpyApplication.Controls;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.Kinect
 {
@@ -38,10 +37,7 @@ namespace iSpyApplication.Kinect
             {
                 lock (SyncRoot)
                 {
-                    if (BmpBack != null)
-                    {
-                        BmpBack.Dispose();
-                    }
+                    BmpBack?.Dispose();
                     BmpBack = value;
                 }
                 Invalidate();
@@ -89,10 +85,7 @@ namespace iSpyApplication.Kinect
             }
         }
 
-        public void ClearTripWires()
-        {
-            TripWires = new List<DepthLine>();
-        }
+        public static void ClearTripWires() => TripWires = new List<DepthLine>();
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
@@ -186,7 +179,7 @@ namespace iSpyApplication.Kinect
 
         }
 
-        
+
         private DepthLine _moveLine;
         private bool _moveLineStart;
         private Point _hoverPoint = Point.Empty;
@@ -218,7 +211,7 @@ namespace iSpyApplication.Kinect
             else
             {
                 Cursor = Cursors.Arrow;
-               
+
                 _hoverDepthLine =
                     TripWires.FirstOrDefault(
                         d =>
@@ -288,8 +281,8 @@ namespace iSpyApplication.Kinect
                             var p1 = new Point(_pointStart.X, _pointStart.Y);
                             var p2 = new Point(_pointEnd.X, _pointEnd.Y);
 
-                                    g.DrawLine(LivePen, p1, p2);
-                            
+                            g.DrawLine(LivePen, p1, p2);
+
                             if (TripWires.Count > 0)
                             {
                                 for (int i = 0; i < TripWires.Count; i++)
@@ -315,7 +308,7 @@ namespace iSpyApplication.Kinect
                                     g.FillEllipse(HoverBrush, rh);
                                 }
                             }
-                            
+
                         }
                     }
 

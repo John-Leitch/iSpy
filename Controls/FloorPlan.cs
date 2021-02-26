@@ -1,3 +1,5 @@
+using AForge.Imaging.Filters;
+using iSpyApplication.Utilities;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -5,8 +7,6 @@ using System.Drawing.Text;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using AForge.Imaging.Filters;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.Controls
 {
@@ -76,12 +76,8 @@ namespace iSpyApplication.Controls
         }
         public Bitmap ImgPlan
         {
-            
-            get
-            {
-                return _imgplan;
 
-            }
+            get => _imgplan;
             set
             {
                 lock (_lockobject)
@@ -89,7 +85,7 @@ namespace iSpyApplication.Controls
                     _imgview?.Dispose();
                     _imgplan?.Dispose();
                     _imgplan = value;
-                    if (_imgplan!=null)
+                    if (_imgplan != null)
                         _imgview = (Bitmap)_imgplan.Clone();
                 }
             }
@@ -102,8 +98,8 @@ namespace iSpyApplication.Controls
 
         public int Order
         {
-            get { return Fpobject.order; }
-            set { Fpobject.order = value; }
+            get => Fpobject.order;
+            set => Fpobject.order = value;
         }
 
         public Bitmap ImgView => _imgview;
@@ -168,7 +164,7 @@ namespace iSpyApplication.Controls
             _drawBrush.Dispose();
             _sbTs.Dispose();
             _drawFont.Dispose();
-            
+
             base.Dispose(disposing);
         }
 
@@ -191,41 +187,38 @@ namespace iSpyApplication.Controls
             base.OnMouseDown(e);
             Select();
             IntPtr hwnd = Handle;
-            if ((ResizeParent) && (Parent != null) && (Parent.IsHandleCreated))
+            if ((ResizeParent) && (Parent?.IsHandleCreated == true))
             {
                 hwnd = Parent.Handle;
             }
-            
+
             if (e.Button == MouseButtons.Left)
             {
                 MousePos mousePos = GetMousePos(e.Location);
-                if (mousePos== MousePos.NoWhere)
+                if (mousePos == MousePos.NoWhere && MainForm.Conf.ShowOverlayControls)
                 {
-                    if (MainForm.Conf.ShowOverlayControls)
+                    int bpi = GetButtonIndexByLocation(e.Location);
+                    switch (bpi)
                     {
-                        int bpi = GetButtonIndexByLocation(e.Location);
-                        switch (bpi)
-                        {
-                            case -999:
-                                var layoutPanel = (LayoutPanel)Parent;
-                                layoutPanel?.ISpyControlDown(new Point(this.Left + e.X, this.Top + e.Y));
-                                break;
-                            case 0:
-                               MainClass.EditFloorplan(Fpobject);
-                                break;
-                            case 1:
-                                if (Helper.HasFeature(Enums.Features.Access_Media))
+                        case -999:
+                            var layoutPanel = (LayoutPanel)Parent;
+                            layoutPanel?.ISpyControlDown(new Point(this.Left + e.X, this.Top + e.Y));
+                            break;
+                        case 0:
+                            MainClass.EditFloorplan(Fpobject);
+                            break;
+                        case 1:
+                            if (Helper.HasFeature(Enums.Features.Access_Media))
+                            {
+                                string url = MainForm.Webpage;
+                                if (WsWrapper.WebsiteLive && MainForm.Conf.ServicesEnabled)
                                 {
-                                    string url = MainForm.Webpage;
-                                    if (WsWrapper.WebsiteLive && MainForm.Conf.ServicesEnabled)
-                                    {
-                                        MainForm.OpenUrl(url);
-                                    }
-                                    else
-                                        MainClass.Connect(url, false);
+                                    MainForm.OpenUrl(url);
                                 }
-                                break;
-                        }
+                                else
+                                    MainClass.Connect(url, false);
+                            }
+                            break;
                     }
                 }
                 if (MainForm.LockLayout) return;
@@ -284,7 +277,7 @@ namespace iSpyApplication.Controls
                             switch (bpi)
                             {
                                 case 0:
-                                    _toolTipFp.Show(LocRm.GetString("Edit"), this,toolTipLocation, 1000);
+                                    _toolTipFp.Show(LocRm.GetString("Edit"), this, toolTipLocation, 1000);
                                     _ttind = 0;
                                     break;
                                 case 1:
@@ -306,10 +299,10 @@ namespace iSpyApplication.Controls
         {
             if ((ModifierKeys & Keys.Shift) == Keys.Shift)
             {
-                double ar = Convert.ToDouble(MinimumSize.Width)/Convert.ToDouble(MinimumSize.Height);
+                double ar = Convert.ToDouble(MinimumSize.Width) / Convert.ToDouble(MinimumSize.Height);
                 if (ImgPlan != null)
-                    ar = Convert.ToDouble(ImgPlan.Width)/Convert.ToDouble(ImgPlan.Height);
-                Width = Convert.ToInt32(ar*Height);
+                    ar = Convert.ToDouble(ImgPlan.Width) / Convert.ToDouble(ImgPlan.Height);
+                Width = Convert.ToInt32(ar * Height);
             }
 
             base.OnResize(eventargs);
@@ -348,7 +341,7 @@ namespace iSpyApplication.Controls
 
         #endregion
 
-        
+
         #endregion
 
         public string Folder { get; set; }
@@ -373,10 +366,10 @@ namespace iSpyApplication.Controls
         private void FloorPlanControlClick(object sender, MouseEventArgs e)
         {
             var local = new Point(e.X, e.Y);
-            double xRat = Convert.ToDouble(Width)/ImageWidth;
-            double yRat = Convert.ToDouble(Height)/ImageHeight;
-            double hittargetw = 22*xRat;
-            double hittargeth = 22*yRat;
+            double xRat = Convert.ToDouble(Width) / ImageWidth;
+            double yRat = Convert.ToDouble(Height) / ImageHeight;
+            double hittargetw = 22 * xRat;
+            double hittargeth = 22 * yRat;
 
             double wrat = Convert.ToDouble(ImageWidth) / 533d;
             double hrat = Convert.ToDouble(ImageHeight) / 400d;
@@ -388,8 +381,8 @@ namespace iSpyApplication.Controls
             {
                 foreach (objectsFloorplanObjectsEntry fpoe in Fpobject.objects.@object)
                 {
-                    if (((fpoe.x*wrat) - hittargetw)*xRat <= local.X && ((fpoe.x*wrat) + hittargetw)*xRat > local.X &&
-                        ((fpoe.y*hrat) - hittargeth)*yRat <= local.Y && ((fpoe.y*hrat) + hittargeth)*yRat > local.Y)
+                    if (((fpoe.x * wrat) - hittargetw) * xRat <= local.X && ((fpoe.x * wrat) + hittargetw) * xRat > local.X &&
+                        ((fpoe.y * hrat) - hittargeth) * yRat <= local.Y && ((fpoe.y * hrat) + hittargeth) * yRat > local.Y)
                     {
                         switch (fpoe.type)
                         {
@@ -417,7 +410,7 @@ namespace iSpyApplication.Controls
                                 break;
                         }
                         break;
-                    }                   
+                    }
                 }
             }
 
@@ -436,12 +429,12 @@ namespace iSpyApplication.Controls
                     {
                         case "camera":
                             CameraWindow cw = MainClass.GetCameraWindow(fpoe.id);
-                            if (cw!=null)
+                            if (cw != null)
                                 cw.Highlighted = true;
                             break;
                         case "microphone":
                             VolumeLevel vl = MainClass.GetVolumeLevel(fpoe.id);
-                            if (vl!=null)
+                            if (vl != null)
                                 vl.Highlighted = true;
 
                             break;
@@ -477,20 +470,7 @@ namespace iSpyApplication.Controls
             //no files
         }
 
-        public Color BorderColor
-        {
-            get
-            {
-                if (Highlighted)
-                    return MainForm.FloorPlanHighlightColor;
-
-                if (Focused)
-                    return MainForm.BorderHighlightColor;
-
-                return MainForm.BorderDefaultColor;
-
-            }
-        }
+        public Color BorderColor => Highlighted ? MainForm.FloorPlanHighlightColor : Focused ? MainForm.BorderHighlightColor : MainForm.BorderDefaultColor;
 
         public int BorderWidth => Highlighted ? 2 : 1;
 
@@ -498,16 +478,16 @@ namespace iSpyApplication.Controls
         {
             Graphics gPlan = pe.Graphics;
             Rectangle rc = ClientRectangle;
-           
+
             int textpos = rc.Height - 20;
 
-           
-            
-            
-            
+
+
+
+
             try
             {
-                
+
 
 
                 if (_imgview != null)
@@ -545,7 +525,7 @@ namespace iSpyApplication.Controls
                                             new Point(rc.Width, rc.Height)
                                         };
                     gPlan.FillPolygon(grabBrush, borderPoints);
-                    
+
                 }
             }
 
@@ -596,8 +576,7 @@ namespace iSpyApplication.Controls
 
         private void DrawButton(Graphics gCam, int buttonIndex)
         {
-            Rectangle rDest;
-            Rectangle rSrc = GetButtonByIndex(buttonIndex, out rDest);
+            Rectangle rSrc = GetButtonByIndex(buttonIndex, out Rectangle rDest);
 
             gCam.DrawImage(MainForm.Conf.BigButtons ? Properties.Resources.icons_big : Properties.Resources.icons, rDest, rSrc, GraphicsUnit.Pixel);
         }
@@ -611,25 +590,9 @@ namespace iSpyApplication.Controls
         }
 
 
-        public int ImageWidth
-        {
-            get
-            {
-                if (_imgview != null)
-                    return _imgview.Width;
-                return 533;
-            }
-        }
+        public int ImageWidth => _imgview != null ? _imgview.Width : 533;
 
-        public int ImageHeight
-        {
-            get
-            {
-                if (_imgview != null)
-                    return _imgview.Height;
-                return 400;
-            }
-        }
+        public int ImageHeight => _imgview != null ? _imgview.Height : 400;
 
         public void Tick()
         {
@@ -645,7 +608,7 @@ namespace iSpyApplication.Controls
                 {
                     if (RefreshImage || (_imgplan == null && !string.IsNullOrEmpty(Fpobject.image)))
                     {
-                        if (_imgplan!=null)
+                        if (_imgplan != null)
                         {
                             try
                             {
@@ -669,10 +632,10 @@ namespace iSpyApplication.Controls
                             }
                             _imgview = null;
                         }
-                        Bitmap img=null;
+                        Bitmap img = null;
                         try
                         {
-                            img = (Bitmap) Image.FromFile(Fpobject.image);
+                            img = (Bitmap)Image.FromFile(Fpobject.image);
                         }
                         catch
                         {
@@ -684,12 +647,12 @@ namespace iSpyApplication.Controls
                             {
                                 var rf = new ResizeBilinear(533, 400);
                                 _imgplan = rf.Apply(img);
-                                _imgview = (Bitmap) _imgplan.Clone();
+                                _imgview = (Bitmap)_imgplan.Clone();
                             }
                             else
                             {
                                 _imgplan = img;
-                                _imgview = (Bitmap) _imgplan.Clone();
+                                _imgview = (Bitmap)_imgplan.Clone();
                             }
                         }
                         RefreshImage = false;
@@ -697,11 +660,11 @@ namespace iSpyApplication.Controls
                     if (_imgplan == null)
                         return;
 
-                    
-                    
+
+
 
                     Graphics gLf = Graphics.FromImage(_imgview);
-                    gLf.DrawImage(_imgplan, 0, 0,_imgplan.Width,_imgplan.Height);
+                    gLf.DrawImage(_imgplan, 0, 0, _imgplan.Width, _imgplan.Height);
 
                     bool itemRemoved = false;
                     double wrat = Convert.ToDouble(ImageWidth) / 533d;
@@ -712,8 +675,8 @@ namespace iSpyApplication.Controls
                         var p = new Point(fpoe.x, fpoe.y);
                         if (Fpobject.originalsize)
                         {
-                            p.X = Convert.ToInt32(p.X*wrat);
-                            p.Y = Convert.ToInt32(p.Y*hrat);
+                            p.X = Convert.ToInt32(p.X * wrat);
+                            p.Y = Convert.ToInt32(p.Y * hrat);
                         }
                         if (fpoe.fov == 0)
                             fpoe.fov = 135;
@@ -799,7 +762,7 @@ namespace iSpyApplication.Controls
 
                     if (itemRemoved)
                         Fpobject.objects.@object = Fpobject.objects.@object.Where(fpoe => fpoe.id > -2).ToArray();
-                    
+
 
                     gLf.Dispose();
                 }
@@ -820,10 +783,7 @@ namespace iSpyApplication.Controls
         {
             public string Command;
             // Constructor
-            public ThreadSafeCommand(string command)
-            {
-                Command = command;
-            }
+            public ThreadSafeCommand(string command) => Command = command;
         }
 
         #endregion
@@ -856,11 +816,9 @@ namespace iSpyApplication.Controls
             //throw new NotImplementedException();
         }
 
-        public string RecordSwitch(bool record)
-        {
+        public string RecordSwitch(bool record) =>
             //throw new NotImplementedException();
-            return "";
-        }
+            "";
 
         public void Talk(IWin32Window f = null)
         {
@@ -872,10 +830,8 @@ namespace iSpyApplication.Controls
             //throw new NotImplementedException();
         }
 
-        public string SaveFrame(Bitmap bmp = null)
-        {
+        public string SaveFrame(Bitmap bmp = null) =>
             //throw new NotImplementedException();
-            return "";
-        }
+            "";
     }
 }

@@ -1,3 +1,19 @@
+using Antiufo.Controls;
+using FFmpeg.AutoGen;
+using iSpyApplication.Cloud;
+using iSpyApplication.Controls;
+using iSpyApplication.Joystick;
+using iSpyApplication.Onvif;
+using iSpyApplication.Properties;
+using iSpyApplication.Server;
+using iSpyApplication.Sources;
+using iSpyApplication.Sources.Audio;
+using iSpyApplication.Sources.Audio.talk;
+using iSpyApplication.Utilities;
+using Microsoft.Win32;
+using NATUPNPLib;
+using NAudio.Wave;
+using NETWORKLIST;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,23 +32,6 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Timers;
 using System.Windows.Forms;
-using Antiufo.Controls;
-using FFmpeg.AutoGen;
-using iSpyApplication.Cloud;
-using iSpyApplication.Controls;
-using iSpyApplication.Joystick;
-using iSpyApplication.Onvif;
-using iSpyApplication.Properties;
-using iSpyApplication.Server;
-using iSpyApplication.Sources;
-using iSpyApplication.Sources.Audio;
-using iSpyApplication.Sources.Audio.talk;
-using iSpyApplication.Utilities;
-using Microsoft.Win32;
-using NATUPNPLib;
-using NAudio.Wave;
-using NETWORKLIST;
-using SharpDX.DirectInput;
 using PictureBox = iSpyApplication.Controls.PictureBox;
 using Timer = System.Timers.Timer;
 
@@ -75,7 +74,7 @@ namespace iSpyApplication
         public static Pen CameraNav = new Pen(Color.White, 1);
         public static Brush RecordBrush = new SolidBrush(Color.Red);
         public static Brush OverlayBackgroundBrush = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
-        
+
         public static string Identifier;
         public static DataTable IPTABLE;
         public static bool IPLISTED = true;
@@ -90,7 +89,7 @@ namespace iSpyApplication
         public static string IPTYPE = "";
         public static int Affiliateid = 0;
         public static string EmailAddress = "", MobileNumber = "";
-        public static string Group="";
+        public static string Group = "";
         public static float CpuUsage, CpuTotal;
         public static bool HighCPU;
         public static int RecordingThreads;
@@ -114,20 +113,20 @@ namespace iSpyApplication
         public static Rectangle RHold = new Rectangle(255, 2, 16, 16);
         public static Rectangle RHoldOn = new Rectangle(284, 42, 16, 16);
         public static Rectangle RHoldOff = new Rectangle(284, 82, 16, 16);
-        public static Rectangle RRecord = new Rectangle(188,2,16,16);
+        public static Rectangle RRecord = new Rectangle(188, 2, 16, 16);
         public static Rectangle RRecordOn = new Rectangle(188, 42, 16, 16);
         public static Rectangle RRecordOff = new Rectangle(188, 82, 16, 16);
         public static Rectangle RNext = new Rectangle(65, 3, 16, 16);
         public static Rectangle RNextOff = new Rectangle(65, 82, 16, 16);
-        public static Rectangle RGrab = new Rectangle(157,2,16,16);
+        public static Rectangle RGrab = new Rectangle(157, 2, 16, 16);
         public static Rectangle RGrabOff = new Rectangle(157, 82, 16, 16);
-        public static Rectangle RTalk = new Rectangle(313, 2, 16,16);
+        public static Rectangle RTalk = new Rectangle(313, 2, 16, 16);
         public static Rectangle RTalkOn = new Rectangle(313, 42, 16, 16);
         public static Rectangle RTalkOff = new Rectangle(313, 82, 16, 16);
-        public static Rectangle RFiles = new Rectangle(223,3,16,16);
+        public static Rectangle RFiles = new Rectangle(223, 3, 16, 16);
         public static Rectangle RFilesOff = new Rectangle(223, 83, 16, 16);
-        public static Rectangle RListen = new Rectangle(347,2,16,16);
-        public static Rectangle RListenOn = new Rectangle(380,43,16,16);
+        public static Rectangle RListen = new Rectangle(347, 2, 16, 16);
+        public static Rectangle RListenOn = new Rectangle(380, 43, 16, 16);
         public static Rectangle RListenOff = new Rectangle(347, 83, 16, 16);
         public static Rectangle RWeb = new Rectangle(411, 3, 16, 16);
         public static Rectangle RWebOff = new Rectangle(411, 83, 16, 16);
@@ -163,8 +162,8 @@ namespace iSpyApplication
                 }
                 return _tags;
             }
-            set { _tags = value; }
-        } 
+            set => _tags = value;
+        }
         public ISpyControl LastFocussedControl = null;
 
         internal static LocalServer MWS;
@@ -172,22 +171,22 @@ namespace iSpyApplication
         public static string PurchaseLink = "http://www.ispyconnect.com/astore.aspx";
         private static int _storageCounter;
         private static Timer _rescanIPTimer, _tmrJoystick;
-        
+
         private static string _counters = "";
         private static readonly Random Random = new Random();
         private static ViewController _vc;
         private static int _pingCounter;
         private static ImageCodecInfo _encoder;
         private static bool _needsDelete = false;
-        
 
-        
 
-        
-        
+
+
+
+
         private static string _browser = string.Empty;
 
-        
+
         private MenuItem menuItem37;
         private ToolStripMenuItem tagsToolStripMenuItem;
         private MenuItem menuItem38;
@@ -195,37 +194,32 @@ namespace iSpyApplication
         private MenuItem menuItem40;
         private MenuItem menuItem34;
         private ToolStripMenuItem openWebInterfaceToolStripMenuItem;
-        
+
 
         public static void AddObject(object o)
         {
-            var c = o as objectsCamera;
-            if (c != null)
+            if (o is objectsCamera c)
             {
                 c.settings.order = MaxOrderIndex;
                 _cameras.Add(c);
                 MaxOrderIndex++;
             }
-            var m = o as objectsMicrophone;
-            if (m != null)
+            if (o is objectsMicrophone m)
             {
                 m.settings.order = MaxOrderIndex;
                 _microphones.Add(m);
                 MaxOrderIndex++;
             }
-            var f = o as objectsFloorplan;
-            if (f != null)
+            if (o is objectsFloorplan f)
             {
                 f.order = MaxOrderIndex;
                 _floorplans.Add(f);
                 MaxOrderIndex++;
 
             }
-            var a = o as objectsActionsEntry;
-            if (a != null)
+            if (o is objectsActionsEntry a)
                 _actions.Add(a);
-            var oc = o as objectsCommand;
-            if(oc!=null)
+            if (o is objectsCommand oc)
                 _remotecommands.Add(oc);
             LayoutPanel.NeedsRedraw = true;
         }
@@ -233,16 +227,16 @@ namespace iSpyApplication
         private static List<PTZSettings2Camera> _ptzs;
         private static List<ManufacturersManufacturer> _sources;
         private static IPAddress[] _ipv4Addresses, _ipv6Addresses;
-        
+
         private readonly List<float> _cpuAverages = new List<float>();
         private readonly int _mCookie = -1;
         private readonly IConnectionPoint _mIcp;
         private static readonly object ThreadLock = new object();
 
         private readonly FolderSelectDialog _fbdSaveTo = new FolderSelectDialog
-                                                        {
-                                                            Title = "Select a folder to copy the file to"
-                                                        };
+        {
+            Title = "Select a folder to copy the file to"
+        };
 
 
         public object ContextTarget;
@@ -250,7 +244,7 @@ namespace iSpyApplication
         internal PlayerVLC _player;
         public McRemoteControlManager.RemoteControlDevice RemoteManager;
         public bool SilentStartup;
-        
+
         internal CameraWindow TalkCamera;
 
         private MenuItem _aboutHelpItem;
@@ -492,7 +486,7 @@ namespace iSpyApplication
                 switch (Conf.StartupMode)
                 {
                     case 0:
-                        _mWindowState = new PersistWindowState {Parent = this, RegistryPath = @"Software\ispy\startup"};
+                        _mWindowState = new PersistWindowState { Parent = this, RegistryPath = @"Software\ispy\startup" };
                         break;
                     case 2:
                         WindowState = FormWindowState.Maximized;
@@ -506,10 +500,9 @@ namespace iSpyApplication
 
             InitializeComponent();
 
-            if (!SilentStartup)
+            if (!SilentStartup && Conf.StartupMode == 0)
             {
-                if (Conf.StartupMode == 0)
-                    _mWindowState = new PersistWindowState {Parent = this, RegistryPath = @"Software\ispy\startup"};
+                _mWindowState = new PersistWindowState { Parent = this, RegistryPath = @"Software\ispy\startup" };
             }
 
 
@@ -532,7 +525,7 @@ namespace iSpyApplication
 
             _jst = new JoystickDevice();
             bool jsactive = false;
-            string[] sticks = _jst.FindJoysticks();
+            string[] sticks = JoystickDevice.FindJoysticks();
             foreach (string js in sticks)
             {
                 string[] nameid = js.Split('|');
@@ -557,14 +550,11 @@ namespace iSpyApplication
             try
             {
                 INetworkListManager mNlm = new NetworkListManager();
-                var icpc = (IConnectionPointContainer) mNlm;
+                var icpc = (IConnectionPointContainer)mNlm;
                 //similar event subscription can be used for INetworkEvents and INetworkConnectionEvents
-                Guid tempGuid = typeof (INetworkListManagerEvents).GUID;
+                Guid tempGuid = typeof(INetworkListManagerEvents).GUID;
                 icpc.FindConnectionPoint(ref tempGuid, out _mIcp);
-                if (_mIcp != null)
-                {
-                    _mIcp.Advise(this, out _mCookie);
-                }
+                _mIcp?.Advise(this, out _mCookie);
             }
             catch (Exception)
             {
@@ -584,7 +574,7 @@ namespace iSpyApplication
 
         public static DateTime NeedsMediaRefresh
         {
-            get { return _needsMediaRefresh; }
+            get => _needsMediaRefresh;
             set
             {
                 //only store first recorded or reset value
@@ -609,7 +599,7 @@ namespace iSpyApplication
                 {
                     try
                     {
-                        return _storageThread != null && !_storageThread.Join(TimeSpan.Zero);
+                        return _storageThread?.Join(TimeSpan.Zero) == false;
                     }
                     catch
                     {
@@ -651,18 +641,15 @@ namespace iSpyApplication
 
         public void ConnectivityChanged(NLM_CONNECTIVITY newConnectivity)
         {
-            var i = (int) newConnectivity;
-            if (!WsWrapper.WebsiteLive)
+            var i = (int)newConnectivity;
+            if (!WsWrapper.WebsiteLive && newConnectivity != NLM_CONNECTIVITY.NLM_CONNECTIVITY_DISCONNECTED)
             {
-                if (newConnectivity != NLM_CONNECTIVITY.NLM_CONNECTIVITY_DISCONNECTED)
+                if ((i & (int)NLM_CONNECTIVITY.NLM_CONNECTIVITY_IPV4_INTERNET) != 0 ||
+                    ((int)newConnectivity & (int)NLM_CONNECTIVITY.NLM_CONNECTIVITY_IPV6_INTERNET) != 0)
                 {
-                    if ((i & (int) NLM_CONNECTIVITY.NLM_CONNECTIVITY_IPV4_INTERNET) != 0 ||
-                        ((int) newConnectivity & (int) NLM_CONNECTIVITY.NLM_CONNECTIVITY_IPV6_INTERNET) != 0)
+                    if (!WsWrapper.WebsiteLive)
                     {
-                        if (!WsWrapper.WebsiteLive)
-                        {
-                            WsWrapper.LastLiveCheck = Helper.Now.AddMinutes(-5);
-                        }
+                        WsWrapper.LastLiveCheck = Helper.Now.AddMinutes(-5);
                     }
                 }
             }
@@ -675,8 +662,7 @@ namespace iSpyApplication
                 Masterfilelist.Add(fp);
             }
             var wss = MWS.WebSocketServer;
-            if (wss != null)
-                wss.SendToAll("new events|" + fp.Name);
+            wss?.SendToAll("new events|" + fp.Name);
         }
 
         public static void MasterFileRemoveAll(int objecttypeid, int objectid)
@@ -716,10 +702,7 @@ namespace iSpyApplication
         }
 
 
-        private void RemoteManagerButtonPressed(object sender, McRemoteControlManager.RemoteControlEventArgs e)
-        {
-            ProcessKey(e.Button.ToString().ToLower());
-        }
+        private void RemoteManagerButtonPressed(object sender, McRemoteControlManager.RemoteControlEventArgs e) => ProcessKey(e.Button.ToString().ToLower());
 
         public static void SetPriority()
         {
@@ -779,29 +762,20 @@ namespace iSpyApplication
             form.Dispose();
         }
 
-        private void VolumeControlDoubleClick(object sender, EventArgs e)
-        {
-            _pnlCameras.Maximise(sender);
-        }
+        private void VolumeControlDoubleClick(object sender, EventArgs e) => _pnlCameras.Maximise(sender);
 
-        private void FloorPlanDoubleClick(object sender, EventArgs e)
-        {
-            _pnlCameras.Maximise(sender);
-        }
+        private void FloorPlanDoubleClick(object sender, EventArgs e) => _pnlCameras.Maximise(sender);
 
         private static Enums.LayoutMode _layoutMode;
         public static Enums.LayoutMode LayoutMode
         {
-            get
-            {
-                return _layoutMode;
-            }
+            get => _layoutMode;
             set
             {
                 _layoutMode = value;
-                
+
                 Conf.ArrangeMode = (_layoutMode == Enums.LayoutMode.AutoGrid ? 1 : 0);
-                
+
             }
         }
 
@@ -838,7 +812,7 @@ namespace iSpyApplication
         {
             if (InvokeRequired)
             {
-                Invoke(new Action(() => Play(filename,objectId,displayName)));
+                Invoke(new Action(() => Play(filename, objectId, displayName)));
                 return;
             }
             if (_player == null)
@@ -849,10 +823,10 @@ namespace iSpyApplication
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogException(ex,"Play with VLC");
-                    Conf.PlaybackMode = (int) Enums.PlaybackMode.Default;
+                    Logger.LogException(ex, "Play with VLC");
+                    Conf.PlaybackMode = (int)Enums.PlaybackMode.Default;
                     MessageBox.Show(
-                        "Could not start VLC. Check you have the right version ("+VlcHelper.MinVersion+"+) installed. Using default player instead");
+                        "Could not start VLC. Check you have the right version (" + VlcHelper.MinVersion + "+) installed. Using default player instead");
                     return;
                 }
 
@@ -868,18 +842,13 @@ namespace iSpyApplication
 
         }
 
-        private void PlayerClosed(object sender, EventArgs e)
-        {
+        private void PlayerClosed(object sender, EventArgs e) =>
             //_player = null;
             _player = null;
-        }
 
-       
 
-        private void MainFormLoad(object sender, EventArgs e)
-        {
-            MainInit();
-        }
+
+        private void MainFormLoad(object sender, EventArgs e) => MainInit();
 
         private void MainInit()
         {
@@ -920,15 +889,15 @@ namespace iSpyApplication
 
             mediaPanelControl1.MainClass = this;
             EncoderParams = new EncoderParameters(1)
-                            {
-                                Param =
+            {
+                Param =
                                 {
                                     [0] =
                                         new EncoderParameter(
                                         System.Drawing.Imaging.Encoder.Quality,
                                         Conf.JPEGQuality)
                                 }
-                            };
+            };
 
             //this initializes the port mapping collection
             IStaticPortMappingCollection map = NATControl.Mappings;
@@ -997,19 +966,19 @@ namespace iSpyApplication
                     "VLC not installed - install VLC (" + Program.Platform + ") for additional connectivity.");
                 if (Program.Platform == "x64")
                 {
-                    Logger.LogWarningToFile("Download: <a href=\""+VLCx64+"\">"+VLCx64+"</a>");
+                    Logger.LogWarningToFile("Download: <a href=\"" + VLCx64 + "\">" + VLCx64 + "</a>");
                 }
                 else
                     Logger.LogWarningToFile("Download: <a href=\"" + VLCx86 + "\">" + VLCx86 + "</a>");
             }
 
             _fsw = new FileSystemWatcher
-                   {
-                       Path = Program.AppDataPath,
-                       IncludeSubdirectories = false,
-                       Filter = "external_command.txt",
-                       NotifyFilter = NotifyFilters.LastWrite
-                   };
+            {
+                Path = Program.AppDataPath,
+                IncludeSubdirectories = false,
+                Filter = "external_command.txt",
+                NotifyFilter = NotifyFilters.LastWrite
+            };
             _fsw.Changed += FswChanged;
             _fsw.EnableRaisingEvents = true;
 
@@ -1019,9 +988,9 @@ namespace iSpyApplication
             notifyIcon1.ContextMenuStrip = ctxtTaskbar;
             Identifier = Guid.NewGuid().ToString();
             MWS = new LocalServer
-                  {
-                      ServerRoot = Program.AppDataPath + @"WebServerRoot\"
-                  };
+            {
+                ServerRoot = Program.AppDataPath + @"WebServerRoot\"
+            };
 
 #if DEBUG
             MWS.ServerRoot = Program.AppPath + @"WebServerRoot\";
@@ -1067,7 +1036,7 @@ namespace iSpyApplication
                 FormBorderStyle = FormBorderStyle.None;
                 WinApi.SetWinFullScreen(Handle);
             }
-            
+
 
             statusBarToolStripMenuItem.Checked = menuItem4.Checked = Conf.ShowStatus;
             toolStripToolStripMenuItem.Checked = menuItem6.Checked = Conf.ShowToolbar;
@@ -1081,9 +1050,8 @@ namespace iSpyApplication
 
             Iconfont = new Font(FontFamily.GenericSansSerif, Conf.BigButtons ? 22 : 15, FontStyle.Bold,
                 GraphicsUnit.Pixel);
-            double dOpacity;
-            Double.TryParse(Conf.Opacity.ToString(CultureInfo.InvariantCulture), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out dOpacity);
-            Opacity = dOpacity/100.0;
+            Double.TryParse(Conf.Opacity.ToString(CultureInfo.InvariantCulture), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out double dOpacity);
+            Opacity = dOpacity / 100.0;
 
 
             if (Conf.ServerName == "NotSet")
@@ -1154,7 +1122,7 @@ namespace iSpyApplication
 
             if (_mWindowState == null)
             {
-                _mWindowState = new PersistWindowState {Parent = this, RegistryPath = @"Software\ispy\startup"};
+                _mWindowState = new PersistWindowState { Parent = this, RegistryPath = @"Software\ispy\startup" };
             }
 
             if (Conf.Enabled_ShowGettingStarted)
@@ -1202,13 +1170,9 @@ namespace iSpyApplication
                                     break;
                                 case "featureset":
                                     //only want to set this on install (allow them to modify)
-                                    if (Conf.FirstRun)
+                                    if (Conf.FirstRun && Int32.TryParse(nv[1].Trim(), out int featureset))
                                     {
-                                        int featureset;
-                                        if (Int32.TryParse(nv[1].Trim(), out featureset))
-                                        {
-                                            Conf.FeatureSet = featureset;
-                                        }
+                                        Conf.FeatureSet = featureset;
                                     }
                                     break;
                                 case "permissions":
@@ -1222,35 +1186,32 @@ namespace iSpyApplication
                                             if (!string.IsNullOrEmpty(g))
                                             {
                                                 var g2 = g.Split(',');
-                                                if (g2.Length >= 3)
+                                                if (g2.Length >= 3 && !string.IsNullOrEmpty(g2[0]))
                                                 {
-                                                    if (!string.IsNullOrEmpty(g2[0]))
+                                                    if (int.TryParse(g2[2], out int perm))
                                                     {
-                                                        int perm;
-                                                        if (int.TryParse(g2[2], out perm))
+                                                        l.Add(new configurationGroup
                                                         {
-                                                            l.Add(new configurationGroup
-                                                                  {
-                                                                      featureset = perm,
-                                                                      name = g2[0],
-                                                                      password =
-                                                                          EncDec.EncryptData(g2[1],
-                                                                              Conf.EncryptCode)
-                                                                  });
-                                                        }
+                                                            featureset = perm,
+                                                            name = g2[0],
+                                                            password =
+                                                                      EncDec.EncryptData(g2[1],
+                                                                          Conf.EncryptCode)
+                                                        });
                                                     }
                                                 }
-                                            }   
+                                            }
                                         }
-                                        if (l.FirstOrDefault(p => p.name.ToLower() == "admin") == null)
+                                        if (l.FirstOrDefault(p => string.Equals(p.name, "admin", StringComparison.OrdinalIgnoreCase)) == null)
                                         {
-                                            l.Add(new configurationGroup{
-                                                      featureset = 1,
-                                                      name = "Admin",
-                                                      password = ""
-                                                  });
+                                            l.Add(new configurationGroup
+                                            {
+                                                featureset = 1,
+                                                name = "Admin",
+                                                password = ""
+                                            });
                                         }
-                                        if (l.Count>0)
+                                        if (l.Count > 0)
                                             Conf.Permissions = l.ToArray();
 
                                     }
@@ -1295,12 +1256,12 @@ namespace iSpyApplication
                     try
                     {
                         Image bmp = Image.FromFile(logo);
-                        var pb = new PictureBox {Image = bmp};
+                        var pb = new PictureBox { Image = bmp };
                         pb.Width = pb.Image.Width;
                         pb.Height = pb.Image.Height;
 
-                        pb.Left = _pnlCameras.Width/2 - pb.Width/2;
-                        pb.Top = _pnlCameras.Height/2 - pb.Height/2;
+                        pb.Left = _pnlCameras.Width / 2 - pb.Width / 2;
+                        pb.Top = _pnlCameras.Height / 2 - pb.Height / 2;
 
                         _pnlCameras.Controls.Add(pb);
                         _pnlCameras.BrandedImage = pb;
@@ -1364,7 +1325,7 @@ namespace iSpyApplication
             if (Conf.StartupForm != "iSpy")
             {
                 ShowGridView(Conf.StartupForm);
-                
+
             }
 
             foreach (var cg in Conf.GridViews)
@@ -1375,7 +1336,7 @@ namespace iSpyApplication
                 }
             }
 
-            var t = new Thread(()=>ConnectServices()) {IsBackground = true};
+            var t = new Thread(() => ConnectServices()) { IsBackground = true };
             t.Start();
 
             _updateTimer.Start();
@@ -1387,10 +1348,10 @@ namespace iSpyApplication
             configurationGrid cg = Conf.GridViews.FirstOrDefault(p => p.name == name);
             if (cg != null)
             {
-                for(int i=0;i<_views.Count;i++)
+                for (int i = 0; i < _views.Count; i++)
                 {
                     GridView g = _views[i];
-                    if (g != null && !g.IsDisposed)
+                    if (g?.IsDisposed == false)
                     {
                         if (g.Cg == cg)
                         {
@@ -1404,7 +1365,7 @@ namespace iSpyApplication
                         _views.RemoveAt(i);
                         i--;
                     }
-                        
+
                 }
                 var gv = new GridView(this, ref cg);
                 gv.Show();
@@ -1536,7 +1497,7 @@ namespace iSpyApplication
             }
             catch (Exception ex)
             {
-                Logger.LogException(ex,"network change");
+                Logger.LogException(ex, "network change");
             }
         }
 
@@ -1562,7 +1523,7 @@ namespace iSpyApplication
             pTZScheduleOffToolStripMenuItem.Text = LocRm.GetString("PTZScheduleOff");
             openWebInterfaceToolStripMenuItem.Text = LocRm.GetString("OpenWebInterface");
             menuItem33.Text = LocRm.GetString("Lock");
-            
+
             _addCameraToolStripMenuItem.Text = LocRm.GetString("AddCamera");
             _addFloorPlanToolStripMenuItem.Text = LocRm.GetString("AddFloorplan");
             _addMicrophoneToolStripMenuItem.Text = LocRm.GetString("Addmicrophone");
@@ -1676,7 +1637,7 @@ namespace iSpyApplication
             menuItem3.Text = LocRm.GetString("Fullscreen");
             alwaysOnTopToolStripMenuItem1.Text = LocRm.GetString("AlwaysOnTop");
             menuItem8.Text = LocRm.GetString("AlwaysOnTop");
-           
+
             _exitToolStripMenuItem.Text = LocRm.GetString("Exit");
 
             layoutToolStripMenuItem.Text = LocRm.GetString("Layout");
@@ -1692,7 +1653,7 @@ namespace iSpyApplication
             menuItem14.Text = viewControllerToolStripMenuItem.Text = LocRm.GetString("ViewController");
             menuItem28.Text = LocRm.GetString("RemoveAllObjects");
             menuItem40.Text = LocRm.GetString("Find");
-            
+
 
             LocRm.SetString(menuItem15, "ArrangeMedia");
             LocRm.SetString(menuItem22, "LockLayout");
@@ -1717,10 +1678,10 @@ namespace iSpyApplication
             tssbGridViews.Text = LocRm.GetString("GridViews");
             manageToolStripMenuItem.Text = LocRm.GetString("Manage");
             menuItem25.Text = LocRm.GetString("DefaultDeviceManager");
-            LocRm.SetString(menuItem37,"ChangeUser");
+            LocRm.SetString(menuItem37, "ChangeUser");
 
             _toolStripDropDownButton1.Visible = menuItem7.Visible = mediaPaneToolStripMenuItem.Visible = (Helper.HasFeature(Enums.Features.Access_Media));
-            
+
             _toolStripButton8.Visible =
                 _remoteCommandsToolStripMenuItem.Visible =
                     _menuItem35.Visible = (Helper.HasFeature(Enums.Features.Remote_Commands));
@@ -1757,7 +1718,7 @@ namespace iSpyApplication
                     menuItem25.Visible = menuItem18.Visible = menuItem7.Visible = Helper.HasFeature(Enums.Features.Access_Media);
 
             _toolStripDropDownButton2.Visible = _editToolStripMenuItem.Visible = _menuItem36.Visible = _menuItem31.Visible = Helper.HasFeature(Enums.Features.Edit);
-            
+
 
             _fileItem.Visible = menuItem5.Visible = fileMenuToolStripMenuItem.Visible = Helper.HasFeature(Enums.Features.View_File_Menu);
             _menuItem2.Visible = _menuItem24.Visible = _menuItem10.Visible = _menuItem38.Visible = _menuItem5.Visible = _menuItem27.Visible = _menuItem26.Visible = _menuItem30.Visible = Helper.HasFeature(Enums.Features.View_Ispy_Links);
@@ -1778,7 +1739,7 @@ namespace iSpyApplication
             tagsToolStripMenuItem.Text = LocRm.GetString("Tags");
             ShowHideMediaPane();
             mediaPanelControl1.RenderResources();
-            
+
         }
 
         private void HouseKeepingTimerElapsed(object sender, ElapsedEventArgs e)
@@ -1801,15 +1762,15 @@ namespace iSpyApplication
                 {
                     while (_cpuAverages.Count > 4)
                         _cpuAverages.RemoveAt(0);
-                    _cpuAverages.Add(_cpuCounter.NextValue()/Environment.ProcessorCount);
+                    _cpuAverages.Add(_cpuCounter.NextValue() / Environment.ProcessorCount);
 
-                    CpuUsage = _cpuAverages.Sum()/_cpuAverages.Count;
+                    CpuUsage = _cpuAverages.Sum() / _cpuAverages.Count;
                     CpuTotal = _cputotalCounter.NextValue();
                     _counters = $"CPU: {CpuUsage:0.00}%";
 
                     if (_pcMem != null)
                     {
-                        _counters += " RAM Usage: " + Convert.ToInt32(_pcMem.RawValue/1048576) + "Mb";
+                        _counters += " RAM Usage: " + Convert.ToInt32(_pcMem.RawValue / 1048576) + "Mb";
                     }
                     tsslMonitor.Text = _counters;
                 }
@@ -1826,13 +1787,10 @@ namespace iSpyApplication
                 _counters = "Stats Unavailable - See Log File";
             }
 
-            if (_lastOver > DateTime.MinValue)
+            if (_lastOver > DateTime.MinValue && _lastOver < Helper.Now.AddSeconds(-4))
             {
-                if (_lastOver < Helper.Now.AddSeconds(-4))
-                {
-                    tsslMediaInfo.Text = "";
-                    _lastOver = DateTime.MinValue;
-                }
+                tsslMediaInfo.Text = "";
+                _lastOver = DateTime.MinValue;
             }
 
             _pingCounter++;
@@ -1841,10 +1799,9 @@ namespace iSpyApplication
                 LoadPreviews();
 
 
-            if (Resizing)
+            if (Resizing && _lastResize < Helper.Now.AddSeconds(-1))
             {
-                if (_lastResize < Helper.Now.AddSeconds(-1))
-                    Resizing = false;
+                Resizing = false;
             }
 
             if (_pingCounter >= 301)
@@ -1927,7 +1884,7 @@ namespace iSpyApplication
 
                 if (_pingCounter == 80)
                 {
-                    var t = new Thread(SaveFileData) {IsBackground = true, Name = "Saving File Data"};
+                    var t = new Thread(SaveFileData) { IsBackground = true, Name = "Saving File Data" };
                     t.Start();
                 }
 
@@ -1936,9 +1893,9 @@ namespace iSpyApplication
                     _needsDelete = false;
                     try
                     {
-                        if (_tDelete == null || _tDelete.Join(TimeSpan.Zero))
+                        if (_tDelete?.Join(TimeSpan.Zero) != false)
                         {
-                            _tDelete = new Thread(DeleteFiles) {IsBackground = true};
+                            _tDelete = new Thread(DeleteFiles) { IsBackground = true };
                             _tDelete.Start();
                         }
                     }
@@ -1966,19 +1923,15 @@ namespace iSpyApplication
             }
 
 
-            if (StorageThreadRunning)
+            if (StorageThreadRunning && abortIfRunning)
             {
-
-                if (abortIfRunning)
+                try
                 {
-                    try
-                    {
-                        _storageThread.Abort();
-                    }
-                    catch
-                    {
-                        //may have exited
-                    }
+                    _storageThread.Abort();
+                }
+                catch
+                {
+                    //may have exited
                 }
             }
             if (!StorageThreadRunning)
@@ -1991,7 +1944,7 @@ namespace iSpyApplication
                     if (r)
                     {
                         Logger.LogMessage("Running Storage Management");
-                        _storageThread = new Thread(DeleteOldFiles) {IsBackground = true};
+                        _storageThread = new Thread(DeleteOldFiles) { IsBackground = true };
                         _storageThread.Start();
                     }
                 }
@@ -2008,20 +1961,17 @@ namespace iSpyApplication
             {
                 try
                 {
-                    var cameraWindow = c as CameraWindow;
-                    if (cameraWindow != null)
+                    if (c is CameraWindow cameraWindow)
                     {
                         cameraWindow.Tick();
                         continue;
                     }
-                    var volumeLevel = c as VolumeLevel;
-                    if (volumeLevel != null)
+                    if (c is VolumeLevel volumeLevel)
                     {
                         volumeLevel.Tick();
                         continue;
                     }
-                    var floorPlanControl = c as FloorPlanControl;
-                    if (floorPlanControl != null)
+                    if (c is FloorPlanControl floorPlanControl)
                     {
                         FloorPlanControl fpc = floorPlanControl;
                         if (fpc.Fpobject.needsupdate)
@@ -2086,12 +2036,12 @@ namespace iSpyApplication
 
         private void ParseCommand(string command)
         {
-            if (command == null) throw new ArgumentNullException("command");
+            if (command == null) throw new ArgumentNullException(nameof(command));
             try
             {
                 command = Uri.UnescapeDataString(command);
 
-                if (command.ToLower().StartsWith("open "))
+                if (command.StartsWith("open ", StringComparison.OrdinalIgnoreCase))
                 {
                     Logger.LogMessage("Loading List: " + command);
                     if (InvokeRequired)
@@ -2103,7 +2053,7 @@ namespace iSpyApplication
                 }
                 ProcessCommandString(command);
 
-                if (command.ToLower() == "showform")
+                if (string.Equals(command, "showform", StringComparison.OrdinalIgnoreCase))
                 {
                     UISync.Execute(ShowIfUnlocked);
                 }
@@ -2181,10 +2131,7 @@ namespace iSpyApplication
             base.OnClosed(e);
         }
 
-        private void MenuItem2Click(object sender, EventArgs e)
-        {
-            StartBrowser(Website + "/userguide.aspx");
-        }
+        private void MenuItem2Click(object sender, EventArgs e) => StartBrowser(Website + "/userguide.aspx");
 
         internal static string StopAndStartServer()
         {
@@ -2210,26 +2157,17 @@ namespace iSpyApplication
             return message;
         }
 
-        private void MenuItem4Click(object sender, EventArgs e)
-        {
-            WebConnect();
-        }
+        private void MenuItem4Click(object sender, EventArgs e) => WebConnect();
 
-        private void MenuItem5Click(object sender, EventArgs e)
-        {
-            StartBrowser(Website + "/");
-        }
+        private void MenuItem5Click(object sender, EventArgs e) => StartBrowser(Website + "/");
 
-        private void MenuItem10Click(object sender, EventArgs e)
-        {
-            CheckForUpdates(false);
-        }
+        private void MenuItem10Click(object sender, EventArgs e) => CheckForUpdates(false);
 
         private void CheckForUpdates(bool suppressMessages)
         {
             try
             {
-                if (_updateChecker != null && !_updateChecker.Join(TimeSpan.Zero))
+                if (_updateChecker?.Join(TimeSpan.Zero) == false)
                     return;
             }
             catch
@@ -2287,10 +2225,7 @@ namespace iSpyApplication
             }
         }
 
-        private void MenuItem8Click(object sender, EventArgs e)
-        {
-            ShowSettings(0);
-        }
+        private void MenuItem8Click(object sender, EventArgs e) => ShowSettings(0);
 
         public void ShowSettings(int tabindex, IWin32Window owner = null)
         {
@@ -2318,7 +2253,7 @@ namespace iSpyApplication
                     }
 
                     bool jsactive = false;
-                    string[] sticks = _jst.FindJoysticks();
+                    string[] sticks = JoystickDevice.FindJoysticks();
                     foreach (string js in sticks)
                     {
                         string[] nameid = js.Split('|');
@@ -2371,7 +2306,7 @@ namespace iSpyApplication
 
         private void MenuItem11Click(object sender, EventArgs e)
         {
-            
+
         }
 
         private void MainFormResize(object sender, EventArgs e)
@@ -2382,13 +2317,10 @@ namespace iSpyApplication
                 if (Conf.TrayOnMinimise)
                 {
                     Hide();
-                    if (Conf.BalloonTips)
+                    if (Conf.BalloonTips && Conf.BalloonTips)
                     {
-                        if (Conf.BalloonTips)
-                        {
-                            notifyIcon1.BalloonTipText = LocRm.GetString("RunningInTaskBar");
-                            notifyIcon1.ShowBalloonTip(1500);
-                        }
+                        notifyIcon1.BalloonTipText = LocRm.GetString("RunningInTaskBar");
+                        notifyIcon1.ShowBalloonTip(1500);
                     }
                 }
             }
@@ -2409,10 +2341,7 @@ namespace iSpyApplication
             }
         }
 
-        private void NotifyIcon1DoubleClick(object sender, EventArgs e)
-        {
-            ShowIfUnlocked();
-        }
+        private void NotifyIcon1DoubleClick(object sender, EventArgs e) => ShowIfUnlocked();
 
         private CheckPassword _cp;
         private bool _locked;
@@ -2450,14 +2379,11 @@ namespace iSpyApplication
 
         private void MainFormFormClosing1(object sender, FormClosingEventArgs e)
         {
-            if (e.CloseReason != CloseReason.WindowsShutDown)
+            if (e.CloseReason != CloseReason.WindowsShutDown && Conf.MinimiseOnClose && !ShuttingDown)
             {
-                if (Conf.MinimiseOnClose && !ShuttingDown)
-                {
-                    e.Cancel = true;
-                    WindowState = FormWindowState.Minimized;
-                    return;
-                }
+                e.Cancel = true;
+                WindowState = FormWindowState.Minimized;
+                return;
             }
             ShuttingDown = true;
             if (_mIcp != null && _mCookie != -1)
@@ -2495,7 +2421,7 @@ namespace iSpyApplication
             {
                 Logger.LogException(ex);
             }
-            
+
 
             ThreadKillDelay = 3000;
 
@@ -2507,16 +2433,13 @@ namespace iSpyApplication
             if (Conf.ShowMediaPanel)
                 Conf.MediaPanelSize = splitContainer1.SplitterDistance + "x" + splitContainer2.SplitterDistance;
 
-            if (Conf.BalloonTips)
+            if (Conf.BalloonTips && Conf.BalloonTips)
             {
-                if (Conf.BalloonTips)
-                {
-                    notifyIcon1.BalloonTipText = LocRm.GetString("ShuttingDown");
-                    notifyIcon1.ShowBalloonTip(1500);
-                }
+                notifyIcon1.BalloonTipText = LocRm.GetString("ShuttingDown");
+                notifyIcon1.ShowBalloonTip(1500);
             }
             _closing = true;
-            
+
 
             try
             {
@@ -2559,7 +2482,7 @@ namespace iSpyApplication
             {
                 Logger.LogException(ex);
             }
-            
+
             try
             {
                 File.WriteAllText(Program.AppDataPath + "exit.txt", "OK");
@@ -2594,10 +2517,7 @@ namespace iSpyApplication
         }
 
 
-        private void NotifyIcon1BalloonTipClicked(object sender, EventArgs e)
-        {
-            ShowIfUnlocked();
-        }
+        private void NotifyIcon1BalloonTipClicked(object sender, EventArgs e) => ShowIfUnlocked();
 
 
         public static string RandomString(int length)
@@ -2606,7 +2526,7 @@ namespace iSpyApplication
 
             for (int i = 0; i < length; i++)
             {
-                char ch = Convert.ToChar(Convert.ToInt32(Math.Floor(26*Random.NextDouble() + 65)));
+                char ch = Convert.ToChar(Convert.ToInt32(Math.Floor(26 * Random.NextDouble() + 65)));
                 b += ch;
             }
             return b;
@@ -2655,7 +2575,7 @@ namespace iSpyApplication
 
                     Helper.SetTitle(this);
 
-                    if (result[3] == "")
+                    if (result[3]?.Length == 0)
                     {
                         LoopBack = Conf.Loopback;
                         WsWrapper.Connect(Conf.Loopback);
@@ -2676,18 +2596,15 @@ namespace iSpyApplication
 
         private void EditToolStripMenuItemClick(object sender, EventArgs e)
         {
-            var window = ContextTarget as CameraWindow;
-            if (window != null)
+            if (ContextTarget is CameraWindow window)
             {
                 EditCamera(window.Camobject);
             }
-            var level = ContextTarget as VolumeLevel;
-            if (level != null)
+            if (ContextTarget is VolumeLevel level)
             {
                 EditMicrophone(level.Micobject);
             }
-            var target = ContextTarget as FloorPlanControl;
-            if (target != null)
+            if (ContextTarget is FloorPlanControl target)
             {
                 EditFloorplan(target.Fpobject);
             }
@@ -2695,35 +2612,26 @@ namespace iSpyApplication
 
         private void DeleteToolStripMenuItemClick(object sender, EventArgs e)
         {
-            var window = ContextTarget as CameraWindow;
-            if (window != null)
+            if (ContextTarget is CameraWindow window)
             {
                 RemoveCamera(window, true);
                 return;
             }
-            var level = ContextTarget as VolumeLevel;
-            if (level != null)
+            if (ContextTarget is VolumeLevel level)
             {
                 RemoveMicrophone(level, true);
                 return;
             }
-            var fpc = ContextTarget as FloorPlanControl;
-            if (fpc != null)
+            if (ContextTarget is FloorPlanControl fpc)
             {
                 RemoveFloorplan(fpc, true);
             }
         }
 
 
-        private void ToolStripButton4Click(object sender, EventArgs e)
-        {
-            ShowSettings(0);
-        }
+        private void ToolStripButton4Click(object sender, EventArgs e) => ShowSettings(0);
 
-        public static void GoSubscribe()
-        {
-            OpenUrl(Website + "/subscribe.aspx");
-        }
+        public static void GoSubscribe() => OpenUrl(Website + "/subscribe.aspx");
 
         public static void OpenUrl(string url)
         {
@@ -2748,23 +2656,14 @@ namespace iSpyApplication
 
         private void ActivateToolStripMenuItemClick(object sender, EventArgs e)
         {
-            
+
         }
 
-        private void WebsiteToolstripMenuItemClick(object sender, EventArgs e)
-        {
-            StartBrowser(Website + "/");
-        }
+        private void WebsiteToolstripMenuItemClick(object sender, EventArgs e) => StartBrowser(Website + "/");
 
-        private void HelpToolstripMenuItemClick(object sender, EventArgs e)
-        {
-            StartBrowser(Website + "/userguide.aspx");
-        }
+        private void HelpToolstripMenuItemClick(object sender, EventArgs e) => StartBrowser(Website + "/userguide.aspx");
 
-        private void ShowToolstripMenuItemClick(object sender, EventArgs e)
-        {
-            ShowForm(-1);
-        }
+        private void ShowToolstripMenuItemClick(object sender, EventArgs e) => ShowForm(-1);
 
         public void ShowForm(double opacity)
         {
@@ -2787,24 +2686,15 @@ namespace iSpyApplication
             TopMost = Conf.AlwaysOnTop;
         }
 
-        private void UnlockToolstripMenuItemClick(object sender, EventArgs e)
-        {
-            ShowIfUnlocked();
-        }
+        private void UnlockToolstripMenuItemClick(object sender, EventArgs e) => ShowIfUnlocked();
 
         private void NotifyIcon1Click(object sender, EventArgs e)
         {
         }
 
-        private void AddCameraToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            AddCamera(3);
-        }
+        private void AddCameraToolStripMenuItemClick(object sender, EventArgs e) => AddCamera(3);
 
-        private void AddMicrophoneToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            AddMicrophone(0);
-        }
+        private void AddMicrophoneToolStripMenuItemClick(object sender, EventArgs e) => AddMicrophone(0);
 
         private void CtxtMainFormOpening(object sender, CancelEventArgs e)
         {
@@ -2819,8 +2709,7 @@ namespace iSpyApplication
             maximiseToolStripMenuItem.DropDownItems.Clear();
             foreach (Control o in _pnlCameras.Controls)
             {
-                var ic = o as ISpyControl;
-                if (ic != null)
+                if (o is ISpyControl ic)
                 {
                     maximiseToolStripMenuItem.DropDownItems.Add(ic.ObjectName, null, tsi_MaximiseClick);
                 }
@@ -2843,10 +2732,7 @@ namespace iSpyApplication
             Close();
         }
 
-        private void MenuItem3Click(object sender, EventArgs e)
-        {
-            Connect(false);
-        }
+        private void MenuItem3Click(object sender, EventArgs e) => Connect(false);
 
         private void MenuItem18Click(object sender, EventArgs e)
         {
@@ -2905,31 +2791,16 @@ namespace iSpyApplication
             MessageBox.Show(LocRm.GetString("FilesDeleted"), LocRm.GetString("Note"));
         }
 
-        private void MenuItem20Click(object sender, EventArgs e)
-        {
-            ShowLogFile();
-        }
+        private void MenuItem20Click(object sender, EventArgs e) => ShowLogFile();
 
-        private void ShowLogFile()
-        {
-            Process.Start(Program.AppDataPath + "log_" + Logger.NextLog + ".htm");
-        }
+        private void ShowLogFile() => Process.Start(Program.AppDataPath + "log_" + Logger.NextLog + ".htm");
 
-        private void ResetSizeToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            _pnlCameras.Minimize(ContextTarget, true);
-        }
+        private void ResetSizeToolStripMenuItemClick(object sender, EventArgs e) => _pnlCameras.Minimize(ContextTarget, true);
 
-        private void SettingsToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            ShowSettings(0);
-        }
+        private void SettingsToolStripMenuItemClick(object sender, EventArgs e) => ShowSettings(0);
 
 
-        private void MenuItem19Click(object sender, EventArgs e)
-        {
-            SaveObjectList(true);
-        }
+        private void MenuItem19Click(object sender, EventArgs e) => SaveObjectList(true);
 
         public void SaveObjectList(bool warn = true)
         {
@@ -2946,29 +2817,26 @@ namespace iSpyApplication
             {
 
                 using (var saveFileDialog = new SaveFileDialog
-                                            {
-                                                InitialDirectory = _lastPath,
-                                                Filter = "iSpy Files (*.ispy)|*.ispy|XML Files (*.xml)|*.xml"
-                                            })
+                {
+                    InitialDirectory = _lastPath,
+                    Filter = "iSpy Files (*.ispy)|*.ispy|XML Files (*.xml)|*.xml"
+                })
                 {
 
                     save = saveFileDialog.ShowDialog(this) == DialogResult.OK;
                     filename = saveFileDialog.FileName;
                 }
             }
-            if (save)
+            if (save && filename.Trim() != "")
             {
-                if (filename.Trim() != "")
+                SaveObjects(filename);
+                try
                 {
-                    SaveObjects(filename);
-                    try
-                    {
-                        var fi = new FileInfo(filename);
-                        _lastPath = fi.DirectoryName;
-                    }
-                    catch
-                    {
-                    }
+                    var fi = new FileInfo(filename);
+                    _lastPath = fi.DirectoryName;
+                }
+                catch
+                {
                 }
             }
         }
@@ -3039,10 +2907,7 @@ namespace iSpyApplication
             }
         }
 
-        public void Connect(bool silent)
-        {
-            Connect(Webpage, silent);
-        }
+        public void Connect(bool silent) => Connect(Webpage, silent);
 
         public void Connect(string successUrl, bool silent)
         {
@@ -3116,36 +2981,18 @@ namespace iSpyApplication
             }
         }
 
-        private void MenuItem25Click(object sender, EventArgs e)
-        {
-            ViewMobile();
-        }
+        private void MenuItem25Click(object sender, EventArgs e) => ViewMobile();
 
 
-        private void MainFormHelpButtonClicked(object sender, CancelEventArgs e)
-        {
-            OpenUrl(Website + "/userguide.aspx");
-        }
+        private void MainFormHelpButtonClicked(object sender, CancelEventArgs e) => OpenUrl(Website + "/userguide.aspx");
 
-        private void menuItem21_Click(object sender, EventArgs e)
-        {
-            _pnlCameras.LayoutOptimised();
-        }
+        private void menuItem21_Click(object sender, EventArgs e) => _pnlCameras.LayoutOptimised();
 
-        private void ShowISpy10PercentOpacityToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            ShowForm(.1);
-        }
+        private void ShowISpy10PercentOpacityToolStripMenuItemClick(object sender, EventArgs e) => ShowForm(.1);
 
-        private void ShowISpy30OpacityToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            ShowForm(.3);
-        }
+        private void ShowISpy30OpacityToolStripMenuItemClick(object sender, EventArgs e) => ShowForm(.3);
 
-        private void ShowISpy100PercentOpacityToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            ShowForm(1);
-        }
+        private void ShowISpy100PercentOpacityToolStripMenuItemClick(object sender, EventArgs e) => ShowForm(1);
 
         private void CtxtTaskbarOpening(object sender, CancelEventArgs e)
         {
@@ -3204,22 +3051,17 @@ namespace iSpyApplication
         }
 
 
-        private void MenuItem26Click(object sender, EventArgs e)
-        {
-            OpenUrl(Website + "/donate.aspx");
-        }
+        private void MenuItem26Click(object sender, EventArgs e) => OpenUrl(Website + "/donate.aspx");
 
         private void RecordNowToolStripMenuItemClick(object sender, EventArgs e)
         {
-            var window = ContextTarget as CameraWindow;
-            if (window != null)
+            if (ContextTarget is CameraWindow window)
             {
                 var cameraControl = window;
                 cameraControl.RecordSwitch(!cameraControl.Recording);
             }
 
-            var level = ContextTarget as VolumeLevel;
-            if (level != null)
+            if (ContextTarget is VolumeLevel level)
             {
                 var volumeControl = level;
                 volumeControl.RecordSwitch(!volumeControl.Recording);
@@ -3228,15 +3070,13 @@ namespace iSpyApplication
 
         private void ShowFilesToolStripMenuItemClick(object sender, EventArgs e)
         {
-            var cw = ContextTarget as CameraWindow;
-            if (cw != null)
+            if (ContextTarget is CameraWindow cw)
             {
-                ShowFiles(cw);   
+                ShowFiles(cw);
                 return;
             }
 
-            var vl = ContextTarget as VolumeLevel;
-            if (vl != null)
+            if (ContextTarget is VolumeLevel vl)
             {
                 ShowFiles(vl);
                 return;
@@ -3249,21 +3089,19 @@ namespace iSpyApplication
 
         internal void ShowFiles(ISpyControl ctrl)
         {
-            var cw = ctrl as CameraWindow;
-            if (cw != null)
+            if (ctrl is CameraWindow cw)
             {
                 ShowFiles(cw);
                 return;
             }
-            var vl = ctrl as VolumeLevel;
-            if (vl != null)
+            if (ctrl is VolumeLevel vl)
             {
                 ShowFiles(vl);
                 return;
             }
         }
-        
-        internal void ShowFiles(CameraWindow cw)
+
+        internal static void ShowFiles(CameraWindow cw)
         {
             string foldername = Helper.GetMediaDirectory(2, cw.Camobject.id) + "video\\" + cw.Camobject.directory + "\\";
             if (!foldername.EndsWith(@"\"))
@@ -3272,7 +3110,7 @@ namespace iSpyApplication
             cw.Camobject.newrecordingcount = 0;
         }
 
-        internal void ShowFiles(VolumeLevel vl)
+        internal static void ShowFiles(VolumeLevel vl)
         {
             string foldername = Helper.GetMediaDirectory(1, vl.Micobject.id) + "audio\\" + vl.Micobject.directory + "\\";
             if (!foldername.EndsWith(@"\"))
@@ -3281,10 +3119,7 @@ namespace iSpyApplication
             vl.Micobject.newrecordingcount = 0;
         }
 
-        private void ViewMediaOnAMobileDeviceToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            ViewMobile();
-        }
+        private void ViewMediaOnAMobileDeviceToolStripMenuItemClick(object sender, EventArgs e) => ViewMobile();
 
         private void ViewMobile()
         {
@@ -3296,15 +3131,11 @@ namespace iSpyApplication
                 WebConnect();
         }
 
-        private void AddFloorPlanToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            AddFloorPlan();
-        }
+        private void AddFloorPlanToolStripMenuItemClick(object sender, EventArgs e) => AddFloorPlan();
 
         private void ListenToolStripMenuItemClick(object sender, EventArgs e)
         {
-            var level = ContextTarget as VolumeLevel;
-            if (level != null)
+            if (ContextTarget is VolumeLevel level)
             {
                 var vf = level;
                 vf.Listening = !vf.Listening;
@@ -3329,54 +3160,39 @@ namespace iSpyApplication
         {
         }
 
-        private void ToolStripButton8Click1(object sender, EventArgs e)
-        {
-            ShowRemoteCommands();
-        }
+        private void ToolStripButton8Click1(object sender, EventArgs e) => ShowRemoteCommands();
 
-        private void MenuItem35Click(object sender, EventArgs e)
-        {
-            ShowRemoteCommands();
-        }
+        private void MenuItem35Click(object sender, EventArgs e) => ShowRemoteCommands();
 
         private void ToolStrip1ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
         }
 
-        private void RemoteCommandsToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            ShowRemoteCommands();
-        }
+        private void RemoteCommandsToolStripMenuItemClick(object sender, EventArgs e) => ShowRemoteCommands();
 
-        private void MenuItem37Click(object sender, EventArgs e)
-        {
-            MessageBox.Show(LocRm.GetString("EditInstruct"), LocRm.GetString("Note"));
-        }
+        private void MenuItem37Click(object sender, EventArgs e) => MessageBox.Show(LocRm.GetString("EditInstruct"), LocRm.GetString("Note"));
 
         private void PositionToolStripMenuItemClick(object sender, EventArgs e)
         {
-            var p = (PictureBox) ContextTarget;
+            var p = (PictureBox)ContextTarget;
             int w = p.Width;
             int h = p.Height;
             int x = p.Location.X;
             int y = p.Location.Y;
 
-            var le = new LayoutEditor {X = x, Y = y, W = w, H = h};
+            var le = new LayoutEditor { X = x, Y = y, W = w, H = h };
 
 
             if (le.ShowDialog(this) == DialogResult.OK)
             {
-                _pnlCameras.PositionPanel(p, new Point(le.X, le.Y), le.W, le.H);
+                LayoutPanel.PositionPanel(p, new Point(le.X, le.Y), le.W, le.H);
             }
             le.Dispose();
         }
 
 
 
-        private void MenuItem38Click(object sender, EventArgs e)
-        {
-            StartBrowser(Website + "/producthistory.aspx?productid=11");
-        }
+        private void MenuItem38Click(object sender, EventArgs e) => StartBrowser(Website + "/producthistory.aspx?productid=11");
 
         private void MenuItem39Click(object sender, EventArgs e)
         {
@@ -3384,8 +3200,7 @@ namespace iSpyApplication
 
         private void TakePhotoToolStripMenuItemClick(object sender, EventArgs e)
         {
-            var window = ContextTarget as CameraWindow;
-            if (window != null)
+            if (ContextTarget is CameraWindow window)
             {
                 window?.Snapshot();
             }
@@ -3405,51 +3220,25 @@ namespace iSpyApplication
                 WebConnect();
         }
 
-        private void OnMobileDevicesToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            ViewMobile();
-        }
+        private void OnMobileDevicesToolStripMenuItemClick(object sender, EventArgs e) => ViewMobile();
 
-        private void LocalCameraToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            AddCamera(3);
-        }
+        private void LocalCameraToolStripMenuItemClick(object sender, EventArgs e) => AddCamera(3);
 
-        private void IpCameraToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            AddCamera(1);
-        }
+        private void IpCameraToolStripMenuItemClick(object sender, EventArgs e) => AddCamera(1);
 
-        private void MicrophoneToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            AddMicrophone(0);
-        }
+        private void MicrophoneToolStripMenuItemClick(object sender, EventArgs e) => AddMicrophone(0);
 
-        private void FloorPlanToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            AddFloorPlan();
-        }
+        private void FloorPlanToolStripMenuItemClick(object sender, EventArgs e) => AddFloorPlan();
 
-        private void MenuItem12Click(object sender, EventArgs e)
-        {
+        private void MenuItem12Click(object sender, EventArgs e) =>
             //+26 height for control bar
             _pnlCameras.LayoutObjects(164, 146);
-        }
 
-        private void MenuItem14Click(object sender, EventArgs e)
-        {
-            _pnlCameras.LayoutObjects(324, 266);
-        }
+        private void MenuItem14Click(object sender, EventArgs e) => _pnlCameras.LayoutObjects(324, 266);
 
-        private void MenuItem29Click1(object sender, EventArgs e)
-        {
-            _pnlCameras.LayoutObjects(0, 0);
-        }
+        private void MenuItem29Click1(object sender, EventArgs e) => _pnlCameras.LayoutObjects(0, 0);
 
-        private void ToolStripButton1Click1(object sender, EventArgs e)
-        {
-            WebConnect();
-        }
+        private void ToolStripButton1Click1(object sender, EventArgs e) => WebConnect();
 
         private void WebConnect()
         {
@@ -3474,8 +3263,7 @@ namespace iSpyApplication
 
         private void ResetRecordingCounterToolStripMenuItemClick(object sender, EventArgs e)
         {
-            var window = ContextTarget as CameraWindow;
-            if (window != null)
+            if (ContextTarget is CameraWindow window)
             {
                 var cw = window;
                 cw.Camobject.newrecordingcount = 0;
@@ -3487,8 +3275,7 @@ namespace iSpyApplication
                 }
                 cw.Invalidate();
             }
-            var level = ContextTarget as VolumeLevel;
-            if (level != null)
+            if (ContextTarget is VolumeLevel level)
             {
                 var vw = level;
                 vw.Micobject.newrecordingcount = 0;
@@ -3510,15 +3297,13 @@ namespace iSpyApplication
         {
             foreach (Control c in _pnlCameras.Controls)
             {
-                var window = c as CameraWindow;
-                if (window != null)
+                if (c is CameraWindow window)
                 {
                     var cameraControl = window;
                     cameraControl.Camobject.newrecordingcount = 0;
                     cameraControl.Invalidate();
                 }
-                var level = c as VolumeLevel;
-                if (level != null)
+                if (c is VolumeLevel level)
                 {
                     var volumeControl = level;
                     volumeControl.Micobject.newrecordingcount = 0;
@@ -3527,23 +3312,17 @@ namespace iSpyApplication
             }
         }
 
-        private void SwitchAllOnToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            SwitchObjects(false, true);
-        }
+        private void SwitchAllOnToolStripMenuItemClick(object sender, EventArgs e) => SwitchObjects(false, true);
 
-        private void SwitchAllOffToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            SwitchObjects(false, false);
-        }
+        private void SwitchAllOffToolStripMenuItemClick(object sender, EventArgs e) => SwitchObjects(false, false);
 
         private void MenuItem22Click1(object sender, EventArgs e)
         {
             var ofd = new OpenFileDialog
-                      {
-                          InitialDirectory = Program.AppDataPath,
-                          Filter = "iSpy Log Files (*.htm)|*.htm|XML Files (*.xml)|*.xml|All Files (*.*)|*.*"
-                      };
+            {
+                InitialDirectory = Program.AppDataPath,
+                Filter = "iSpy Log Files (*.htm)|*.htm|XML Files (*.xml)|*.xml|All Files (*.*)|*.*"
+            };
 
             if (ofd.ShowDialog(this) != DialogResult.OK) return;
             string fileName = ofd.FileName;
@@ -3554,35 +3333,17 @@ namespace iSpyApplication
             }
         }
 
-        private void USbCamerasAndMicrophonesOnOtherToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            OpenUrl(Website + "/download_ispyserver.aspx");
-        }
+        private void USbCamerasAndMicrophonesOnOtherToolStripMenuItemClick(object sender, EventArgs e) => OpenUrl(Website + "/download_ispyserver.aspx");
 
-        private void MenuItem24Click(object sender, EventArgs e)
-        {
-            SwitchObjects(false, true);
-        }
+        private void MenuItem24Click(object sender, EventArgs e) => SwitchObjects(false, true);
 
-        private void MenuItem40Click(object sender, EventArgs e)
-        {
-            SwitchObjects(false, false);
-        }
+        private void MenuItem40Click(object sender, EventArgs e) => SwitchObjects(false, false);
 
-        private void MenuItem41Click(object sender, EventArgs e)
-        {
-            SwitchObjects(true, false);
-        }
+        private void MenuItem41Click(object sender, EventArgs e) => SwitchObjects(true, false);
 
-        private void MenuItem28Click1(object sender, EventArgs e)
-        {
-            SwitchObjects(true, true);
-        }
+        private void MenuItem28Click1(object sender, EventArgs e) => SwitchObjects(true, true);
 
-        private void MenuItem24Click1(object sender, EventArgs e)
-        {
-            ApplySchedule();
-        }
+        private void MenuItem24Click1(object sender, EventArgs e) => ApplySchedule();
 
         public void ApplySchedule()
         {
@@ -3605,31 +3366,23 @@ namespace iSpyApplication
             }
         }
 
-        private void ApplyScheduleToolStripMenuItemClick1(object sender, EventArgs e)
-        {
-            ApplySchedule();
-        }
+        private void ApplyScheduleToolStripMenuItemClick1(object sender, EventArgs e) => ApplySchedule();
 
         private void ApplyScheduleToolStripMenuItem1Click(object sender, EventArgs e)
         {
-            var window = ContextTarget as CameraWindow;
-            if (window != null)
+            if (ContextTarget is CameraWindow window)
             {
                 var cameraControl = window;
                 cameraControl.ApplySchedule();
             }
-            var level = ContextTarget as VolumeLevel;
-            if (level != null)
+            if (ContextTarget is VolumeLevel level)
             {
                 var vf = level;
                 vf.ApplySchedule();
             }
         }
 
-        private void MenuItem24Click2(object sender, EventArgs e)
-        {
-            ShowGettingStarted();
-        }
+        private void MenuItem24Click2(object sender, EventArgs e) => ShowGettingStarted();
 
         private void ShowGettingStarted()
         {
@@ -3641,7 +3394,7 @@ namespace iSpyApplication
 
         private void _gs_Closed(object sender, EventArgs e)
         {
-            if (((GettingStarted) sender).LangChanged)
+            if (((GettingStarted)sender).LangChanged)
             {
                 RenderResources();
                 LoadCommands();
@@ -3649,10 +3402,7 @@ namespace iSpyApplication
             }
         }
 
-        private void MenuItem28Click2(object sender, EventArgs e)
-        {
-            _pnlCameras.LayoutObjects(644, 506);
-        }
+        private void MenuItem28Click2(object sender, EventArgs e) => _pnlCameras.LayoutObjects(644, 506);
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -3672,15 +3422,9 @@ namespace iSpyApplication
             Close();
         }
 
-        private void fullScreenToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            _pnlCameras.Maximise(ContextTarget);
-        }
+        private void fullScreenToolStripMenuItem_Click(object sender, EventArgs e) => _pnlCameras.Maximise(ContextTarget);
 
-        private void toolStripStatusLabel1_Click(object sender, EventArgs e)
-        {
-            OpenUrl(Website + "/userguide.aspx#4");
-        }
+        private void toolStripStatusLabel1_Click(object sender, EventArgs e) => OpenUrl(Website + "/userguide.aspx#4");
 
         private void inExplorerToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -3693,14 +3437,11 @@ namespace iSpyApplication
             }
         }
 
-        private void menuItem1_Click_1(object sender, EventArgs e)
-        {
-            _pnlCameras.LayoutObjects(-1, -1);
-        }
+        private void menuItem1_Click_1(object sender, EventArgs e) => _pnlCameras.LayoutObjects(-1, -1);
 
         private void llblSelectAll_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            
+
         }
 
         internal void MediaSelectAll()
@@ -3710,8 +3451,7 @@ namespace iSpyApplication
             {
                 foreach (Control c in flowPreview.Controls)
                 {
-                    var pb = c as PreviewBox;
-                    if (pb != null)
+                    if (c is PreviewBox pb)
                     {
                         if (first)
                             check = !pb.Selected;
@@ -3724,20 +3464,11 @@ namespace iSpyApplication
         }
 
 
-        private void opacityToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            ShowForm(.1);
-        }
+        private void opacityToolStripMenuItem1_Click(object sender, EventArgs e) => ShowForm(.1);
 
-        private void opacityToolStripMenuItem2_Click(object sender, EventArgs e)
-        {
-            ShowForm(.3);
-        }
+        private void opacityToolStripMenuItem2_Click(object sender, EventArgs e) => ShowForm(.3);
 
-        private void opacityToolStripMenuItem3_Click(object sender, EventArgs e)
-        {
-            ShowForm(1);
-        }
+        private void opacityToolStripMenuItem3_Click(object sender, EventArgs e) => ShowForm(1);
 
         private void autoLayoutToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -3753,15 +3484,9 @@ namespace iSpyApplication
             resetLayoutToolStripMenuItem1.Enabled = mnuResetLayout.Enabled = true;
         }
 
-        private void resetLayoutToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            _pnlCameras.ResetLayout();
-        }
+        private void resetLayoutToolStripMenuItem1_Click(object sender, EventArgs e) => LayoutPanel.ResetLayout();
 
-        private void fullScreenToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            MaxMin();
-        }
+        private void fullScreenToolStripMenuItem1_Click(object sender, EventArgs e) => MaxMin();
 
         private void statusBarToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -3814,20 +3539,11 @@ namespace iSpyApplication
             }
         }
 
-        private void iPCameraWithWizardToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            AddCamera(1, true);
-        }
+        private void iPCameraWithWizardToolStripMenuItem_Click(object sender, EventArgs e) => AddCamera(1, true);
 
-        private void menuItem13_Click(object sender, EventArgs e)
-        {
-            OpenUrl(PurchaseLink);
-        }
+        private void menuItem13_Click(object sender, EventArgs e) => OpenUrl(PurchaseLink);
 
-        private void tsbPlugins_Click(object sender, EventArgs e)
-        {
-            OpenUrl("http://www.ispyconnect.com/plugins.aspx");
-        }
+        private void tsbPlugins_Click(object sender, EventArgs e) => OpenUrl("http://www.ispyconnect.com/plugins.aspx");
 
         private void flowPreview_MouseEnter(object sender, EventArgs e)
         {
@@ -3868,7 +3584,7 @@ namespace iSpyApplication
             }
             if (!e.Alt && !e.Shift && e.Control)
             {
-                if (e.KeyCode == Keys.P )
+                if (e.KeyCode == Keys.P)
                 {
                     ProcessKey("play"); return;
                 }
@@ -3888,27 +3604,27 @@ namespace iSpyApplication
                     ProcessKey("zoom"); return;
                 }
 
-                if (e.KeyCode == Keys.T )
+                if (e.KeyCode == Keys.T)
                 {
                     ProcessKey("talk"); return;
                 }
 
-                if (e.KeyCode == Keys.L )
+                if (e.KeyCode == Keys.L)
                 {
                     ProcessKey("listen"); return;
                 }
 
-                if (e.KeyCode == Keys.G )
+                if (e.KeyCode == Keys.G)
                 {
                     ProcessKey("grab"); return;
                 }
 
-                if (e.KeyCode == Keys.E )
+                if (e.KeyCode == Keys.E)
                 {
                     ProcessKey("edit"); return;
                 }
 
-                if (e.KeyCode == Keys.F )
+                if (e.KeyCode == Keys.F)
                 {
                     ProcessKey("tags"); return;
                 }
@@ -3980,7 +3696,7 @@ namespace iSpyApplication
                     MediaDeleteSelected();
                 }
             }
-            if (e.KeyCode.ToString()=="Menu")
+            if (e.KeyCode.ToString() == "Menu")
             {
                 fileMenuToolStripMenuItem.Checked = menuItem5.Checked = true;
                 Menu = !fileMenuToolStripMenuItem.Checked ? null : mainMenu;
@@ -3989,16 +3705,12 @@ namespace iSpyApplication
             }
             int i = -1;
             var c = GetActiveControl(out i);
-            if (i > -1)
+            if (i > -1 && c is CameraWindow cw)
             {
-                var cw = c as CameraWindow;
-                if (cw != null)
-                {
-                    var converter = new KeysConverter();
-                    string cmd = converter.ConvertToString(e.KeyData);
-                    if (cw.ExecutePluginShortcut(cmd))
-                        return;
-                }
+                var converter = new KeysConverter();
+                string cmd = converter.ConvertToString(e.KeyData);
+                if (cw.ExecutePluginShortcut(cmd))
+                    return;
             }
             //unhandled
         }
@@ -4007,14 +3719,11 @@ namespace iSpyApplication
         {
             foreach (Control c in _pnlCameras.Controls)
             {
-                if (c.Tag is int)
+                if (c.Tag is int && (int)c.Tag == index)
                 {
-                    if ((int) c.Tag == index)
-                    {
-                        _pnlCameras.Maximise(c, true);
-                        c.Focus();
-                        break;
-                    }
+                    _pnlCameras.Maximise(c, true);
+                    c.Focus();
+                    break;
                 }
             }
         }
@@ -4037,9 +3746,9 @@ namespace iSpyApplication
                 _vc = new ViewController(_pnlCameras);
                 if (_pnlCameras.Height > 0)
                 {
-                    double ar = Convert.ToDouble(_pnlCameras.Height)/Convert.ToDouble(_pnlCameras.Width);
+                    double ar = Convert.ToDouble(_pnlCameras.Height) / Convert.ToDouble(_pnlCameras.Width);
                     _vc.Width = 180;
-                    _vc.Height = Convert.ToInt32(ar*_vc.Width);
+                    _vc.Height = Convert.ToInt32(ar * _vc.Width);
                 }
                 _vc.TopMost = true;
 
@@ -4059,11 +3768,7 @@ namespace iSpyApplication
             viewControllerToolStripMenuItem.Checked = menuItem14.Checked = Conf.ViewController = false;
         }
 
-        private void _pnlCameras_Scroll(object sender, ScrollEventArgs e)
-        {
-            if (_vc != null)
-                _vc.Redraw();
-        }
+        private void _pnlCameras_Scroll(object sender, ScrollEventArgs e) => _vc?.Redraw();
 
         private void _toolStripDropDownButton2_Click(object sender, EventArgs e)
         {
@@ -4071,19 +3776,19 @@ namespace iSpyApplication
 
         private void menuItem16_Click(object sender, EventArgs e)
         {
-            Conf.LayoutMode = (int) LayoutModes.bottom;
+            Conf.LayoutMode = (int)LayoutModes.bottom;
             Arrange(true);
         }
 
         private void menuItem17_Click(object sender, EventArgs e)
         {
-            Conf.LayoutMode = (int) LayoutModes.left;
+            Conf.LayoutMode = (int)LayoutModes.left;
             Arrange(true);
         }
 
         private void menuItem19_Click(object sender, EventArgs e)
         {
-            Conf.LayoutMode = (int) LayoutModes.right;
+            Conf.LayoutMode = (int)LayoutModes.right;
             Arrange(true);
         }
 
@@ -4104,7 +3809,7 @@ namespace iSpyApplication
             SuspendLayout();
             try
             {
-                var lm = (LayoutModes) Conf.LayoutMode;
+                var lm = (LayoutModes)Conf.LayoutMode;
 
 
                 switch (lm)
@@ -4148,15 +3853,9 @@ namespace iSpyApplication
             ResumeLayout(true);
         }
 
-        private void menuItem18_Click(object sender, EventArgs e)
-        {
-            ShowHidePTZTool();
-        }
+        private void menuItem18_Click(object sender, EventArgs e) => ShowHidePTZTool();
 
-        private void pTZControllerToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ShowHidePTZTool();
-        }
+        private void pTZControllerToolStripMenuItem_Click(object sender, EventArgs e) => ShowHidePTZTool();
 
         private void ShowHidePTZTool()
         {
@@ -4168,7 +3867,7 @@ namespace iSpyApplication
             }
             else
             {
-                _ptzTool = new PTZTool {Owner = this};
+                _ptzTool = new PTZTool { Owner = this };
                 _ptzTool.Show(this);
                 _ptzTool.Closing += PTZToolClosing;
                 _ptzTool.CameraControl = null;
@@ -4177,7 +3876,7 @@ namespace iSpyApplication
                     Control c = _pnlCameras.Controls[i];
                     if (c.Focused && c is CameraWindow)
                     {
-                        _ptzTool.CameraControl = (CameraWindow) c;
+                        _ptzTool.CameraControl = (CameraWindow)c;
                         break;
                     }
                 }
@@ -4221,7 +3920,7 @@ namespace iSpyApplication
             }
             Application.DoEvents();
             TalkCamera = cw;
-            _talkSource = new TalkDeviceStream(Conf.TalkMic) {RecordingFormat = new WaveFormat(8000, 16, 1)};
+            _talkSource = new TalkDeviceStream(Conf.TalkMic) { RecordingFormat = new WaveFormat(8000, 16, 1) };
             _talkSource.AudioFinished += _talkSource_AudioFinished;
 
             if (!_talkSource.IsRunning)
@@ -4272,48 +3971,27 @@ namespace iSpyApplication
             menuItem22.Checked = Conf.LockLayout;
         }
 
-        private void iSpyToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ((PreviewBox) ContextTarget).PlayMedia(Enums.PlaybackMode.iSpy);
-        }
+        private void iSpyToolStripMenuItem_Click(object sender, EventArgs e) => ((PreviewBox)ContextTarget).PlayMedia(Enums.PlaybackMode.iSpy);
 
-        private void defaultPlayerToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ((PreviewBox) ContextTarget).PlayMedia(Enums.PlaybackMode.Default);
-        }
+        private void defaultPlayerToolStripMenuItem_Click(object sender, EventArgs e) => ((PreviewBox)ContextTarget).PlayMedia(Enums.PlaybackMode.Default);
 
-        private void websiteToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ((PreviewBox) ContextTarget).PlayMedia(Enums.PlaybackMode.Website);
-        }
+        private void websiteToolStripMenuItem_Click(object sender, EventArgs e) => ((PreviewBox)ContextTarget).PlayMedia(Enums.PlaybackMode.Website);
 
-        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            MediaDeleteSelected();
-        }
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e) => MediaDeleteSelected();
 
-        private void pTZControllerToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            ShowHidePTZTool();
-        }
+        private void pTZControllerToolStripMenuItem1_Click(object sender, EventArgs e) => ShowHidePTZTool();
 
         private void showInFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var pb = ((PreviewBox) ContextTarget);
+            var pb = ((PreviewBox)ContextTarget);
 
             string argument = @"/select, " + pb.FileName;
             Process.Start("explorer.exe", argument);
         }
 
-        private void otherVideoSourceToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            AddCamera(8);
-        }
+        private void otherVideoSourceToolStripMenuItem_Click(object sender, EventArgs e) => AddCamera(8);
 
-        private void videoFileToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            AddCamera(5);
-        }
+        private void videoFileToolStripMenuItem_Click(object sender, EventArgs e) => AddCamera(5);
 
         private void saveToToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -4325,21 +4003,20 @@ namespace iSpyApplication
                     {
                         for (int i = 0; i < flowPreview.Controls.Count; i++)
                         {
-                            var pb = flowPreview.Controls[i] as PreviewBox;
-                            if (pb != null && pb.Selected)
+                            if (flowPreview.Controls[i] is PreviewBox pb && pb.Selected)
                             {
                                 var fi = new FileInfo(pb.FileName);
                                 File.Copy(pb.FileName, _fbdSaveTo.FileName + @"\" + fi.Name);
                             }
                         }
-                    }                   
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Logger.LogException(ex);
             }
-        }      
+        }
 
         private void _tsslStats_Click(object sender, EventArgs e)
         {
@@ -4349,7 +4026,7 @@ namespace iSpyApplication
             }
             else
             {
-                
+
                 if (WsWrapper.WebsiteLive && !WsWrapper.LoginFailed && !string.IsNullOrEmpty(Conf.WSUsername))
                 {
                     if (Conf.ServicesEnabled)
@@ -4367,14 +4044,11 @@ namespace iSpyApplication
                 {
                     WebConnect();
                 }
-                
+
             }
         }
 
-        private void UnlockLayout()
-        {
-            Conf.LockLayout = menuItem22.Checked = false;
-        }
+        private void UnlockLayout() => Conf.LockLayout = menuItem22.Checked = false;
 
         private void MaxMin()
         {
@@ -4393,15 +4067,7 @@ namespace iSpyApplication
             Conf.Fullscreen = fullScreenToolStripMenuItem1.Checked;
         }
 
-        public static string Webpage
-        {
-            get
-            {
-                if (CustomWebserver)
-                    return Webserver + "/watch_new.aspx";
-                return Webserver + "/monitor/";
-            }
-        }
+        public static string Webpage => CustomWebserver ? Webserver + "/watch_new.aspx" : Webserver + "/monitor/";
 
 
         private void ListGridViews()
@@ -4416,31 +4082,30 @@ namespace iSpyApplication
             {
                 var tsi = new ToolStripMenuItem(gv.name, Resources.Video2);
                 tsi.Click += tsi_Click;
-                tssbGridViews.DropDownItems.Insert(0,tsi);
-                var mi = new MenuItem(gv.name,mi_click);
+                tssbGridViews.DropDownItems.Insert(0, tsi);
+                var mi = new MenuItem(gv.name, mi_click);
                 menuItem31.MenuItems.Add(0, mi);
             }
         }
 
-        void mi_click(object sender, EventArgs e)
+        private void mi_click(object sender, EventArgs e)
         {
             var mi = (MenuItem)sender;
             ShowGridView(mi.Text);
         }
-        
-        void tsi_Click(object sender, EventArgs e)
+
+        private void tsi_Click(object sender, EventArgs e)
         {
             var mi = (ToolStripItem)sender;
             ShowGridView(mi.Text);
         }
 
-        void tsi_MaximiseClick(object sender, EventArgs e)
+        private void tsi_MaximiseClick(object sender, EventArgs e)
         {
             var mi = (ToolStripItem)sender;
             foreach (Control o in _pnlCameras.Controls)
             {
-                var ic = o as ISpyControl;
-                if (ic!=null && ic.ObjectName == mi.Text)
+                if (o is ISpyControl ic && ic.ObjectName == mi.Text)
                 {
                     _pnlCameras.Maximise(ic);
                     return;
@@ -4448,7 +4113,7 @@ namespace iSpyApplication
             }
         }
 
-        
+
 
         public void EditGridView(string name, IWin32Window parent = null)
         {
@@ -4458,21 +4123,21 @@ namespace iSpyApplication
             if (cg != null)
             {
                 var gvc = new GridViewCustom
-                          {
-                              Cols = cg.Columns,
-                              Rows = cg.Rows,
-                              GridName = cg.name,
-                              FullScreen = cg.FullScreen,
-                              AlwaysOnTop = cg.AlwaysOnTop,
-                              Display = cg.Display,
-                              Framerate = cg.Framerate,
-                              Mode = cg.ModeIndex,
-                              ModeConfig = cg.ModeConfig,
-                              Overlays = cg.Overlays,
-                              Fill = cg.Fill,
-                              ShowAtStartup = cg.ShowAtStartup,
-                          };
-               // bool b = ((Form) parent).TopMost;
+                {
+                    Cols = cg.Columns,
+                    Rows = cg.Rows,
+                    GridName = cg.name,
+                    FullScreen = cg.FullScreen,
+                    AlwaysOnTop = cg.AlwaysOnTop,
+                    Display = cg.Display,
+                    Framerate = cg.Framerate,
+                    Mode = cg.ModeIndex,
+                    ModeConfig = cg.ModeConfig,
+                    Overlays = cg.Overlays,
+                    Fill = cg.Fill,
+                    ShowAtStartup = cg.ShowAtStartup,
+                };
+                // bool b = ((Form) parent).TopMost;
                 //((Form) parent).TopMost = false;
                 gvc.ShowDialog(parent);
                 //((Form)parent).TopMost = b;
@@ -4496,10 +4161,7 @@ namespace iSpyApplication
             }
         }
 
-        private void oNVIFCameraToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            AddCamera(9);
-        }
+        private void oNVIFCameraToolStripMenuItem_Click(object sender, EventArgs e) => AddCamera(9);
 
 
         private void configurePluginToolStripMenuItem_Click(object sender, EventArgs e)
@@ -4511,16 +4173,12 @@ namespace iSpyApplication
             }
         }
 
-        private void flowPreview_MouseLeave(object sender, EventArgs e)
-        {
-            tsslMediaInfo.Text = "";
-            //panel1.Hide(); - can't do this as not compatible with touch
-        }
+        private void flowPreview_MouseLeave(object sender, EventArgs e) => tsslMediaInfo.Text = "";//panel1.Hide(); - can't do this as not compatible with touch
 
 
         private void llblFilter_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            
+
         }
 
         internal void MediaFilter()
@@ -4530,7 +4188,7 @@ namespace iSpyApplication
             {
                 LoadPreviews();
             }
-            f.Dispose(); 
+            f.Dispose();
         }
 
         private void menuItem26_Click(object sender, EventArgs e)
@@ -4551,7 +4209,7 @@ namespace iSpyApplication
         {
         }
 
-#region Windows Form Designer generated code
+        #region Windows Form Designer generated code
 
         /// <summary>
         ///     Required method for Designer support - do not modify
@@ -6289,7 +5947,7 @@ namespace iSpyApplication
             // 
             // splitContainer2
             // 
-            this.splitContainer2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(100)))), ((int)(((byte)(100)))));
+            this.splitContainer2.BackColor = System.Drawing.Color.FromArgb(100, 100, 100);
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer2.Location = new System.Drawing.Point(0, 0);
             this.splitContainer2.Name = "splitContainer2";
@@ -6311,7 +5969,7 @@ namespace iSpyApplication
             // flCommands
             // 
             this.flCommands.AutoScroll = true;
-            this.flCommands.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.flCommands.BackColor = System.Drawing.Color.FromArgb(64, 64, 64);
             this.flCommands.Controls.Add(this.panel2);
             this.flCommands.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flCommands.Location = new System.Drawing.Point(0, 0);
@@ -6332,7 +5990,7 @@ namespace iSpyApplication
             // 
             // splitContainer1
             // 
-            this.splitContainer1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(100)))), ((int)(((byte)(100)))));
+            this.splitContainer1.BackColor = System.Drawing.Color.FromArgb(100, 100, 100);
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.Location = new System.Drawing.Point(0, 39);
             this.splitContainer1.Margin = new System.Windows.Forms.Padding(0);
@@ -6530,9 +6188,9 @@ namespace iSpyApplication
 
         }
 
-#endregion
+        #endregion
 
-        
+
 
         private enum LayoutModes
         {
@@ -6541,16 +6199,13 @@ namespace iSpyApplication
             right
         };
 
-        
+
 
         private class UISync
         {
             private static ISynchronizeInvoke _sync;
 
-            public static void Init(ISynchronizeInvoke sync)
-            {
-                _sync = sync;
-            }
+            public static void Init(ISynchronizeInvoke sync) => _sync = sync;
 
             public static void Execute(Action action)
             {
@@ -6564,10 +6219,7 @@ namespace iSpyApplication
             }
         }
 
-        private void menuItem27_Click(object sender, EventArgs e)
-        {
-            _pnlCameras.LayoutObjects(120,50);
-        }
+        private void menuItem27_Click(object sender, EventArgs e) => _pnlCameras.LayoutObjects(120, 50);
 
         private void menuItem28_Click(object sender, EventArgs e)
         {
@@ -6608,10 +6260,7 @@ namespace iSpyApplication
             }
 
         }
-        private void newToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ManageGridViews();
-        }
+        private void newToolStripMenuItem_Click(object sender, EventArgs e) => ManageGridViews();
 
         private void ManageGridViews()
         {
@@ -6621,11 +6270,7 @@ namespace iSpyApplication
             ListGridViews();
         }
 
-        private void archiveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            MediaArchiveSelected();
-
-        }
+        private void archiveToolStripMenuItem_Click(object sender, EventArgs e) => MediaArchiveSelected();
 
         private void menuItem29_Click(object sender, EventArgs e)
         {
@@ -6637,7 +6282,7 @@ namespace iSpyApplication
             if (!string.IsNullOrWhiteSpace(Conf.ArchiveNew))
             {
                 var dir = Conf.ArchiveNew;
-                if (dir.IndexOf("{")>-1)
+                if (dir.IndexOf("{") > -1)
                     dir = dir.Substring(0, dir.IndexOf("{"));
                 Process.Start(dir);
             }
@@ -6655,7 +6300,7 @@ namespace iSpyApplication
         private bool Resizing
         {
 
-            get { return _resizing; }
+            get => _resizing;
             set
             {
                 _resizing = value;
@@ -6663,25 +6308,16 @@ namespace iSpyApplication
             }
         }
 
-        private void MainForm_ResizeBegin(object sender, EventArgs e)
-        {
-            Resizing = true;
-        }
+        private void MainForm_ResizeBegin(object sender, EventArgs e) => Resizing = true;
 
-        private void MainForm_ResizeEnd(object sender, EventArgs e)
-        {
-            Resizing = false;
-        }
+        private void MainForm_ResizeEnd(object sender, EventArgs e) => Resizing = false;
 
         private void gridViewsToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
         }
 
-        private void uploadToGoogleDriveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            MediaUploadCloud();            
-        }
+        private void uploadToGoogleDriveToolStripMenuItem_Click(object sender, EventArgs e) => MediaUploadCloud();
 
         private void ctxtPlayer_Opening(object sender, CancelEventArgs e)
         {
@@ -6695,13 +6331,11 @@ namespace iSpyApplication
             {
                 for (int i = 0; i < flowPreview.Controls.Count; i++)
                 {
-                    var pb = flowPreview.Controls[i] as PreviewBox;
-                    if (pb != null && pb.Selected)
+                    if (flowPreview.Controls[i] is PreviewBox pb && pb.Selected)
                     {
-                        bool b;
-                        msg = YouTubeUploader.Upload(pb.Oid, pb.FileName, out b);
+                        msg = YouTubeUploader.Upload(pb.Oid, pb.FileName, out bool b);
                     }
-                }                
+                }
             }
             if (msg != "")
                 MessageBox.Show(this, msg);
@@ -6712,34 +6346,27 @@ namespace iSpyApplication
 
         }
 
-        private void viewLogFileToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ShowLogFile();
-        }
+        private void viewLogFileToolStripMenuItem_Click(object sender, EventArgs e) => ShowLogFile();
 
         private void onToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var obj = ContextTarget as ISpyControl;
-            if (obj!=null)
+            if (ContextTarget is ISpyControl obj)
                 obj.Enable();
         }
 
         private void offToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var obj = ContextTarget as ISpyControl;
-            if (obj != null)
+            if (ContextTarget is ISpyControl obj)
                 obj.Disable();
         }
 
         private void alertsOnToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            var cw = ContextTarget as CameraWindow;
-            if (cw != null)
+            if (ContextTarget is CameraWindow cw)
             {
                 cw.Camobject.alerts.active = true;
             }
-            var vl = ContextTarget as VolumeLevel;
-            if (vl != null)
+            if (ContextTarget is VolumeLevel vl)
             {
                 vl.Micobject.alerts.active = true;
             }
@@ -6747,13 +6374,11 @@ namespace iSpyApplication
 
         private void alertsOffToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var cw = ContextTarget as CameraWindow;
-            if (cw != null)
+            if (ContextTarget is CameraWindow cw)
             {
                 cw.Camobject.alerts.active = false;
             }
-            var vl = ContextTarget as VolumeLevel;
-            if (vl != null)
+            if (ContextTarget is VolumeLevel vl)
             {
                 vl.Micobject.alerts.active = false;
             }
@@ -6761,13 +6386,11 @@ namespace iSpyApplication
 
         private void scheduleOnToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var cw = ContextTarget as CameraWindow;
-            if (cw != null)
+            if (ContextTarget is CameraWindow cw)
             {
                 cw.Camobject.schedule.active = true;
             }
-            var vl = ContextTarget as VolumeLevel;
-            if (vl != null)
+            if (ContextTarget is VolumeLevel vl)
             {
                 vl.Micobject.schedule.active = true;
             }
@@ -6775,13 +6398,11 @@ namespace iSpyApplication
 
         private void scheduleOffToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var cw = ContextTarget as CameraWindow;
-            if (cw != null)
+            if (ContextTarget is CameraWindow cw)
             {
                 cw.Camobject.schedule.active = false;
             }
-            var vl = ContextTarget as VolumeLevel;
-            if (vl != null)
+            if (ContextTarget is VolumeLevel vl)
             {
                 vl.Micobject.schedule.active = false;
             }
@@ -6789,8 +6410,7 @@ namespace iSpyApplication
 
         private void pTZScheduleOnToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var cw = ContextTarget as CameraWindow;
-            if (cw != null)
+            if (ContextTarget is CameraWindow cw)
             {
                 cw.Camobject.ptzschedule.active = true;
             }
@@ -6798,8 +6418,7 @@ namespace iSpyApplication
 
         private void pTZScheduleOffToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var cw = ContextTarget as CameraWindow;
-            if (cw != null)
+            if (ContextTarget is CameraWindow cw)
             {
                 cw.Camobject.ptzschedule.active = false;
             }
@@ -6828,13 +6447,10 @@ namespace iSpyApplication
                 }
                 _cp = null;
             }
-            
+
         }
 
-        private void tagsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ProcessKey("tags");
-        }
+        private void tagsToolStripMenuItem_Click(object sender, EventArgs e) => ProcessKey("tags");
 
         private void openWebInterfaceToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -6842,21 +6458,12 @@ namespace iSpyApplication
             window?.OpenWebInterface();
         }
 
-        private void menuItem32_Click(object sender, EventArgs e)
-        {
-            ManageGridViews();
-        }
+        private void menuItem32_Click(object sender, EventArgs e) => ManageGridViews();
 
         private Panel _lastClicked;
-        private void _pnlCameras_MouseDown(object sender, MouseEventArgs e)
-        {
-            _lastClicked = _pnlCameras;
-        }
+        private void _pnlCameras_MouseDown(object sender, MouseEventArgs e) => _lastClicked = _pnlCameras;
 
-        private void flCommands_MouseDown(object sender, MouseEventArgs e)
-        {
-            _lastClicked = flCommands;
-        }
+        private void flCommands_MouseDown(object sender, MouseEventArgs e) => _lastClicked = flCommands;
 
         private void menuItem39_Click(object sender, EventArgs e)
         {
@@ -6865,10 +6472,7 @@ namespace iSpyApplication
             _pnlCameras.Invalidate();
         }
 
-        private void _pnlCameras_Resize(object sender, EventArgs e)
-        {
-            _pnlCameras.Invalidate();
-        }
+        private void _pnlCameras_Resize(object sender, EventArgs e) => _pnlCameras.Invalidate();
 
         private FindObject _fo = new FindObject();
         private void menuItem40_Click(object sender, EventArgs e)
@@ -6885,10 +6489,7 @@ namespace iSpyApplication
             WindowState = FormWindowState.Minimized;
         }
 
-        private void tsslPRO_Click(object sender, EventArgs e)
-        {
-            OpenUrl(Website + "/download-agent.aspx");
-        }
+        private void tsslPRO_Click(object sender, EventArgs e) => OpenUrl(Website + "/download-agent.aspx");
 
         private void ctxtMnu_Opening(object sender, CancelEventArgs e)
         {
@@ -6901,10 +6502,7 @@ namespace iSpyApplication
 
 
         private CommandButtons cmdButtons = null;
-        private void menuItem35_Click(object sender, EventArgs e)
-        {
-            ShowCommandButtonWindow();
-        }
+        private void menuItem35_Click(object sender, EventArgs e) => ShowCommandButtonWindow();
 
         internal void ShowCommandButtonWindow()
         {

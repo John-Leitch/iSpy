@@ -7,10 +7,7 @@ namespace iSpyApplication.Controls
     {
         public string AuthCode = "";
         public string URL = "";
-        public Authorizer()
-        {
-            InitializeComponent();
-        }
+        public Authorizer() => InitializeComponent();
 
         private void btnOK_Click(object sender, EventArgs e)
         {
@@ -26,9 +23,6 @@ namespace iSpyApplication.Controls
             label2.Text = LocRm.GetString("AuthoriseInstructions");
         }
 
-        private void llURL_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            MainForm.OpenUrl(llURL.Text);
-        }
+        private void llURL_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => MainForm.OpenUrl(llURL.Text);
     }
 }

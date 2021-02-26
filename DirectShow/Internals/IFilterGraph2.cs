@@ -33,7 +33,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        new int AddFilter( [In] IBaseFilter filter, [In, MarshalAs( UnmanagedType.LPWStr )] string name );
+        new int AddFilter([In] IBaseFilter filter, [In, MarshalAs(UnmanagedType.LPWStr)] string name);
 
         /// <summary>
         /// Removes a filter from the graph.
@@ -44,7 +44,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        new int RemoveFilter( [In] IBaseFilter filter );
+        new int RemoveFilter([In] IBaseFilter filter);
 
         /// <summary>
         /// Provides an enumerator for all filters in the graph.
@@ -55,7 +55,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        new int EnumFilters( [Out] out IEnumFilters enumerator );
+        new int EnumFilters([Out] out IEnumFilters enumerator);
 
         /// <summary>
         /// Finds a filter that was added with a specified name.
@@ -67,7 +67,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        new int FindFilterByName( [In, MarshalAs( UnmanagedType.LPWStr )] string name, [Out] out IBaseFilter filter );
+        new int FindFilterByName([In, MarshalAs(UnmanagedType.LPWStr)] string name, [Out] out IBaseFilter filter);
 
         /// <summary>
         /// Connects two pins directly (without intervening filters).
@@ -80,7 +80,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        new int ConnectDirect( [In] IPin pinOut, [In] IPin pinIn, [In, MarshalAs( UnmanagedType.LPStruct )] AMMediaType mediaType );
+        new int ConnectDirect([In] IPin pinOut, [In] IPin pinIn, [In, MarshalAs(UnmanagedType.LPStruct)] AMMediaType mediaType);
 
         /// <summary>
         /// Breaks the existing pin connection and reconnects it to the same pin.
@@ -91,7 +91,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        new int Reconnect( [In] IPin pin );
+        new int Reconnect([In] IPin pin);
 
         /// <summary>
         /// Disconnects a specified pin.
@@ -102,7 +102,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        new int Disconnect( [In] IPin pin );
+        new int Disconnect([In] IPin pin);
 
         /// <summary>
         /// Sets the reference clock to the default clock.
@@ -111,7 +111,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        new int SetDefaultSyncSource( );
+        new int SetDefaultSyncSource();
 
         // --- IGraphBuilder methods
 
@@ -125,7 +125,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        new int Connect( [In] IPin pinOut, [In] IPin pinIn );
+        new int Connect([In] IPin pinOut, [In] IPin pinIn);
 
         /// <summary>
         /// Adds a chain of filters to a specified output pin to render it.
@@ -136,7 +136,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        new int Render( [In] IPin pinOut );
+        new int Render([In] IPin pinOut);
 
         /// <summary>
         /// Builds a filter graph that renders the specified file.
@@ -149,8 +149,8 @@ namespace iSpyPRO.DirectShow.Internals
         /// 
         [PreserveSig]
         new int RenderFile(
-            [In, MarshalAs( UnmanagedType.LPWStr )] string file,
-            [In, MarshalAs( UnmanagedType.LPWStr )] string playList );
+            [In, MarshalAs(UnmanagedType.LPWStr)] string file,
+            [In, MarshalAs(UnmanagedType.LPWStr)] string playList);
 
         /// <summary>
         /// Adds a source filter to the filter graph for a specific file.
@@ -164,9 +164,9 @@ namespace iSpyPRO.DirectShow.Internals
         /// 
         [PreserveSig]
         new int AddSourceFilter(
-            [In, MarshalAs( UnmanagedType.LPWStr )] string fileName,
-            [In, MarshalAs( UnmanagedType.LPWStr )] string filterName,
-            [Out] out IBaseFilter filter );
+            [In, MarshalAs(UnmanagedType.LPWStr)] string fileName,
+            [In, MarshalAs(UnmanagedType.LPWStr)] string filterName,
+            [Out] out IBaseFilter filter);
 
         /// <summary>
         /// Sets the file for logging actions taken when attempting to perform an operation.
@@ -177,7 +177,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        new int SetLogFile( IntPtr hFile );
+        new int SetLogFile(IntPtr hFile);
 
         /// <summary>
         /// Requests that the graph builder return as soon as possible from its current task.
@@ -186,7 +186,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        new int Abort( );
+        new int Abort();
 
         /// <summary>
         /// Queries whether the current operation should continue.
@@ -195,7 +195,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        new int ShouldOperationContinue( );
+        new int ShouldOperationContinue();
 
 
         // --- IFilterGraph2 methods
@@ -216,7 +216,7 @@ namespace iSpyPRO.DirectShow.Internals
         int AddSourceFilterForMoniker(
             [In] IMoniker moniker,
             [In] IBindCtx bindContext,
-            [In, MarshalAs( UnmanagedType.LPWStr )] string filterName,
+            [In, MarshalAs(UnmanagedType.LPWStr)] string filterName,
             [Out] out IBaseFilter filter
         );
 
@@ -233,7 +233,7 @@ namespace iSpyPRO.DirectShow.Internals
         [PreserveSig]
         int ReconnectEx(
             [In] IPin pin,
-            [In, MarshalAs( UnmanagedType.LPStruct )] AMMediaType mediaType
+            [In, MarshalAs(UnmanagedType.LPStruct)] AMMediaType mediaType
             );
 
         /// <summary>

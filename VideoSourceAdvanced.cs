@@ -25,12 +25,12 @@ namespace iSpyApplication
             txtHeaders.Text = Camobject.settings.headers;
 
             tlpFishEye.Enabled = chkFishEyeActive.Checked = Camobject.settings.FishEyeCorrect;
-            
+
             numFocalLength.Value = Camobject.settings.FishEyeFocalLengthPX;
             numLimit.Value = Camobject.settings.FishEyeLimit;
             numScale.Value = Convert.ToDecimal(Camobject.settings.FishEyeScale);
-            
-            
+
+
             numTimeout.Value = Camobject.settings.timeout;
         }
 
@@ -42,7 +42,7 @@ namespace iSpyApplication
             label4.Text = LocRm.GetString("Seconds");
             label3.Text = LocRm.GetString("ReconnectEvery");
             label7.Text = LocRm.GetString("Headers");
-            LocRm.SetString(label1,"Cookies");
+            LocRm.SetString(label1, "Cookies");
             LocRm.SetString(label2, "UserAgent");
             LocRm.SetString(lblTimeout, "TimeoutMS");
 
@@ -93,8 +93,8 @@ namespace iSpyApplication
             Camobject.settings.useragent = txtUserAgent.Text;
             Camobject.settings.headers = txtHeaders.Text;
 
-            
-            Camobject.settings.timeout = (int) numTimeout.Value;
+
+            Camobject.settings.timeout = (int)numTimeout.Value;
             Close();
         }
 
@@ -105,19 +105,10 @@ namespace iSpyApplication
             tlpFishEye.Enabled = Camobject.settings.FishEyeCorrect;
         }
 
-        private void numFocalLength_ValueChanged(object sender, EventArgs e)
-        {
-            Camobject.settings.FishEyeFocalLengthPX = (int)numFocalLength.Value;
-        }
+        private void numFocalLength_ValueChanged(object sender, EventArgs e) => Camobject.settings.FishEyeFocalLengthPX = (int)numFocalLength.Value;
 
-        private void numLimit_ValueChanged(object sender, EventArgs e)
-        {
-            Camobject.settings.FishEyeLimit = (int)numLimit.Value;
-        }
+        private void numLimit_ValueChanged(object sender, EventArgs e) => Camobject.settings.FishEyeLimit = (int)numLimit.Value;
 
-        private void numScale_ValueChanged(object sender, EventArgs e)
-        {
-            Camobject.settings.FishEyeScale = Convert.ToDouble(numScale.Value);
-        }
+        private void numScale_ValueChanged(object sender, EventArgs e) => Camobject.settings.FishEyeScale = Convert.ToDouble(numScale.Value);
     }
 }

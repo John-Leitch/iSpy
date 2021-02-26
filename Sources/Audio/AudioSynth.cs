@@ -1,15 +1,15 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using iSpyApplication.Controls;
+﻿using iSpyApplication.Controls;
 using iSpyApplication.Sources.Audio.streams;
 using iSpyApplication.Sources.Audio.talk;
 using iSpyApplication.Utilities;
 using NAudio.Wave;
+using System;
+using System.IO;
+using System.Threading;
 
 namespace iSpyApplication.Sources.Audio
 {
-    static class AudioSynth
+    internal static class AudioSynth
     {
         public static void Play(string fileName, CameraWindow cw)
         {
@@ -39,13 +39,13 @@ namespace iSpyApplication.Sources.Audio
 
                             using (var conversionStream = new WaveFormatConversionStream(newFormat, reader))
                             {
-                                do
+                                while (true)
                                 {
                                     var i = conversionStream.Read(buff, 0, buff.Length);
                                     waveStream.Write(buff, 0, i);
                                     if (i < 22050)
                                         break;
-                                } while (true);
+                                }
                             }
                         }
                         else

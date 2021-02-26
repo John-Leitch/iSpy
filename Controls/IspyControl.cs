@@ -8,7 +8,7 @@ namespace iSpyApplication.Controls
     {
         int ObjectTypeID { get; }
         int ObjectID { get; }
-        bool IsEnabled { get;}
+        bool IsEnabled { get; }
         bool Talking { get; }
         bool Listening { get; }
         bool Recording { get; }
@@ -21,7 +21,7 @@ namespace iSpyApplication.Controls
         bool HasFiles { get; }
         string ObjectName { get; }
         string Folder { get; }
-        void Disable(bool stopSource=true);
+        void Disable(bool stopSource = true);
         void Enable();
         string RecordSwitch(bool record);
         void Talk(IWin32Window f = null);

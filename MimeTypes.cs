@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace iSpyApplication
 {
-    class MimeTypes
+    internal class MimeTypes
     {
         private static readonly IDictionary<string, string> Mappings = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
 
@@ -578,7 +578,7 @@ namespace iSpyApplication
         {
             if (extension == null)
             {
-                throw new ArgumentNullException("extension");
+                throw new ArgumentNullException(nameof(extension));
             }
 
             if (!extension.StartsWith("."))
@@ -586,9 +586,8 @@ namespace iSpyApplication
                 extension = "." + extension;
             }
 
-            string mime;
 
-            return Mappings.TryGetValue(extension, out mime) ? mime : "application/octet-stream";
+            return Mappings.TryGetValue(extension, out string mime) ? mime : "application/octet-stream";
         }
     }
 }

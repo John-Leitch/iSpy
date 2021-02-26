@@ -6,7 +6,7 @@ namespace iSpyApplication.Controls
 {
     public sealed partial class AlertEventRow : UserControl
     {
-        public new static int Height = 31;
+        public static new int Height = 31;
         public objectsActionsEntry Oae;
 
         public event EventHandler AlertEntryDelete;
@@ -25,14 +25,14 @@ namespace iSpyApplication.Controls
 
         private string GetSummary(string type, string param1, string param2, string param3, string param4)
         {
-            string t= "Unknown";
+            string t = "Unknown";
             switch (type)
             {
                 case "Exe":
                     t = LocRm.GetString("ExecuteFile") + ": " + param1;
                     break;
                 case "URL":
-                    t = LocRm.GetString("CallURL")+": " + param1;
+                    t = LocRm.GetString("CallURL") + ": " + param1;
                     if (Convert.ToBoolean(param2))
                         t += " (POST grab)";
                     break;
@@ -40,7 +40,7 @@ namespace iSpyApplication.Controls
                     t = param1 + " " + param2 + ":" + param3 + " (" + param4 + ")";
                     break;
                 case "S":
-                    t = LocRm.GetString("PlaySound")+": " + param1;
+                    t = LocRm.GetString("PlaySound") + ": " + param1;
                     break;
                 case "ATC":
                     t = LocRm.GetString("SoundThroughCamera") + ": " + param1;
@@ -79,7 +79,7 @@ namespace iSpyApplication.Controls
                                     n = oc.name;
                                 break;
                         }
-                        t = LocRm.GetString("TriggerAlertOn")+" " + n;
+                        t = LocRm.GetString("TriggerAlertOn") + " " + n;
                     }
                     break;
                 case "SOO":
@@ -100,7 +100,7 @@ namespace iSpyApplication.Controls
                                     n = oc.name;
                                 break;
                         }
-                        t = LocRm.GetString("SwitchObjectOn")+" " + n;
+                        t = LocRm.GetString("SwitchObjectOn") + " " + n;
                     }
                     break;
                 case "SOF":
@@ -125,12 +125,12 @@ namespace iSpyApplication.Controls
                     }
                     break;
                 case "E":
-                    t = LocRm.GetString("SendEmail")+": " + param1;
-                    if (param2!="" && Convert.ToBoolean(param2))
+                    t = LocRm.GetString("SendEmail") + ": " + param1;
+                    if (param2 != "" && Convert.ToBoolean(param2))
                         t += " (include grab)";
                     break;
                 case "SMS":
-                    t = LocRm.GetString("SendSMS")+": " + param1;
+                    t = LocRm.GetString("SendSMS") + ": " + param1;
                     break;
                 case "TM":
                     t = LocRm.GetString("SendTwitterMessage");
@@ -142,7 +142,7 @@ namespace iSpyApplication.Controls
             return t;
         }
 
-        
+
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
@@ -169,9 +169,6 @@ namespace iSpyApplication.Controls
             Invalidate();
         }
 
-        private void chkSummary_CheckedChanged(object sender, EventArgs e)
-        {
-            Oae.active = chkSummary.Checked;
-        }
+        private void chkSummary_CheckedChanged(object sender, EventArgs e) => Oae.active = chkSummary.Checked;
     }
 }

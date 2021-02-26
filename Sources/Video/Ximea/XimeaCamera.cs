@@ -6,11 +6,11 @@
 // contacts@aforgenet.com
 //
 
+using iSpyApplication.Sources.Video.Ximea.Internal;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Text;
-using iSpyApplication.Sources.Video.Ximea.Internal;
 
 namespace iSpyApplication.Sources.Video.Ximea
 {
@@ -56,7 +56,7 @@ namespace iSpyApplication.Sources.Video.Ximea
         private int _deviceID;
 
         // dummy object to lock for synchronization
-        private readonly object _sync = new object( );
+        private readonly object _sync = new object();
 
         /// <summary>
         /// Get number of XIMEA camera connected to the system.
@@ -65,10 +65,9 @@ namespace iSpyApplication.Sources.Video.Ximea
         {
             get
             {
-                int count;
 
-                int errorCode = XimeaAPI.xiGetNumberDevices( out count );
-                HandleError( errorCode );
+                int errorCode = XimeaAPI.xiGetNumberDevices(out int count);
+                HandleError(errorCode);
 
                 return count;
             }
@@ -81,7 +80,7 @@ namespace iSpyApplication.Sources.Video.Ximea
         {
             get
             {
-                lock ( _sync )
+                lock (_sync)
                 {
                     return _isAcquisitionStarted;
                 }
@@ -95,9 +94,9 @@ namespace iSpyApplication.Sources.Video.Ximea
         {
             get
             {
-                lock ( _sync )
+                lock (_sync)
                 {
-                    return ( _deviceHandle != IntPtr.Zero );
+                    return (_deviceHandle != IntPtr.Zero);
                 }
             }
         }
@@ -118,13 +117,12 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// property can be used at any time to find if a camera was opened or not.</para></remarks>
         /// 
         ///
-        public void Open( int deviceID )
+        public void Open(int deviceID)
         {
-            lock ( _sync )
+            lock (_sync)
             {
-                IntPtr deviceHandle;
-                int errorCode = XimeaAPI.xiOpenDevice( deviceID, out deviceHandle );
-                HandleError( errorCode );
+                int errorCode = XimeaAPI.xiOpenDevice(deviceID, out IntPtr deviceHandle);
+                HandleError(errorCode);
                 // save the device handle is everything is fine
                 _deviceHandle = deviceHandle;
                 _isAcquisitionStarted = false;
@@ -140,17 +138,17 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// done by user.</note></para></remarks>
         /// 
         ///
-        public void Close( )
+        public void Close()
         {
-            lock ( _sync )
+            lock (_sync)
             {
-                if ( _deviceHandle != IntPtr.Zero )
+                if (_deviceHandle != IntPtr.Zero)
                 {
-                    if ( _isAcquisitionStarted )
+                    if (_isAcquisitionStarted)
                     {
                         try
                         {
-                            StopAcquisition( );
+                            StopAcquisition();
                         }
                         catch
                         {
@@ -159,8 +157,8 @@ namespace iSpyApplication.Sources.Video.Ximea
 
                     try
                     {
-                        int errorCode = XimeaAPI.xiCloseDevice( _deviceHandle );
-                        HandleError( errorCode );
+                        int errorCode = XimeaAPI.xiCloseDevice(_deviceHandle);
+                        HandleError(errorCode);
                     }
                     finally
                     {
@@ -178,14 +176,14 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// acquisition was started or not.</para></remarks>
         /// 
         /// 
-        public void StartAcquisition( )
+        public void StartAcquisition()
         {
-            lock ( _sync )
+            lock (_sync)
             {
-                CheckConnection( );
+                CheckConnection();
 
-                int errorCode = XimeaAPI.xiStartAcquisition( _deviceHandle );
-                HandleError( errorCode );
+                int errorCode = XimeaAPI.xiStartAcquisition(_deviceHandle);
+                HandleError(errorCode);
 
                 _isAcquisitionStarted = true;
             }
@@ -196,16 +194,16 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// </summary>
         /// 
         /// 
-        public void StopAcquisition( )
+        public void StopAcquisition()
         {
-            lock ( _sync )
+            lock (_sync)
             {
-                CheckConnection( );
+                CheckConnection();
 
                 try
                 {
-                    int errorCode = XimeaAPI.xiStopAcquisition( _deviceHandle );
-                    HandleError( errorCode );
+                    int errorCode = XimeaAPI.xiStopAcquisition(_deviceHandle);
+                    HandleError(errorCode);
                 }
                 finally
                 {
@@ -227,14 +225,14 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// </para></remarks>
         /// 
         ///
-        public void SetParam( string parameterName, int value )
+        public void SetParam(string parameterName, int value)
         {
-            lock ( _sync )
+            lock (_sync)
             {
-                CheckConnection( );
+                CheckConnection();
 
-                int errorCode = XimeaAPI.xiSetParam( _deviceHandle, parameterName, ref value, 4, ParameterType.Integer );
-                HandleError( errorCode );
+                int errorCode = XimeaAPI.xiSetParam(_deviceHandle, parameterName, ref value, 4, ParameterType.Integer);
+                HandleError(errorCode);
             }
         }
 
@@ -251,14 +249,14 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// </para></remarks>
         /// 
         ///
-        public void SetParam( string parameterName, float value )
+        public void SetParam(string parameterName, float value)
         {
-            lock ( _sync )
+            lock (_sync)
             {
-                CheckConnection( );
+                CheckConnection();
 
-                int errorCode = XimeaAPI.xiSetParam( _deviceHandle, parameterName, ref value, 4, ParameterType.Float );
-                HandleError( errorCode );
+                int errorCode = XimeaAPI.xiSetParam(_deviceHandle, parameterName, ref value, 4, ParameterType.Float);
+                HandleError(errorCode);
             }
         }
 
@@ -274,18 +272,16 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// XIMEA documentation for the complete list of supported parameters.</para></remarks>
         /// 
         ///
-        public int GetParamInt( string parameterName )
+        public int GetParamInt(string parameterName)
         {
-            lock ( _sync )
+            lock (_sync)
             {
-                CheckConnection( );
+                CheckConnection();
 
-                int value;
-                int size;
                 ParameterType type = ParameterType.Integer;
 
-                int errorCode = XimeaAPI.xiGetParam( _deviceHandle, parameterName, out value, out size, ref type );
-                HandleError( errorCode );
+                int errorCode = XimeaAPI.xiGetParam(_deviceHandle, parameterName, out int value, out int size, ref type);
+                HandleError(errorCode);
 
                 return value;
             }
@@ -303,18 +299,16 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// XIMEA documentation for the complete list of supported parameters.</para></remarks>
         /// 
         ///
-        public float GetParamFloat( string parameterName )
+        public float GetParamFloat(string parameterName)
         {
-            lock ( _sync )
+            lock (_sync)
             {
-                CheckConnection( );
+                CheckConnection();
 
-                float value;
-                int size;
                 ParameterType type = ParameterType.Float;
 
-                int errorCode = XimeaAPI.xiGetParam( _deviceHandle, parameterName, out value, out size, ref type );
-                HandleError( errorCode );
+                int errorCode = XimeaAPI.xiGetParam(_deviceHandle, parameterName, out float value, out int size, ref type);
+                HandleError(errorCode);
 
                 return value;
             }
@@ -332,11 +326,11 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// XIMEA documentation for the complete list of supported parameters.</para></remarks>
         /// 
         ///
-        public string GetParamString( string parameterName )
+        public string GetParamString(string parameterName)
         {
-            lock ( _sync )
+            lock (_sync)
             {
-                CheckConnection( );
+                CheckConnection();
 
                 byte[] bytes = new byte[260];
                 int size;
@@ -344,14 +338,14 @@ namespace iSpyApplication.Sources.Video.Ximea
 
                 unsafe
                 {
-                    fixed ( byte* ptr = bytes )
+                    fixed (byte* ptr = bytes)
                     {
-                        int errorCode = XimeaAPI.xiGetParam( _deviceHandle, parameterName, ptr, out size, ref type );
-                        HandleError( errorCode );
+                        int errorCode = XimeaAPI.xiGetParam(_deviceHandle, parameterName, ptr, out size, ref type);
+                        HandleError(errorCode);
                     }
                 }
 
-                return Encoding.ASCII.GetString( bytes, 0, size );
+                return Encoding.ASCII.GetString(bytes, 0, size);
             }
         }
 
@@ -364,10 +358,7 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// <remarks><para>The method calls <see cref="GetImage(int)"/> method specifying 5000 as the timeout
         /// value.</para></remarks>
         ///
-        public Bitmap GetImage( )
-        {
-            return GetImage( 5000 );
-        }
+        public Bitmap GetImage() => GetImage(5000);
 
         /// <summary>
         /// Get image from the opened XIMEA camera.
@@ -380,11 +371,8 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// <remarks><para>The method calls <see cref="GetImage(int,bool)"/> method specifying <see langword="true"/>
         /// the <b>makeCopy</b> parameter.</para></remarks>
         ///
-        public Bitmap GetImage( int timeout )
-        {
-            return GetImage( timeout, true );
-        }
-        
+        public Bitmap GetImage(int timeout) => GetImage(timeout, true);
+
         /// <summary>
         /// Get image from the opened XIMEA camera.
         /// </summary>
@@ -401,38 +389,38 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// managed image becomes no longer valid and accessing it will generate an exception.</para></remarks>
         /// 
         ///
-        public Bitmap GetImage( int timeout, bool makeCopy )
+        public Bitmap GetImage(int timeout, bool makeCopy)
         {
-            lock ( _sync )
+            lock (_sync)
             {
-                CheckConnection( );
+                CheckConnection();
 
                 int errorCode;
 
-                XimeaImage ximeaImage = new XimeaImage( );
+                XimeaImage ximeaImage = new XimeaImage();
                 unsafe
                 {
-                    ximeaImage.StructSize = sizeof( XimeaImage );
+                    ximeaImage.StructSize = sizeof(XimeaImage);
                 }
 
                 // get image from XIMEA camera
                 try
                 {
-                    errorCode = XimeaAPI.xiGetImage( _deviceHandle, timeout, ref ximeaImage );
+                    errorCode = XimeaAPI.xiGetImage(_deviceHandle, timeout, ref ximeaImage);
                 }
-                catch ( AccessViolationException )
+                catch (AccessViolationException)
                 {
                     errorCode = 9;
                 }
 
                 // handle error if any
-                HandleError( errorCode );
+                HandleError(errorCode);
 
                 // create managed bitmap for the unmanaged image provided by camera
                 PixelFormat pixelFormat;
                 int stride;
 
-                switch ( ximeaImage.PixelFormat )
+                switch (ximeaImage.PixelFormat)
                 {
                     case ImageFormat.Grayscale8:
                         pixelFormat = PixelFormat.Format8bppIndexed;
@@ -450,59 +438,59 @@ namespace iSpyApplication.Sources.Video.Ximea
                         break;
 
                     default:
-                        throw new Exception( "Unsupported pixel format." );
+                        throw new Exception("Unsupported pixel format.");
                 }
 
                 Bitmap bitmap;
 
-                if ( !makeCopy )
+                if (!makeCopy)
                 {
-                    bitmap = new Bitmap( ximeaImage.Width, ximeaImage.Height, stride, pixelFormat, ximeaImage.BitmapData );
+                    bitmap = new Bitmap(ximeaImage.Width, ximeaImage.Height, stride, pixelFormat, ximeaImage.BitmapData);
                 }
                 else
                 {
-                    bitmap = new Bitmap( ximeaImage.Width, ximeaImage.Height, pixelFormat );
+                    bitmap = new Bitmap(ximeaImage.Width, ximeaImage.Height, pixelFormat);
 
                     // lock destination bitmap data
                     BitmapData bitmapData = bitmap.LockBits(
-                        new Rectangle( 0, 0, ximeaImage.Width, ximeaImage.Height ),
-                        ImageLockMode.ReadWrite, pixelFormat );
+                        new Rectangle(0, 0, ximeaImage.Width, ximeaImage.Height),
+                        ImageLockMode.ReadWrite, pixelFormat);
 
                     int dstStride = bitmapData.Stride;
-                    int lineSize  = Math.Min( stride, dstStride );
+                    int lineSize = Math.Min(stride, dstStride);
 
                     unsafe
                     {
-                        byte* dst = (byte*) bitmapData.Scan0.ToPointer( );
-                        byte* src = (byte*) ximeaImage.BitmapData.ToPointer( );
+                        byte* dst = (byte*)bitmapData.Scan0.ToPointer();
+                        byte* src = (byte*)ximeaImage.BitmapData.ToPointer();
 
-                        if ( stride != dstStride )
+                        if (stride != dstStride)
                         {
                             // copy image
-                            for ( int y = 0; y < ximeaImage.Height; y++ )
+                            for (int y = 0; y < ximeaImage.Height; y++)
                             {
-                                AForge.SystemTools.CopyUnmanagedMemory( dst, src, lineSize );
+                                AForge.SystemTools.CopyUnmanagedMemory(dst, src, lineSize);
                                 dst += dstStride;
                                 src += stride;
                             }
                         }
                         else
                         {
-                            AForge.SystemTools.CopyUnmanagedMemory( dst, src, stride * ximeaImage.Height );
+                            AForge.SystemTools.CopyUnmanagedMemory(dst, src, stride * ximeaImage.Height);
                         }
                     }
 
                     // unlock destination images
-                    bitmap.UnlockBits( bitmapData );
+                    bitmap.UnlockBits(bitmapData);
                 }
 
                 // set palette for grayscale image
-                if ( ximeaImage.PixelFormat == ImageFormat.Grayscale8 )
+                if (ximeaImage.PixelFormat == ImageFormat.Grayscale8)
                 {
                     ColorPalette palette = bitmap.Palette;
-                    for ( int i = 0; i < 256; i++ )
+                    for (int i = 0; i < 256; i++)
                     {
-                        palette.Entries[i] = Color.FromArgb( i, i, i );
+                        palette.Entries[i] = Color.FromArgb(i, i, i);
                     }
                     bitmap.Palette = palette;
                 }
@@ -513,18 +501,18 @@ namespace iSpyApplication.Sources.Video.Ximea
 
 
         // Handle errors from XIMEA API
-        private static void HandleError( int errorCode )
+        private static void HandleError(int errorCode)
         {
-            if ( errorCode != 0 )
+            if (errorCode != 0)
             {
-                if ( errorCode == 10 )
+                if (errorCode == 10)
                 {
-                    throw new TimeoutException( "Time out while waiting for camera response." ); 
+                    throw new TimeoutException("Time out while waiting for camera response.");
                 }
 
                 string errorMessage = string.Empty;
 
-                switch ( errorCode )
+                switch (errorCode)
                 {
                     case 1:
                         errorMessage = "Invalid handle";
@@ -744,11 +732,11 @@ namespace iSpyApplication.Sources.Video.Ximea
         }
 
         // Check if a camera is open or not
-        private void CheckConnection( )
+        private void CheckConnection()
         {
-            if ( _deviceHandle == IntPtr.Zero )
+            if (_deviceHandle == IntPtr.Zero)
             {
-                throw new Exception( "No connection to XIMEA camera." );
+                throw new Exception("No connection to XIMEA camera.");
             }
         }
     }

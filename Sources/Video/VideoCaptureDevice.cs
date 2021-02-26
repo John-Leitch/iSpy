@@ -1,3 +1,7 @@
+using iSpyApplication.Controls;
+using iSpyApplication.Utilities;
+using iSpyPRO.DirectShow;
+using iSpyPRO.DirectShow.Internals;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -5,10 +9,6 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using iSpyApplication.Controls;
-using iSpyApplication.Utilities;
-using iSpyPRO.DirectShow;
-using iSpyPRO.DirectShow.Internals;
 using FilterInfo = iSpyPRO.DirectShow.FilterInfo;
 
 namespace iSpyApplication.Sources.Video
@@ -115,7 +115,7 @@ namespace iSpyApplication.Sources.Video
         /// 
         public VideoInput CrossbarVideoInput
         {
-            get { return _crossbarVideoInput; }
+            get => _crossbarVideoInput;
             set
             {
                 _needToSetVideoInput = true;
@@ -172,7 +172,7 @@ namespace iSpyApplication.Sources.Video
                     }
                 }
                 // don't return null even if capabilities are not provided for some reason
-                return _crossbarVideoInputs ?? new VideoInput[0];
+                return _crossbarVideoInputs ?? Array.Empty<VideoInput>();
             }
         }
 
@@ -196,8 +196,8 @@ namespace iSpyApplication.Sources.Video
         ///
         public bool ProvideSnapshots
         {
-            get { return _provideSnapshots; }
-            set { _provideSnapshots = value; }
+            get => _provideSnapshots;
+            set => _provideSnapshots = value;
         }
 
         /// <summary>
@@ -248,7 +248,7 @@ namespace iSpyApplication.Sources.Video
         /// 
         public virtual string Source
         {
-            get { return _deviceMoniker; }
+            get => _deviceMoniker;
             set
             {
                 _deviceMoniker = value;
@@ -266,7 +266,7 @@ namespace iSpyApplication.Sources.Video
         /// 
         /// <remarks>Current state of video source object - running or not.</remarks>
         /// 
-        public bool IsRunning => _thread != null && !_thread.Join(0);
+        public bool IsRunning => _thread?.Join(0) == false;
 
         /// <summary>
         /// Obsolete - no longer in use
@@ -276,7 +276,7 @@ namespace iSpyApplication.Sources.Video
         /// Setting this property does not have any effect.</para></remarks>
         /// 
         [Obsolete]
-        public Size DesiredFrameSize => Size.Empty;
+        public static Size DesiredFrameSize => Size.Empty;
 
         /// <summary>
         /// Obsolete - no longer in use
@@ -286,7 +286,7 @@ namespace iSpyApplication.Sources.Video
         /// Setting this property does not have any effect.</para></remarks>
         /// 
         [Obsolete]
-        public Size DesiredSnapshotSize => Size.Empty;
+        public static Size DesiredSnapshotSize => Size.Empty;
 
         /// <summary>
         /// Obsolete - no longer in use.
@@ -295,7 +295,7 @@ namespace iSpyApplication.Sources.Video
         /// <remarks><para>The property is obsolete. Setting this property does not have any effect.</para></remarks>
         /// 
         [Obsolete]
-        public int DesiredFrameRate => 0;
+        public static int DesiredFrameRate => 0;
 
         /// <summary>
         /// Video resolution to set.
@@ -312,8 +312,8 @@ namespace iSpyApplication.Sources.Video
         /// 
         public VideoCapabilities VideoResolution
         {
-            get { return _videoResolution; }
-            set { _videoResolution = value; }
+            get => _videoResolution;
+            set => _videoResolution = value;
         }
 
         /// <summary>
@@ -331,8 +331,8 @@ namespace iSpyApplication.Sources.Video
         /// 
         public VideoCapabilities SnapshotResolution
         {
-            get { return _snapshotResolution; }
-            set { _snapshotResolution = value; }
+            get => _snapshotResolution;
+            set => _snapshotResolution = value;
         }
 
         /// <summary>
@@ -378,7 +378,7 @@ namespace iSpyApplication.Sources.Video
                     }
                 }
                 // don't return null even capabilities are not provided for some reason
-                return _videoCapabilities ?? new VideoCapabilities[0];
+                return _videoCapabilities ?? Array.Empty<VideoCapabilities>();
             }
         }
 
@@ -434,7 +434,7 @@ namespace iSpyApplication.Sources.Video
                     }
                 }
                 // don't return null even capabilities are not provided for some reason
-                return _snapshotCapabilities ?? new VideoCapabilities[0];
+                return _snapshotCapabilities ?? Array.Empty<VideoCapabilities>();
             }
         }
 
@@ -452,12 +452,9 @@ namespace iSpyApplication.Sources.Video
         /// 
         public object SourceObject => _sourceObject;
 
-        public VideoCaptureDevice(string source) : base(null)
-        {
-            _deviceMoniker = source;
-        }
+        public VideoCaptureDevice(string source) : base(null) => _deviceMoniker = source;
 
-        public VideoCaptureDevice(CameraWindow source): base(source)
+        public VideoCaptureDevice(CameraWindow source) : base(source)
         {
             var camobject = source.Camobject;
             _deviceMoniker = camobject.settings.videosourcestring;
@@ -554,7 +551,7 @@ namespace iSpyApplication.Sources.Video
                 // check source
                 if (string.IsNullOrEmpty(_deviceMoniker))
                     throw new ArgumentException("Video source is not specified.");
-                
+
                 _isCrossbarAvailable = null;
                 _needToSetVideoInput = true;
 
@@ -743,10 +740,7 @@ namespace iSpyApplication.Sources.Video
         /// to enable receiving snapshots.</note></para>
         /// </remarks>
         /// 
-        public void SimulateTrigger()
-        {
-            _needToSimulateTrigger = true;
-        }
+        public void SimulateTrigger() => _needToSimulateTrigger = true;
 
         /// <summary>
         /// Sets a specified property on the camera.
@@ -917,10 +911,7 @@ namespace iSpyApplication.Sources.Video
         /// Worker thread.
         /// </summary>
         /// 
-        private void WorkerThread()
-        {
-            WorkerThread(true);
-        }
+        private void WorkerThread() => WorkerThread(true);
 
         /// <summary>
         /// Returns property of camera (brightness/gamma etc)
@@ -1240,8 +1231,7 @@ namespace iSpyApplication.Sources.Video
                     // check if it support trigger mode
                     if (pinStillImage != null)
                     {
-                        VideoControlFlags caps;
-                        videoControl.GetCaps(pinStillImage, out caps);
+                        videoControl.GetCaps(pinStillImage, out VideoControlFlags caps);
                         isSnapshotSupported = ((caps & VideoControlFlags.ExternalTriggerEnable) != 0);
                     }
                 }
@@ -1266,7 +1256,7 @@ namespace iSpyApplication.Sources.Video
                 }
                 else
                 {
-                    _snapshotCapabilities = new VideoCapabilities[0];
+                    _snapshotCapabilities = Array.Empty<VideoCapabilities>();
                 }
 
                 // put video/snapshot capabilities into cache
@@ -1336,20 +1326,14 @@ namespace iSpyApplication.Sources.Video
                     _lastFrame = DateTime.UtcNow;
                     do
                     {
-                        if (mediaEvent != null)
+                        if (mediaEvent != null && mediaEvent.GetEvent(out DsEvCode code, out IntPtr p1, out IntPtr p2, 0) >= 0)
                         {
-                            IntPtr p1;
-                            IntPtr p2;
-                            DsEvCode code;
-                            if (mediaEvent.GetEvent(out code, out p1, out p2, 0) >= 0)
-                            {
-                                mediaEvent.FreeEventParams(code, p1, p2);
+                            mediaEvent.FreeEventParams(code, p1, p2);
 
-                                if (code == DsEvCode.DeviceLost)
-                                {
-                                    _res = ReasonToFinishPlaying.DeviceLost;
-                                    break;
-                                }
+                            if (code == DsEvCode.DeviceLost)
+                            {
+                                _res = ReasonToFinishPlaying.DeviceLost;
+                                break;
                             }
                         }
 
@@ -1456,11 +1440,10 @@ namespace iSpyApplication.Sources.Video
             }
 
             // iterate through device's capabilities to find mediaType for desired resolution
-            int capabilitiesCount, capabilitySize;
             AMMediaType newMediaType = null;
             var caps = new VideoStreamConfigCaps();
 
-            streamConfig.GetNumberOfCapabilities(out capabilitiesCount, out capabilitySize);
+            streamConfig.GetNumberOfCapabilities(out int capabilitiesCount, out int capabilitySize);
 
             for (int i = 0; i < capabilitiesCount; i++)
             {
@@ -1468,12 +1451,9 @@ namespace iSpyApplication.Sources.Video
                 {
                     var vc = new VideoCapabilities(streamConfig, i);
 
-                    if (resolution == vc)
+                    if (resolution == vc && streamConfig.GetStreamCaps(i, out newMediaType, caps) == 0)
                     {
-                        if (streamConfig.GetStreamCaps(i, out newMediaType, caps) == 0)
-                        {
-                            break;
-                        }
+                        break;
                     }
                 }
                 catch (Exception ex)
@@ -1492,11 +1472,10 @@ namespace iSpyApplication.Sources.Video
         }
 
         // Configure specified pin and collect its capabilities if required
-        private void GetPinCapabilitiesAndConfigureSizeAndRate(ICaptureGraphBuilder2 graphBuilder, IBaseFilter baseFilter,
+        private static void GetPinCapabilitiesAndConfigureSizeAndRate(ICaptureGraphBuilder2 graphBuilder, IBaseFilter baseFilter,
             Guid pinCategory, VideoCapabilities resolutionToSet, ref VideoCapabilities[] capabilities)
         {
-            object streamConfigObject;
-            graphBuilder.FindInterface(pinCategory, MediaType.Video, baseFilter, typeof(IAMStreamConfig).GUID, out streamConfigObject);
+            graphBuilder.FindInterface(pinCategory, MediaType.Video, baseFilter, typeof(IAMStreamConfig).GUID, out object streamConfigObject);
 
             if (streamConfigObject != null)
             {
@@ -1539,7 +1518,7 @@ namespace iSpyApplication.Sources.Video
             // so we don't try again
             if (capabilities == null)
             {
-                capabilities = new VideoCapabilities[0];
+                capabilities = Array.Empty<VideoCapabilities>();
             }
         }
 
@@ -1549,11 +1528,9 @@ namespace iSpyApplication.Sources.Video
             try
             {
                 // retrieve ISpecifyPropertyPages interface of the device
-                var pPropPages = sourceObject as ISpecifyPropertyPages;
-                if (pPropPages == null)
+                if (!(sourceObject is ISpecifyPropertyPages pPropPages))
                 {
-                    var e = sourceObject as IAMVfwCompressDialogs;
-                    if (e == null)
+                    if (!(sourceObject is IAMVfwCompressDialogs e))
                     {
                         throw new NotSupportedException("The video source does not support the compressor dialog page.");
                     }
@@ -1562,8 +1539,7 @@ namespace iSpyApplication.Sources.Video
                 }
 
                 // get property pages from the property bag
-                CAUUID caGUID;
-                pPropPages.GetPages(out caGUID);
+                pPropPages.GetPages(out CAUUID caGUID);
 
                 // get filter info
                 var filterInfo = new FilterInfo(_deviceMoniker);
@@ -1594,18 +1570,15 @@ namespace iSpyApplication.Sources.Video
 
                 if (crossbar != null)
                 {
-                    int inPinsCount, outPinsCount;
 
                     // gen number of pins in the crossbar
-                    if (crossbar.get_PinCounts(out outPinsCount, out inPinsCount) == 0)
+                    if (crossbar.get_PinCounts(out int outPinsCount, out int inPinsCount) == 0)
                     {
                         // collect all video inputs
                         for (int i = 0; i < inPinsCount; i++)
                         {
-                            int pinIndexRelated;
-                            PhysicalConnectorType type;
 
-                            if (crossbar.get_CrossbarPinInfo(true, i, out pinIndexRelated, out type) != 0)
+                            if (crossbar.get_CrossbarPinInfo(true, i, out int pinIndexRelated, out PhysicalConnectorType type) != 0)
                                 continue;
 
                             if (type < PhysicalConnectorType.AudioTuner)
@@ -1626,14 +1599,13 @@ namespace iSpyApplication.Sources.Video
         }
 
         // Get type of input connected to video output of the crossbar
-        private VideoInput GetCurrentCrossbarInput(IAMCrossbar crossbar)
+        private static VideoInput GetCurrentCrossbarInput(IAMCrossbar crossbar)
         {
             VideoInput videoInput = VideoInput.Default;
 
-            int inPinsCount, outPinsCount;
 
             // gen number of pins in the crossbar
-            if (crossbar.get_PinCounts(out outPinsCount, out inPinsCount) == 0)
+            if (crossbar.get_PinCounts(out int outPinsCount, out int inPinsCount) == 0)
             {
                 int videoOutputPinIndex = -1;
                 int pinIndexRelated;
@@ -1641,8 +1613,7 @@ namespace iSpyApplication.Sources.Video
                 // find index of the video output pin
                 for (int i = 0; i < outPinsCount; i++)
                 {
-                    PhysicalConnectorType type;
-                    if (crossbar.get_CrossbarPinInfo(false, i, out pinIndexRelated, out type) != 0)
+                    if (crossbar.get_CrossbarPinInfo(false, i, out pinIndexRelated, out PhysicalConnectorType type) != 0)
                         continue;
 
                     if (type == PhysicalConnectorType.VideoDecoder)
@@ -1654,14 +1625,12 @@ namespace iSpyApplication.Sources.Video
 
                 if (videoOutputPinIndex != -1)
                 {
-                    int videoInputPinIndex;
 
                     // get index of the input pin connected to the output
-                    if (crossbar.get_IsRoutedTo(videoOutputPinIndex, out videoInputPinIndex) == 0)
+                    if (crossbar.get_IsRoutedTo(videoOutputPinIndex, out int videoInputPinIndex) == 0)
                     {
-                        PhysicalConnectorType inputType;
 
-                        crossbar.get_CrossbarPinInfo(true, videoInputPinIndex, out pinIndexRelated, out inputType);
+                        crossbar.get_CrossbarPinInfo(true, videoInputPinIndex, out pinIndexRelated, out PhysicalConnectorType inputType);
 
                         videoInput = new VideoInput(videoInputPinIndex, inputType);
                     }
@@ -1672,14 +1641,13 @@ namespace iSpyApplication.Sources.Video
         }
 
         // Set type of input connected to video output of the crossbar
-        private void SetCurrentCrossbarInput(IAMCrossbar crossbar, VideoInput videoInput)
+        private static void SetCurrentCrossbarInput(IAMCrossbar crossbar, VideoInput videoInput)
         {
             if (videoInput.Type != PhysicalConnectorType.Default)
             {
-                int inPinsCount, outPinsCount;
 
                 // gen number of pins in the crossbar
-                if (crossbar.get_PinCounts(out outPinsCount, out inPinsCount) == 0)
+                if (crossbar.get_PinCounts(out int outPinsCount, out int inPinsCount) == 0)
                 {
                     int videoOutputPinIndex = -1;
                     int videoInputPinIndex = -1;
@@ -1736,7 +1704,7 @@ namespace iSpyApplication.Sources.Video
                 bmp.Dispose();
                 return;
             }
-            
+
             var dae = new NewFrameEventArgs(bmp);
             _lastFrame = DateTime.UtcNow;
             nf.Invoke(this, dae);
@@ -1788,10 +1756,7 @@ namespace iSpyApplication.Sources.Video
             }
 
             // Callback to receive samples
-            public int SampleCB(double sampleTime, IntPtr sample)
-            {
-                return 0;
-            }
+            public int SampleCB(double sampleTime, IntPtr sample) => 0;
 
             // Callback method that receives a pointer to the sample buffer
             public int BufferCB(double sampleTime, IntPtr buffer, int bufferLen)
@@ -1814,8 +1779,8 @@ namespace iSpyApplication.Sources.Video
 
                         unsafe
                         {
-                            byte* dst = (byte*) imageData.Scan0.ToPointer() + dstStride*(Height - 1);
-                            var src = (byte*) buffer.ToPointer();
+                            byte* dst = (byte*)imageData.Scan0.ToPointer() + dstStride * (Height - 1);
+                            var src = (byte*)buffer.ToPointer();
 
                             for (int y = 0; y < Height; y++)
                             {
@@ -1848,10 +1813,7 @@ namespace iSpyApplication.Sources.Video
 
         private bool _disposed;
         // Public implementation of Dispose pattern callable by consumers. 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         // Protected implementation of Dispose pattern. 
         protected virtual void Dispose(bool disposing)

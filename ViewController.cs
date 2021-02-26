@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
+﻿using iSpyApplication.Controls;
+using System;
 using System.Windows.Forms;
-using iSpyApplication.Controls;
 
 namespace iSpyApplication
 {
@@ -30,17 +24,11 @@ namespace iSpyApplication
 
         }
 
-        public void Redraw()
-        {
-            vcp.Invalidate();
-        }
+        public void Redraw() => vcp.Invalidate();
 
-        private void tmrRedraw_Tick(object sender, EventArgs e)
-        {
-            Redraw();
-        }
+        private void tmrRedraw_Tick(object sender, EventArgs e) => Redraw();
 
-        
-        
+
+
     }
 }

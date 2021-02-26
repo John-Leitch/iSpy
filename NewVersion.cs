@@ -12,7 +12,7 @@ namespace iSpyApplication
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private Container components = null;
+        private readonly Container components = null;
 
         private Button _button1;
         private Button _button2;
@@ -38,12 +38,9 @@ namespace iSpyApplication
         /// </summary>
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && components != null)
             {
-                if (components != null)
-                {
-                    components.Dispose();
-                }
+                components.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -51,7 +48,7 @@ namespace iSpyApplication
         private void NewVersionLoad(object sender, EventArgs e)
         {
             chkCheckForUpdates.Checked = MainForm.Conf.Enable_Update_Check;
-            _wbProductHistory.Navigate(MainForm.Website+"/producthistory.aspx?productid=11");
+            _wbProductHistory.Navigate(MainForm.Website + "/producthistory.aspx?productid=11");
         }
 
         private void RenderResources()
@@ -63,14 +60,11 @@ namespace iSpyApplication
             chkCheckForUpdates.Text = LocRm.GetString("AutomaticallyCheckForUpda");
         }
 
-        private void Button2Click(object sender, EventArgs e)
-        {
-            Close();
-        }
+        private void Button2Click(object sender, EventArgs e) => Close();
 
         private void Button1Click(object sender, EventArgs e)
         {
-            MainForm.OpenUrl( MainForm.Website+"/download.aspx");
+            MainForm.OpenUrl(MainForm.Website + "/download.aspx");
             //MessageBox.Show(LocRm.GetString("ExportWarning"), LocRm.GetString("Note"));
             Close();
         }
@@ -138,7 +132,7 @@ namespace iSpyApplication
             // 
             // _button2
             // 
-            this._button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._button2.Anchor = (System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right);
             this._button2.AutoSize = true;
             this._button2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this._button2.Location = new System.Drawing.Point(362, 3);
@@ -183,10 +177,7 @@ namespace iSpyApplication
 
         #endregion
 
-        private void chkCheckForUpdates_CheckedChanged(object sender, EventArgs e)
-        {
-            MainForm.Conf.Enable_Update_Check = chkCheckForUpdates.Checked;
-        }
+        private void chkCheckForUpdates_CheckedChanged(object sender, EventArgs e) => MainForm.Conf.Enable_Update_Check = chkCheckForUpdates.Checked;
 
 
     }

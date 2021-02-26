@@ -1,3 +1,15 @@
+using FFmpeg.AutoGen;
+using iSpyApplication.Cloud;
+using iSpyApplication.Onvif;
+using iSpyApplication.Realtime;
+using iSpyApplication.Server;
+using iSpyApplication.Sources;
+using iSpyApplication.Sources.Audio;
+using iSpyApplication.Sources.Video;
+using iSpyApplication.Sources.Video.Ximea;
+using iSpyApplication.Utilities;
+using iSpyApplication.Vision;
+using iSpyPRO.DirectShow.Internals;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -16,23 +28,8 @@ using System.Net.Sockets;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
-using FFmpeg.AutoGen;
-using iSpyApplication.Cloud;
-using iSpyApplication.Onvif;
-using iSpyApplication.Pelco;
-using iSpyApplication.Realtime;
-using iSpyApplication.Server;
-using iSpyApplication.Sources;
-using iSpyApplication.Sources.Audio;
-using iSpyApplication.Sources.Video;
-using iSpyApplication.Sources.Video.Ximea;
-using iSpyApplication.Utilities;
-using iSpyApplication.Vision;
-using iSpyPRO.DirectShow;
-using iSpyPRO.DirectShow.Internals;
 using xiApi.NET;
 using Encoder = System.Drawing.Imaging.Encoder;
 using Image = System.Drawing.Image;
@@ -53,7 +50,7 @@ namespace iSpyApplication.Controls
         private DateTime _lastRedraw = DateTime.MinValue;
         private DateTime _recordingStartTime;
         private readonly ManualResetEvent _stopWrite = new ManualResetEvent(false);
-        private readonly ManualResetEvent _writerStopped = new ManualResetEvent(true); 
+        private readonly ManualResetEvent _writerStopped = new ManualResetEvent(true);
         private double _autoofftimer;
         private bool _raiseStop;
         private double _timeLapse;
@@ -78,20 +75,14 @@ namespace iSpyApplication.Controls
 
         public DateTime LastMovementDetected
         {
-            get { return new DateTime(_lastMovementDetected); }
-            set { Interlocked.Exchange(ref _lastMovementDetected, value.Ticks); }
+            get => new DateTime(_lastMovementDetected);
+            set => Interlocked.Exchange(ref _lastMovementDetected, value.Ticks);
         }
 
         public int ObjectTypeID => 2;
 
         private ONVIFDevice _onvifDevice = null;
-        public bool ONVIFConnected
-        {
-            get
-            {
-                return _onvifDevice != null;
-            }
-        }
+        public bool ONVIFConnected => _onvifDevice != null;
         public ONVIFDevice ONVIFDevice
         {
             get
@@ -110,8 +101,7 @@ namespace iSpyApplication.Controls
 
                     string url = Camobject.settings.onvifident;
                     string pn = Nv("profilename");
-                    int pi = 0;
-                    int.TryParse(pn, out pi);
+                    int.TryParse(pn, out int pi);
 
                     _onvifDevice = new ONVIFDevice(p[0], Camobject.settings.login,
                         Camobject.settings.password, Camobject.settings.onvif.rtspport,
@@ -122,26 +112,23 @@ namespace iSpyApplication.Controls
 
                     return _onvifDevice;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    Logger.LogException(ex,"Onvif discovery");
+                    Logger.LogException(ex, "Onvif discovery");
                     _onvifDevice = null;
                     return null;
                 }
             }
-            set
-            {
-                _onvifDevice = null;
-            }
+            set => _onvifDevice = null;
         }
 
         public int ObjectID => Camobject.id;
-        
+
 
         public DateTime LastAlerted
         {
-            get { return new DateTime(_lastAlerted); }
-            set { Interlocked.Exchange(ref _lastAlerted, value.Ticks); }
+            get => new DateTime(_lastAlerted);
+            set => Interlocked.Exchange(ref _lastAlerted, value.Ticks);
         }
 
         private DateTime _mouseMove = DateTime.MinValue;
@@ -165,7 +152,7 @@ namespace iSpyApplication.Controls
                 {
                     w = ButtonCount * (31) + 3;
                     h = 34;
-                    
+
                 }
                 return new Rectangle(Width / 2 - w / 2, Height - 25 - h, w, h);
 
@@ -192,7 +179,7 @@ namespace iSpyApplication.Controls
         #endregion
 
         private event EventHandler CameraReconnect, CameraDisabled, CameraEnabled, CameraReconnected;
-        
+
         public bool Talking { get; set; }
         public bool IsEnabled { get; private set; }
 
@@ -201,9 +188,7 @@ namespace iSpyApplication.Controls
             get
             {
                 var vc = VolumeControl;
-                if (vc == null)
-                    return false;
-                return vc.Listening;
+                return vc == null ? false : vc.Listening;
             }
         }
         public bool ForcedRecording { get; set; }
@@ -214,23 +199,12 @@ namespace iSpyApplication.Controls
         public DateTime CalibrateTarget;
         private DateTime _lastReconnect = DateTime.MinValue;
         public Rectangle RestoreRect = Rectangle.Empty;
-        
+
 
         public bool Calibrating
         {
-            get
-            {
-                return DateTime.UtcNow < CalibrateTarget;
-            }
-            set
-            {
-                if (value)
-                {
-                    CalibrateTarget = DateTime.UtcNow.AddSeconds(Camobject.detector.calibrationdelay);
-                }
-                else
-                    CalibrateTarget = DateTime.MinValue;
-            }
+            get => DateTime.UtcNow < CalibrateTarget;
+            set => CalibrateTarget = value ? DateTime.UtcNow.AddSeconds(Camobject.detector.calibrationdelay) : DateTime.MinValue;
         }
         public Graphics CurrentFrame;
         public PTZController PTZ;
@@ -250,7 +224,7 @@ namespace iSpyApplication.Controls
         private bool _videoSourceErrorState;
         public bool VideoSourceErrorState
         {
-            get { return _videoSourceErrorState; }
+            get => _videoSourceErrorState;
             set
             {
                 _videoSourceErrorState = value;
@@ -270,7 +244,7 @@ namespace iSpyApplication.Controls
         //            VolumeLevel vl = MainClass.GetVolumeLevel(Camobject.settings.micpair);
         //            if (vl != null && vl.Micobject != null)
         //                return vl;
-                    
+
         //        }
         //        return null;
         //    }
@@ -289,15 +263,15 @@ namespace iSpyApplication.Controls
                 }
 
             }
-            
-        } 
+
+        }
 
         public string ObjectName => Camobject.name;
         public string Folder => Camobject.directory;
 
         public bool CanTalk => IsEnabled && Camobject.settings.audiomodel != "None";
 
-        public bool CanListen => Camobject.settings.micpair>-1;
+        public bool CanListen => Camobject.settings.micpair > -1;
 
         public bool CanRecord => IsEnabled && Helper.HasFeature(Enums.Features.Recording);
 
@@ -429,12 +403,7 @@ namespace iSpyApplication.Controls
                                 lock (_lockobject)
                                 {
                                     var t = ((Files)s.Deserialize(reader));
-                                    if (t.File == null || !t.File.Any())
-                                    {
-                                        _filelist = new List<FilesFile>();
-                                    }
-                                    else
-                                        _filelist = t.File.ToList();
+                                    _filelist = t.File?.Any() != true ? new List<FilesFile>() : t.File.ToList();
                                 }
                                 reader.Close();
                             }
@@ -470,7 +439,7 @@ namespace iSpyApplication.Controls
 
                 var lFi = new List<FileInfo>();
                 lFi.AddRange(dirinfo.GetFiles());
-                lFi = lFi.FindAll(f => f.Extension.ToLower() == ".avi" || f.Extension.ToLower() == ".mp4");
+                lFi = lFi.FindAll(f => string.Equals(f.Extension, ".avi", StringComparison.OrdinalIgnoreCase) || string.Equals(f.Extension, ".mp4", StringComparison.OrdinalIgnoreCase));
                 lFi = lFi.OrderByDescending(f => f.CreationTime).ToList();
 
                 //sanity check existing data
@@ -541,7 +510,7 @@ namespace iSpyApplication.Controls
                                  Camobject.directory + "\\";
                     if (!Directory.Exists(dir))
                         Directory.CreateDirectory(dir);
-                    var s = new XmlSerializer(typeof (Files));
+                    var s = new XmlSerializer(typeof(Files));
                     using (var fs = new FileStream(dir + "data.xml", FileMode.Create))
                     {
                         using (TextWriter writer = new StreamWriter(fs))
@@ -565,7 +534,7 @@ namespace iSpyApplication.Controls
         {
             try
             {
-                if (_tScan == null || _tScan.Join(TimeSpan.Zero))
+                if (_tScan?.Join(TimeSpan.Zero) != false)
                 {
                     _tScan = new Thread(ScanFiles);
                     _tScan.Start();
@@ -587,7 +556,7 @@ namespace iSpyApplication.Controls
 
                 var lFi = new List<FileInfo>();
                 lFi.AddRange(dirinfo.GetFiles());
-                lFi = lFi.FindAll(f => f.Extension.ToLower() == ".avi" || f.Extension.ToLower() == ".mp4");
+                lFi = lFi.FindAll(f => string.Equals(f.Extension, ".avi", StringComparison.OrdinalIgnoreCase) || string.Equals(f.Extension, ".mp4", StringComparison.OrdinalIgnoreCase));
                 lFi = lFi.OrderByDescending(f => f.CreationTime).ToList();
 
                 //var farr = _filelist.ToArray();
@@ -649,9 +618,9 @@ namespace iSpyApplication.Controls
                 //resize to max 640xh
                 if (width > 640)
                 {
-                    double d = width/640d;
+                    double d = width / 640d;
                     width = 640;
-                    height = Convert.ToInt32(Convert.ToDouble(height)/d);
+                    height = Convert.ToInt32(Convert.ToDouble(height) / d);
                 }
                 Camobject.width = width;
                 Camobject.height = height;
@@ -663,7 +632,7 @@ namespace iSpyApplication.Controls
                 Logger.LogException(ex);
             }
             NeedSizeUpdate = false;
-                
+
             Monitor.Exit(this);
         }
         #endregion
@@ -688,17 +657,14 @@ namespace iSpyApplication.Controls
             _toolTipCam = new ToolTip { AutomaticDelay = 500, AutoPopDelay = 1500 };
         }
 
-        void CameraWindow_ErrorHandler(string message)
-        {
-            Logger.LogError(Camobject.name+": "+message);
-        }
+        private void CameraWindow_ErrorHandler(string message) => Logger.LogError(Camobject.name + ": " + message);
 
         private Thread _tFiles;
         public void LoadFileList()
         {
             try
             {
-                if (_tFiles == null || _tFiles.Join(TimeSpan.Zero))
+                if (_tFiles?.Join(TimeSpan.Zero) != false)
                 {
                     _tFiles = new Thread(GenerateFileList);
                     _tFiles.Start();
@@ -712,7 +678,7 @@ namespace iSpyApplication.Controls
 
         public Camera Camera
         {
-            get { return _camera; }
+            get => _camera;
             set
             {
                 _camera?.Dispose();
@@ -743,15 +709,12 @@ namespace iSpyApplication.Controls
         }
 
         private bool _needsNewSchedule;
-        public void ReloadSchedule()
-        {
-            _needsNewSchedule = true;
-        }
+        public void ReloadSchedule() => _needsNewSchedule = true;
 
         public int Order
         {
-            get { return Camobject.settings.order; }
-            set { Camobject.settings.order = value; }
+            get => Camobject.settings.order;
+            set => Camobject.settings.order = value;
         }
 
         private int _lastMinute = -1;
@@ -769,8 +732,7 @@ namespace iSpyApplication.Controls
                 {
                     if (en.daysofweek.Contains(dow))
                     {
-                        bool enable2, disable2;
-                        ActionSchedule(en, out enable2, out disable2);
+                        ActionSchedule(en, out bool enable2, out bool disable2);
                         enable = enable || enable2;
                         disable = disable || disable2;
                         b = true;
@@ -795,9 +757,8 @@ namespace iSpyApplication.Controls
             {
                 if (en.daysofweek.Contains(dow))
                 {
-                    bool enable2, disable2;
 
-                    ActionSchedule(en, out enable2, out disable2);
+                    ActionSchedule(en, out bool enable2, out bool disable2);
 
                     if (enable2)
                     {
@@ -919,14 +880,14 @@ namespace iSpyApplication.Controls
                     Camobject.settings.ptzautotrack = false;
                     break;
                 case 25:
-                    if (VolumeControl != null && VolumeControl.IsEnabled)
+                    if (VolumeControl?.IsEnabled == true)
                     {
                         VolumeControl.Listening = true;
                         LogToPlugin(VolumeControl.Listening ? "Listening Started" : "Listening Finished");
                     }
                     break;
                 case 26:
-                    if (VolumeControl != null && VolumeControl.IsEnabled)
+                    if (VolumeControl?.IsEnabled == true)
                     {
                         VolumeControl.Listening = false;
                         LogToPlugin(VolumeControl.Listening ? "Listening Started" : "Listening Finished");
@@ -1076,30 +1037,27 @@ namespace iSpyApplication.Controls
                 case MouseButtons.Left:
                     MousePos mousePos = GetMousePos(e.Location);
 
-                    if (mousePos == MousePos.NoWhere)
+                    if (mousePos == MousePos.NoWhere && MainForm.Conf.ShowOverlayControls)
                     {
-                        if (MainForm.Conf.ShowOverlayControls)
+                        if (Seekable && _seeking && Camera?.VideoSource != null)
                         {
-                            if (Seekable && _seeking && Camera?.VideoSource != null)
+                            //seek video bar
+                            float pc = 0;
+                            if (_newSeek == 0)
                             {
-                                //seek video bar
-                                float pc = 0;
-                                if (_newSeek == 0)
-                                {
-                                    var rBp = ButtonPanel;
-                                    _newSeek = e.Location.X - rBp.X;
-                                    if (_newSeek < 0.0001) _newSeek = 0.0001f;
-                                    if (_newSeek > rBp.Width)
-                                        _newSeek = rBp.Width;                                    
-                                }
-                                pc = (float)(Convert.ToDouble(_newSeek) / Convert.ToDouble(ButtonPanel.Width));
-                                var vlc = Camera.VideoSource as VlcStream;
-                                vlc?.Seek(pc);
-
+                                var rBp = ButtonPanel;
+                                _newSeek = e.Location.X - rBp.X;
+                                if (_newSeek < 0.0001) _newSeek = 0.0001f;
+                                if (_newSeek > rBp.Width)
+                                    _newSeek = rBp.Width;
                             }
-                            _seeking = false;
-                            _newSeek = 0;
+                            pc = (float)(Convert.ToDouble(_newSeek) / Convert.ToDouble(ButtonPanel.Width));
+                            var vlc = Camera.VideoSource as VlcStream;
+                            vlc?.Seek(pc);
+
                         }
+                        _seeking = false;
+                        _newSeek = 0;
                     }
                     ((LayoutPanel)Parent).ISpyControlUp(new Point(Left + e.X, Top + e.Y));
                     break;
@@ -1120,113 +1078,110 @@ namespace iSpyApplication.Controls
             base.OnMouseDown(e);
             Select();
             IntPtr hwnd = Handle;
-            if (ResizeParent && Parent != null && Parent.IsHandleCreated)
+            if (ResizeParent && Parent?.IsHandleCreated == true)
             {
                 hwnd = Parent.Handle;
             }
-            
+
             switch (e.Button)
             {
-                    case MouseButtons.Left:
-                        MousePos mousePos = GetMousePos(e.Location);
-                        if (mousePos == MousePos.NoWhere)
+                case MouseButtons.Left:
+                    MousePos mousePos = GetMousePos(e.Location);
+                    if (mousePos == MousePos.NoWhere && MainForm.Conf.ShowOverlayControls)
+                    {
+                        int bpi = GetButtonIndexByLocation(e.Location);
+                        switch (bpi)
                         {
-                            if (MainForm.Conf.ShowOverlayControls)
-                            {
-                                int bpi = GetButtonIndexByLocation(e.Location);
-                                switch (bpi)
+                            case -999:
+                                var layoutPanel = (LayoutPanel)Parent;
+                                layoutPanel?.ISpyControlDown(new Point(this.Left + e.X, this.Top + e.Y));
+                                break;
+                            case -1:
+                                if (Seekable && Camera?.VideoSource != null)
                                 {
-                                    case -999:
-                                        var layoutPanel = (LayoutPanel) Parent;
-                                        layoutPanel?.ISpyControlDown(new Point(this.Left + e.X, this.Top + e.Y));
-                                        break;
-                                    case -1:
-                                        if (Seekable && Camera?.VideoSource != null)
-                                        {
-                                            _seeking = true;
-                                            return;
-                                        }
-                                        break;
-                                    case 0:
-                                        if (IsEnabled)
-                                        {
-                                            Disable();
-                                        }
-                                        else
-                                        {
-                                            Enable();
-                                        }
-                                        break;
-                                    case 1:
-                                        if (IsEnabled)
-                                        {
-                                            RecordSwitch(!(Recording || ForcedRecording));
-                                        }
-                                        break;
-                                    case 2:
-                                        if (Helper.HasFeature(Enums.Features.Edit))
-                                        {
-                                            MainClass.EditCamera(Camobject);
-                                        }
-                                        break;
-                                    case 3:
-                                        if (Helper.HasFeature(Enums.Features.Access_Media))
-                                        {
-                                            string url = MainForm.Webpage;
-                                            if (WsWrapper.WebsiteLive && MainForm.Conf.ServicesEnabled)
-                                            {
-                                                MainForm.OpenUrl(url);
-                                            }
-                                            else
-                                                MainClass.Connect(url, false);
-                                        }
-                                        break;
-                                    case 4:
-                                        if (IsEnabled)
-                                        {
-                                            Snapshot();
-                                        }
-                                        break;
-                                    case 5:
-                                        Talk();
-                                        break;
-                                    case 6:
-                                        TextToSpeech();
-                                        break;
-                                    case 7:
-                                        Listen();
-                                        break;
+                                    _seeking = true;
+                                    return;
                                 }
-                            }
+                                break;
+                            case 0:
+                                if (IsEnabled)
+                                {
+                                    Disable();
+                                }
+                                else
+                                {
+                                    Enable();
+                                }
+                                break;
+                            case 1:
+                                if (IsEnabled)
+                                {
+                                    RecordSwitch(!(Recording || ForcedRecording));
+                                }
+                                break;
+                            case 2:
+                                if (Helper.HasFeature(Enums.Features.Edit))
+                                {
+                                    MainClass.EditCamera(Camobject);
+                                }
+                                break;
+                            case 3:
+                                if (Helper.HasFeature(Enums.Features.Access_Media))
+                                {
+                                    string url = MainForm.Webpage;
+                                    if (WsWrapper.WebsiteLive && MainForm.Conf.ServicesEnabled)
+                                    {
+                                        MainForm.OpenUrl(url);
+                                    }
+                                    else
+                                        MainClass.Connect(url, false);
+                                }
+                                break;
+                            case 4:
+                                if (IsEnabled)
+                                {
+                                    Snapshot();
+                                }
+                                break;
+                            case 5:
+                                Talk();
+                                break;
+                            case 6:
+                                TextToSpeech();
+                                break;
+                            case 7:
+                                Listen();
+                                break;
                         }
+                    }
 
-                        if (MainForm.LockLayout) return;
-                        switch (mousePos)
-                        {
-                            case MousePos.Right:
-                                {
-                                    NativeCalls.ReleaseCapture(hwnd);
-                                    NativeCalls.SendMessage(hwnd, NativeCalls.WmSyscommand, NativeCalls.ScDragsizeE, IntPtr.Zero);
-                                }
-                                break;
-                            case MousePos.Bottom:
-                                {
-                                    NativeCalls.ReleaseCapture(hwnd);
-                                    NativeCalls.SendMessage(hwnd, NativeCalls.WmSyscommand, NativeCalls.ScDragsizeS, IntPtr.Zero);
-                                }
-                                break;
-                            case MousePos.BottomRight:
-                                {
-                                    NativeCalls.ReleaseCapture(hwnd);
-                                    NativeCalls.SendMessage(hwnd, NativeCalls.WmSyscommand, NativeCalls.ScDragsizeSe,
-                                                            IntPtr.Zero);
-                                }
-                                break;
-                        }
+                    if (MainForm.LockLayout) return;
+                    switch (mousePos)
+                    {
+                        case MousePos.Right:
+                            {
+                                NativeCalls.ReleaseCapture(hwnd);
+                                NativeCalls.SendMessage(hwnd, NativeCalls.WmSyscommand, NativeCalls.ScDragsizeE, IntPtr.Zero);
+                            }
+                            break;
+                        case MousePos.Bottom:
+                            {
+                                NativeCalls.ReleaseCapture(hwnd);
+                                NativeCalls.SendMessage(hwnd, NativeCalls.WmSyscommand, NativeCalls.ScDragsizeS, IntPtr.Zero);
+                            }
+                            break;
+                        case MousePos.BottomRight:
+                            {
+                                NativeCalls.ReleaseCapture(hwnd);
+                                NativeCalls.SendMessage(hwnd, NativeCalls.WmSyscommand, NativeCalls.ScDragsizeSe,
+                                                        IntPtr.Zero);
+                            }
+                            break;
+                    }
                     break;
-                    case MouseButtons.Middle:
-                        PTZReference = new Point(Width / 2, Height / 2);
-                        PTZNavigate = true;
+                case MouseButtons.Middle:
+                    PTZReference = new Point(Width / 2, Height / 2);
+                    PTZNavigate = true;
                     break;
             }
         }
@@ -1278,7 +1233,7 @@ namespace iSpyApplication.Controls
 
         public void Listen()
         {
-            if (VolumeControl != null && VolumeControl.IsEnabled)
+            if (VolumeControl?.IsEnabled == true)
             {
                 VolumeControl.Listening = !VolumeControl.Listening;
 
@@ -1333,19 +1288,11 @@ namespace iSpyApplication.Controls
                             m = LocRm.GetString("AlertsActive");
 
                         if (ForcedRecording)
-                            m = LocRm.GetString("ForcedRecording")+", " + m;
+                            m = LocRm.GetString("ForcedRecording") + ", " + m;
 
-                        if (Camobject.detector.recordondetect)
-                            m = LocRm.GetString("RecordOnDetect")+", " + m;
-                        else
-                        {
-                            if (Camobject.detector.recordonalert)
-                                m = LocRm.GetString("RecordOnAlert")+", " + m;
-                            else
-                            {
-                                m = LocRm.GetString("NoRecording") + ", " + m;
-                            }
-                        }
+                        m = Camobject.detector.recordondetect
+                            ? LocRm.GetString("RecordOnDetect") + ", " + m
+                            : Camobject.detector.recordonalert ? LocRm.GetString("RecordOnAlert") + ", " + m : LocRm.GetString("NoRecording") + ", " + m;
                         if (Camobject.schedule.active)
                             m = LocRm.GetString("Scheduled") + ", " + m;
 
@@ -1355,7 +1302,7 @@ namespace iSpyApplication.Controls
                     if (MainForm.Conf.ShowOverlayControls)
                     {
                         var rBp = ButtonPanel;
-                        
+
                         if (_seeking && Seekable && Camera?.VideoSource != null)
                         {
                             _newSeek = e.Location.X - rBp.X;
@@ -1372,7 +1319,7 @@ namespace iSpyApplication.Controls
                             switch (bpi)
                             {
                                 case 0:
-                                    _toolTipCam.Show(IsEnabled? LocRm.GetString("switchOff"): LocRm.GetString("Switchon"), this, toolTipLocation, 1000);
+                                    _toolTipCam.Show(IsEnabled ? LocRm.GetString("switchOff") : LocRm.GetString("Switchon"), this, toolTipLocation, 1000);
                                     _ttind = 0;
                                     break;
                                 case 1:
@@ -1438,13 +1385,10 @@ namespace iSpyApplication.Controls
         protected override void OnResize(EventArgs eventargs)
         {
 
-            if ((ModifierKeys & Keys.Shift) == Keys.Shift)
+            if ((ModifierKeys & Keys.Shift) == Keys.Shift && Camera != null)
             {
-                if (Camera != null)
-                {
-                    double arW = Convert.ToDouble(Camera.Width) / Convert.ToDouble(Camera.Height);
-                    Width = Convert.ToInt32(arW * Height);
-                }
+                double arW = Convert.ToDouble(Camera.Width) / Convert.ToDouble(Camera.Height);
+                Width = Convert.ToInt32(arW * Height);
             }
             base.OnResize(eventargs);
 
@@ -1490,17 +1434,17 @@ namespace iSpyApplication.Controls
                 Invalidate();
             }
             LocationChanged -= CameraWindowLocationChanged;
-            Resize-=CameraWindowResize;
+            Resize -= CameraWindowResize;
 
             _toolTipCam.RemoveAll();
             _toolTipCam.Dispose();
             if (_stopWrite.WaitOne(0))
                 _writerStopped.WaitOne(2000);
-   
+
             _stopWrite.Close();
             _writerStopped.Close();
-        
-                
+
+
 
             _camera?.Dispose();
             _timeLapseWriter = null;
@@ -1527,27 +1471,24 @@ namespace iSpyApplication.Controls
                 _lastRun = Helper.Now.Ticks;
                 _secondCountNew = ts.TotalMilliseconds / 1000.0;
 
-                if (Camobject.schedule.active)
+                if (Camobject.schedule.active && CheckSchedule())
                 {
-                    if (CheckSchedule()) goto skip;
+                    goto skip;
                 }
 
                 if (!IsEnabled) goto skip;
 
-                if (Camera!=null)
+                if (Camera != null)
                     MovementDetected = Camera.MotionRecentlyDetected;
-                
+
                 if (FlashCounter > DateTime.MinValue)
                 {
                     double iFc = (FlashCounter - Helper.Now).TotalSeconds;
 
-                    if (iFc <= 2)
+                    if (iFc <= 2 && _suspendPTZSchedule)
                     {
-                        if (_suspendPTZSchedule)
-                        {
-                            _suspendPTZSchedule = false;
-                            _dtPTZLastCheck = DateTime.Now;
-                        }
+                        _suspendPTZSchedule = false;
+                        _dtPTZLastCheck = DateTime.Now;
                     }
 
                     if (MovementDetected)
@@ -1577,7 +1518,7 @@ namespace iSpyApplication.Controls
                     }
                 }
 
-                if (!MovementDetected && Camobject.detector.autooff>0)
+                if (!MovementDetected && Camobject.detector.autooff > 0)
                 {
                     _autoofftimer += ts.TotalMilliseconds / 1000.0;
                     if (_autoofftimer > Camobject.detector.autooff)
@@ -1585,14 +1526,14 @@ namespace iSpyApplication.Controls
                         Disable();
                         goto skip;
                     }
-                    
+
                 }
-                
+
                 _tickThrottle += _secondCountNew;
                 if (IsEnabled)
                 {
 
-                    if (_tickThrottle >1) //every second
+                    if (_tickThrottle > 1) //every second
                     {
 
                         if (CheckReconnect()) goto skip;
@@ -1603,10 +1544,9 @@ namespace iSpyApplication.Controls
 
                         CheckStopPTZTracking();
 
-                        if (Camobject.ptzschedule.active && !_suspendPTZSchedule)
+                        if (Camobject.ptzschedule.active && !_suspendPTZSchedule && IsEnabled && !VideoSourceErrorState)
                         {
-                            if (IsEnabled && !VideoSourceErrorState)
-                                CheckPTZSchedule();
+                            CheckPTZSchedule();
                         }
 
                         if (MovementDetected)
@@ -1655,16 +1595,16 @@ namespace iSpyApplication.Controls
             {
                 StartSaving();
             }
-            
+
             if (Recording)
             {
                 var dur = (DateTime.UtcNow - _recordingStartTime).TotalSeconds;
 
-                if (dur > Camobject.recorder.maxrecordtime || 
+                if (dur > Camobject.recorder.maxrecordtime ||
                     (!MovementDetected && (DateTime.UtcNow - LastActivity).TotalSeconds > Camobject.recorder.inactiverecord && !ForcedRecording && dur > Camobject.recorder.minrecordtime))
                     StopSaving();
             }
-            
+
         }
 
         private void CheckTimeLapse(double since)
@@ -1679,10 +1619,9 @@ namespace iSpyApplication.Controls
 
                     if (_timeLapse >= Camobject.recorder.timelapse)
                     {
-                        if (!SavingTimeLapse)
+                        if (!SavingTimeLapse && !OpenTimeLapseWriter())
                         {
-                            if (!OpenTimeLapseWriter())
-                                return;
+                            return;
                         }
 
                         Bitmap bm = LastFrame;
@@ -1744,17 +1683,14 @@ namespace iSpyApplication.Controls
         {
             if (IsEnabled && Camera != null)
             {
-                if (Alerted)
+                if (Alerted && (Helper.Now - LastAlerted).TotalSeconds > Camobject.alerts.minimuminterval)
                 {
-                    if ((Helper.Now - LastAlerted).TotalSeconds > Camobject.alerts.minimuminterval)
-                    {
-                        Alerted = false;
-                        UpdateFloorplans(false);
-                    }
+                    Alerted = false;
+                    UpdateFloorplans(false);
                 }
 
                 //Check new Alert
-               
+
                 if (Camobject.alerts.active && Camera != null)
                 {
                     switch (Camobject.alerts.mode)
@@ -1763,13 +1699,10 @@ namespace iSpyApplication.Controls
                             if (MovementDetected)
                             {
                                 MovementCount += since;
-                                if (MovementCount > Camobject.detector.movementintervalnew)
+                                if (MovementCount > Camobject.detector.movementintervalnew && Helper.CanAlert(Camobject.alerts.groupname, Camobject.alerts.resetinterval))
                                 {
-                                    if (Helper.CanAlert(Camobject.alerts.groupname, Camobject.alerts.resetinterval))
-                                    {
-                                        DoAlert("alert");
-                                        MovementCount = 0;
-                                    }
+                                    DoAlert("alert");
+                                    MovementCount = 0;
                                 }
                             }
                             else
@@ -1780,27 +1713,21 @@ namespace iSpyApplication.Controls
                         case "objectcount":
                             var blobalg = Camera.MotionDetector?.MotionProcessingAlgorithm as BlobCountingObjectsProcessing;
 
-                            if (blobalg?.ObjectsCount >= Camobject.alerts.objectcountalert)
+                            if (blobalg?.ObjectsCount >= Camobject.alerts.objectcountalert && Helper.CanAlert(Camobject.alerts.groupname, Camobject.alerts.resetinterval))
                             {
-                                if (Helper.CanAlert(Camobject.alerts.groupname, Camobject.alerts.resetinterval))
-                                {
-                                    DoAlert("alert");
-                                    MovementCount = 0;
-                                }
+                                DoAlert("alert");
+                                MovementCount = 0;
                             }
                             break;
                         case "nomovement":
-                            if (LastMovementDetected > DateTime.MinValue && (Helper.Now - LastMovementDetected).TotalSeconds > Camobject.detector.nomovementintervalnew)
+                            if (LastMovementDetected > DateTime.MinValue && (Helper.Now - LastMovementDetected).TotalSeconds > Camobject.detector.nomovementintervalnew && Helper.CanAlert(Camobject.alerts.groupname, Camobject.alerts.resetinterval))
                             {
-                                if (Helper.CanAlert(Camobject.alerts.groupname,Camobject.alerts.resetinterval))
-                                {
-                                    DoAlert("alert");
-                                }
+                                DoAlert("alert");
                             }
                             break;
                     }
                 }
-                
+
             }
         }
 
@@ -1832,35 +1759,30 @@ namespace iSpyApplication.Controls
 
         private void CheckFTP()
         {
-            if (Camobject.ftp.mode == 2 && Math.Abs(Camobject.ftp.intervalnew) > double.Epsilon)
+            if (Camobject.ftp.mode == 2 && Math.Abs(Camobject.ftp.intervalnew) > double.Epsilon && Camobject.ftp.enabled && Camobject.ftp.ready)
             {
-                if (Camobject.ftp.enabled && Camobject.ftp.ready)
+                double d = (Helper.Now - _lastFrameUploaded).TotalSeconds;
+                if (d >= Camobject.ftp.intervalnew && d > Camobject.ftp.minimumdelay)
                 {
-                    double d = (Helper.Now - _lastFrameUploaded).TotalSeconds;
-                    if (d >= Camobject.ftp.intervalnew && d > Camobject.ftp.minimumdelay)
-                    {
-                        FtpFrame();
-                    }
+                    FtpFrame();
                 }
             }
         }
         private void CheckSaveFrame()
         {
-            if (Camobject.savelocal.mode == 2 && Math.Abs(Camobject.savelocal.intervalnew) > double.Epsilon)
+            if (Camobject.savelocal.mode == 2 && Math.Abs(Camobject.savelocal.intervalnew) > double.Epsilon && Camobject.savelocal.enabled)
             {
-                if (Camobject.savelocal.enabled)
+                double d = (Helper.Now - _lastFrameSaved).TotalSeconds;
+                if (d >= Camobject.savelocal.intervalnew && d > Camobject.savelocal.minimumdelay)
                 {
-                    double d = (Helper.Now - _lastFrameSaved).TotalSeconds;
-                    if (d >= Camobject.savelocal.intervalnew && d > Camobject.savelocal.minimumdelay)   {
-                        SaveFrame();
-                    }
+                    SaveFrame();
                 }
             }
         }
 
         private void CheckPTZSchedule()
         {
-            
+
             if (Camobject.ptz == -1)
                 return;
 
@@ -1907,7 +1829,7 @@ namespace iSpyApplication.Controls
                     if (Recording)
                         StopSaving();
                     _errorTime = DateTime.MinValue;
-                    
+
                 }
             }
         }
@@ -1917,7 +1839,7 @@ namespace iSpyApplication.Controls
             s = s.Replace("[OBJECTNAME]", Camobject.name);
             s = s.Replace("[TIME]", DateTime.Now.AddHours(Convert.ToDouble(Camobject.settings.timestampoffset)).ToLongTimeString());
             s = s.Replace("[DATE]", DateTime.Now.AddHours(Convert.ToDouble(Camobject.settings.timestampoffset)).ToShortDateString());
-            s = s.Replace("[RECORDED]", recorded?"(recorded)":"");
+            s = s.Replace("[RECORDED]", recorded ? "(recorded)" : "");
             s = s.Replace("[PLUGIN]", pluginMessage);
             s = s.Replace("[EVENT]", mode.ToUpper());
             s = s.Replace("[SERVER]", MainForm.Conf.ServerName);
@@ -1942,12 +1864,12 @@ namespace iSpyApplication.Controls
             if (_reconnectTarget > DateTime.MinValue && _reconnectTarget < DateTime.UtcNow && !IsClone)
             {
                 var s = Camera?.VideoSource;
-                if (s != null && !s.IsRunning)
+                if (s?.IsRunning == false)
                 {
                     Calibrating = true;
                     s.Start();
                     return true;
-                    
+
                 }
             }
             return false;
@@ -1956,29 +1878,26 @@ namespace iSpyApplication.Controls
 
         private void CheckReconnectInterval()
         {
-            if (Camera?.VideoSource != null && IsEnabled && !IsClone && !VideoSourceErrorState)
+            if (Camera?.VideoSource != null && IsEnabled && !IsClone && !VideoSourceErrorState && Camobject.settings.reconnectinterval > 0)
             {
-                if (Camobject.settings.reconnectinterval > 0)
+
+                if ((DateTime.UtcNow - _lastReconnect).TotalSeconds > Camobject.settings.reconnectinterval)
                 {
+                    _lastReconnect = DateTime.UtcNow;
+                    CameraReconnect?.Invoke(this, EventArgs.Empty);
 
-                    if ((DateTime.UtcNow - _lastReconnect).TotalSeconds > Camobject.settings.reconnectinterval)
+                    try
                     {
-                        _lastReconnect = DateTime.UtcNow;
-                        CameraReconnect?.Invoke(this, EventArgs.Empty);
+                        Camera.Restart();
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorHandler?.Invoke(ex.Message);
+                    }
 
-                        try
-                        {
-                            Camera.Restart();
-                        }
-                        catch (Exception ex)
-                        {
-                            ErrorHandler?.Invoke(ex.Message);
-                        }
-
-                        if (Camobject.settings.calibrateonreconnect)
-                        {
-                            Calibrating = true;
-                        }
+                    if (Camobject.settings.calibrateonreconnect)
+                    {
+                        Calibrating = true;
                     }
                 }
             }
@@ -1986,38 +1905,32 @@ namespace iSpyApplication.Controls
 
         private void DoCalibrate(double since)
         {
-            if (Camera != null)
+            if (Camera?.MotionDetector != null)
             {
-                if (Camera.MotionDetector != null)
+                if (Camera.MotionDetector.MotionDetectionAlgorithm is CustomFrameColorDifferenceDetector detector)
                 {
-                    var detector = Camera.MotionDetector.MotionDetectionAlgorithm as CustomFrameColorDifferenceDetector;
-                    if (detector != null)
+                    detector.
+                        SetBackgroundFrame(LastFrame);
+                }
+                else
+                {
+                    if (Camera.MotionDetector.MotionDetectionAlgorithm is CustomFrameDifferenceDetector algorithm)
                     {
-                        detector.
+                        algorithm
+                            .
                             SetBackgroundFrame(LastFrame);
                     }
                     else
                     {
-                        var algorithm = Camera.MotionDetector.MotionDetectionAlgorithm as CustomFrameDifferenceDetector;
-                        if (algorithm != null)
+                        if (
+                            Camera.MotionDetector.MotionDetectionAlgorithm is SimpleBackgroundModelingDetector modelingDetector)
                         {
-                            algorithm
-                                .
-                                SetBackgroundFrame(LastFrame);
+                            modelingDetector.Reset();
                         }
                         else
                         {
-                            var modelingDetector = Camera.MotionDetector.MotionDetectionAlgorithm as SimpleBackgroundModelingDetector;
-                            if (
-                                modelingDetector != null)
-                            {
-                                modelingDetector.Reset();
-                            }
-                            else
-                            {
-                                var detectionAlgorithm = Camera.MotionDetector.MotionDetectionAlgorithm as SimpleColorBackgroundModelingDetector;
-                                detectionAlgorithm?.Reset();
-                            }
+                            var detectionAlgorithm = Camera.MotionDetector.MotionDetectionAlgorithm as SimpleColorBackgroundModelingDetector;
+                            detectionAlgorithm?.Reset();
                         }
                     }
                 }
@@ -2054,7 +1967,7 @@ namespace iSpyApplication.Controls
             switch (Camobject.recorder.profile)
             {
                 default:
-                    if (Camera != null && Camera.Width > -1)
+                    if (Camera?.Width > -1)
                     {
                         _videoWidth = Camera.Width;
                         _videoHeight = Camera.Height;
@@ -2085,7 +1998,7 @@ namespace iSpyApplication.Controls
         public string SaveFrame(Bitmap bmp = null)
         {
             var c = Camera;
-            if (c == null || !c.IsRunning)
+            if (c?.IsRunning != true)
                 return "";
 
             if (c.LastFrameEvent < Helper.Now.AddSeconds(-2))
@@ -2135,30 +2048,29 @@ namespace iSpyApplication.Controls
 
                         //  Set the quality
                         fullpath = folder + @"grabs\" + filename;
-                        
+
                         if (File.Exists(fullpath))
                         {
                             File.Delete(fullpath);
                         }
 
                         var parameters = new EncoderParameters(1)
-                                         {
-                                             Param =
+                        {
+                            Param =
                                              {
                                                  [0] =
                                                      new EncoderParameter(
                                                      Encoder.Quality,
                                                      Camobject.savelocal.quality)
                                              }
-                                         };
+                        };
 
                         myThumbnail.Save(fullpath, MainForm.Encoder, parameters);
                         myThumbnail.Dispose();
 
                         if (Camobject.settings.cloudprovider.images)
                         {
-                            bool b;
-                            CloudGateway.Upload(2, Camobject.id, fullpath, out b);
+                            CloudGateway.Upload(2, Camobject.id, fullpath, out bool b);
                         }
                     }
                 }
@@ -2175,7 +2087,7 @@ namespace iSpyApplication.Controls
             return fullpath;
         }
 
-        private string ZeroPad(int counter, int countermax)
+        private static string ZeroPad(int counter, int countermax)
         {
             string r = counter.ToString(CultureInfo.InvariantCulture);
             int i = countermax.ToString(CultureInfo.InvariantCulture).Length;
@@ -2196,7 +2108,7 @@ namespace iSpyApplication.Controls
                 var strFormat = new StringFormat();
                 try
                 {
-                    if (myThumbnail==null)
+                    if (myThumbnail == null)
                         myThumbnail = LastFrame;
                     if (myThumbnail != null)
                     {
@@ -2223,15 +2135,15 @@ namespace iSpyApplication.Controls
                         {
                             //  Set the quality
                             var parameters = new EncoderParameters(1)
-                                             {
-                                                 Param =
+                            {
+                                Param =
                                                  {
                                                      [0] =
                                                          new EncoderParameter(
                                                          Encoder.Quality,
                                                          Camobject.ftp.quality)
                                                  }
-                                             };
+                            };
                             myThumbnail.Save(imageStream, MainForm.Encoder, parameters);
                         }
 
@@ -2296,7 +2208,7 @@ namespace iSpyApplication.Controls
                 if (ftp != null)
                 {
                     Camobject.ftp.ready = false;
-                    
+
                     ThreadPool.QueueUserWorkItem((new AsynchronousFtpUpLoader()).FTP,
                         new FTPTask(ftp.server, ftp.port,
                             ftp.usepassive, ftp.username,
@@ -2304,7 +2216,7 @@ namespace iSpyApplication.Controls
                             path,
                             Camobject.id,
                             Camobject.recorder.ftpcounter,
-                            ftp.rename, ftp.sftp,null));
+                            ftp.rename, ftp.sftp, null));
                 }
 
             }
@@ -2340,10 +2252,10 @@ namespace iSpyApplication.Controls
 
                 Graphics g = Graphics.FromImage(myThumbnail);
                 var strFormat = new StringFormat
-                                {
-                                    Alignment = StringAlignment.Center,
-                                    LineAlignment = StringAlignment.Far
-                                };
+                {
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Far
+                };
                 var rect = new RectangleF(0, 0, 96, 72);
 
                 g.DrawString(LocRm.GetString("Timelapse"), MainForm.Drawfont, MainForm.OverlayBrush,
@@ -2367,7 +2279,7 @@ namespace iSpyApplication.Controls
                 try
                 {
                     _timeLapseWriter = new MediaWriter();
-                    _timeLapseWriter.Open(filename +CodecExtension,_videoWidth, _videoHeight, Codec, Camobject.recorder.timelapseframerate, AVCodecID.AV_CODEC_ID_NONE, DateTime.UtcNow, Helper.CalcCRF(Camobject.recorder.quality));
+                    _timeLapseWriter.Open(filename + CodecExtension, _videoWidth, _videoHeight, Codec, Camobject.recorder.timelapseframerate, AVCodecID.AV_CODEC_ID_NONE, DateTime.UtcNow, Helper.CalcCRF(Camobject.recorder.quality));
 
                     success = true;
                     TimelapseStart = Helper.Now;
@@ -2378,7 +2290,7 @@ namespace iSpyApplication.Controls
                     _timeLapseWriter = null;
                     //Camobject.recorder.timelapse = 0;
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -2403,7 +2315,7 @@ namespace iSpyApplication.Controls
             {
                 ErrorHandler?.Invoke(ex.Message);
             }
-            
+
             _timeLapseWriter = null;
 
             var fpath = Dir.Entry + "video\\" + Camobject.directory + "\\" + TimeLapseVideoFileName + CodecExtension;
@@ -2438,16 +2350,13 @@ namespace iSpyApplication.Controls
 
                 MainForm.MasterFileAdd(new FilePreview(TimeLapseVideoFileName + CodecExtension, dSeconds,
                                                             Camobject.name, DateTime.Now.Ticks, 2, Camobject.id,
-                                                            ff.MaxAlarm, true,false));
-                
+                                                            ff.MaxAlarm, true, false));
+
                 MainForm.NeedsMediaRefresh = Helper.Now;
             }
         }
 
-        private static bool ThumbnailCallback()
-        {
-            return false;
-        }
+        private static bool ThumbnailCallback() => false;
 
         public bool Highlighted { get; set; }
 
@@ -2457,7 +2366,7 @@ namespace iSpyApplication.Controls
 
         internal bool Custom
         {
-            get { return _custom; }
+            get => _custom;
             set
             {
                 _custom = value;
@@ -2488,17 +2397,9 @@ namespace iSpyApplication.Controls
                     return c;
                 }
 
-                if (Custom)
-                    return _customColor;
-
-                if (Highlighted)
-                    return MainForm.FloorPlanHighlightColor;
-
-                if (Focused)
-                    return MainForm.BorderHighlightColor;
-
-                return MainForm.BorderDefaultColor;
-
+                return Custom
+                    ? _customColor
+                    : Highlighted ? MainForm.FloorPlanHighlightColor : Focused ? MainForm.BorderHighlightColor : MainForm.BorderDefaultColor;
             }
         }
 
@@ -2512,7 +2413,7 @@ namespace iSpyApplication.Controls
             {
                 lock (_lockobject)
                 {
-                    return (Bitmap) _lastFrame?.Clone();
+                    return (Bitmap)_lastFrame?.Clone();
                 }
             }
             set
@@ -2523,15 +2424,7 @@ namespace iSpyApplication.Controls
                     {
                         _lastFrame?.Dispose();
 
-                        if (value != null)
-                        {
-                            _lastFrame = (Bitmap) value.Clone();
-
-                        }
-                        else
-                        {
-                            _lastFrame = null;
-                        }
+                        _lastFrame = value != null ? (Bitmap)value.Clone() : null;
                     }
                 }
                 GotImage = value != null;
@@ -2557,7 +2450,7 @@ namespace iSpyApplication.Controls
                             var lf = _lastFrame;
                             if (lf != null)
                             {
-                                
+
 
                                 cr.X += 1;
                                 cr.Y += 1;
@@ -2568,7 +2461,7 @@ namespace iSpyApplication.Controls
                             }
                             return _rc;
                         }
-                        
+
                         cr.X += 1;
                         cr.Y += 1;
                         cr.Width = Math.Max(cr.Width - 2, 2);
@@ -2576,7 +2469,7 @@ namespace iSpyApplication.Controls
 
                         _rc = Helper.GetArea(cr, Camera.Width, Camera.Height);
                         return _rc;
-                        
+
                     case 1:
                         _rc = ClientRectangle;
                         break;
@@ -2590,8 +2483,11 @@ namespace iSpyApplication.Controls
 
                 return _rc;
             }
-            set { _rc = value; }
+            set => _rc = value;
         }
+
+        private bool _autoSizeSet = false;
+
         protected override void OnPaint(PaintEventArgs pe)
         {
             Graphics gCam = pe.Graphics;
@@ -2614,13 +2510,15 @@ namespace iSpyApplication.Controls
                             m = "Z: " + $"{Camera.ZFactor:0.0}" + " " + m;
                         }
 
-                        
+
                         gCam.CompositingMode = CompositingMode.SourceCopy;
                         gCam.CompositingQuality = CompositingQuality.HighSpeed;
                         gCam.PixelOffsetMode = PixelOffsetMode.HighSpeed;
                         gCam.SmoothingMode = SmoothingMode.None;
-                        gCam.InterpolationMode = InterpolationMode.Default;
-                        gCam.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+                        //gCam.InterpolationMode = InterpolationMode.Default;
+                        //gCam.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+                        gCam.InterpolationMode = InterpolationMode.NearestNeighbor;
+                        gCam.TextRenderingHint = TextRenderingHint.SingleBitPerPixel;
 
                         if (!_minimised)
                         {
@@ -2630,19 +2528,23 @@ namespace iSpyApplication.Controls
                                 if (NeedSizeUpdate)
                                 {
                                     AutoSize = true;
+                                    _autoSizeSet = true;
                                     UpdatePosition(bmp.Width, bmp.Height);
                                 }
-                                else
+                                else if (_autoSizeSet)
+                                {
                                     AutoSize = false;
+                                    _autoSizeSet = false;
+                                }
 
                                 gCam.DrawImage(bmp, rc.X, rc.Y, rc.Width, rc.Height);
                                 bmp.Dispose();
                             }
                         }
 
-                        gCam.CompositingMode = CompositingMode.SourceOver;                      
-                        
-                        
+                        gCam.CompositingMode = CompositingMode.SourceOver;
+
+
                         if (PTZNavigate)
                         {
                             RunPTZ(gCam);
@@ -2654,14 +2556,12 @@ namespace iSpyApplication.Controls
                             {
                                 int remaining = Math.Max(0,
                                     Convert.ToInt32((CalibrateTarget - DateTime.UtcNow).TotalSeconds));
-                                
+
                                 txt += ": " + LocRm.GetString("Calibrating") + " (" + remaining + ")";
                             }
                             else
                             {
-                                var blobcounter =
-                                    Camera.MotionDetector?.MotionProcessingAlgorithm as BlobCountingObjectsProcessing;
-                                if (blobcounter != null)
+                                if (Camera.MotionDetector?.MotionProcessingAlgorithm is BlobCountingObjectsProcessing blobcounter)
                                 {
                                     m += blobcounter.ObjectsCount + " " + LocRm.GetString("Objects") + ", ";
                                 }
@@ -2672,7 +2572,7 @@ namespace iSpyApplication.Controls
                     if (VideoSourceErrorState || !GotImage)
                     {
                         var img = Properties.Resources.connecting;
-                        gCam.DrawImage(img,Width-img.Width-2,2,img.Width,img.Height);
+                        gCam.DrawImage(img, Width - img.Width - 2, 2, img.Width, img.Height);
                     }
                     else
                     {
@@ -2681,7 +2581,7 @@ namespace iSpyApplication.Controls
                             gCam.FillEllipse(MainForm.RecordBrush, new Rectangle(ClientRectangle.X + ClientRectangle.Width - 12, 4, 8, 8));
                         }
 
-                        if (Camera != null && Camera.IsRunning && Camobject.detector.type != "None")
+                        if (Camera?.IsRunning == true && Camobject.detector.type != "None")
                         {
                             using (var volBrush = new SolidBrush(MainForm.VolumeLevelColor))
                                 DrawDetectionGraph(gCam, volBrush, MainForm.CameraLine, ClientRectangle);
@@ -2691,7 +2591,7 @@ namespace iSpyApplication.Controls
                 else
                 {
                     txt += ": " + LocRm.GetString("Offline");
-                    gCam.DrawString(SourceType+": "+Camobject.name, MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, 5));
+                    gCam.DrawString(SourceType + ": " + Camobject.name, MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, 5));
                 }
 
                 string flags = "";
@@ -2717,11 +2617,11 @@ namespace iSpyApplication.Controls
                 if (Camobject.schedule.active)
                     flags += "S";
 
-                if (flags!="")
-                    m = flags +"  "+ m;
+                if (flags != "")
+                    m = flags + "  " + m;
 
 
-                gCam.DrawString(m + txt,MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, textpos));
+                gCam.DrawString(m + txt, MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, textpos));
 
                 if (_mouseMove > Helper.Now.AddSeconds(-3) && MainForm.Conf.ShowOverlayControls && !PTZNavigate)
                 {
@@ -2802,12 +2702,9 @@ namespace iSpyApplication.Controls
                     rSrc = b ? MainForm.RPowerOn : MainForm.RPower;
                     break;
                 case 1://record
-                    if (b && Helper.HasFeature(Enums.Features.Recording))
-                        rSrc = (Recording || ForcedRecording) ? MainForm.RRecordOn : MainForm.RRecord;
-                    else
-                    {
-                        rSrc = MainForm.RRecordOff;
-                    }
+                    rSrc = b && Helper.HasFeature(Enums.Features.Recording)
+                        ? (Recording || ForcedRecording) ? MainForm.RRecordOn : MainForm.RRecord
+                        : MainForm.RRecordOff;
                     break;
                 case 2://settings
                     rSrc = Helper.HasFeature(Enums.Features.Edit) ? MainForm.REdit : MainForm.REditOff;
@@ -2816,31 +2713,17 @@ namespace iSpyApplication.Controls
                     rSrc = Helper.HasFeature(Enums.Features.Access_Media) ? MainForm.RWeb : MainForm.RWebOff;
                     break;
                 case 4://grab
-                    if (b && Helper.HasFeature(Enums.Features.Save_Frames))
-                        rSrc = MainForm.RGrab;
-                    else
-                    {
-                        rSrc = MainForm.RGrabOff;
-                    }
+                    rSrc = b && Helper.HasFeature(Enums.Features.Save_Frames) ? MainForm.RGrab : MainForm.RGrabOff;
                     break;
                 case 5://talk
-                    if (b && Camobject.settings.audiomodel != "None")
-                        rSrc = Talking ? MainForm.RTalkOn : MainForm.RTalk;
-                    else
-                        rSrc = MainForm.RTalkOff;
-                        
+                    rSrc = b && Camobject.settings.audiomodel != "None" ? Talking ? MainForm.RTalkOn : MainForm.RTalk : MainForm.RTalkOff;
+
                     break;
                 case 6://text
-                    if (b && Camobject.settings.audiomodel != "None")
-                        rSrc = MainForm.RText;
-                    else
-                        rSrc = MainForm.RTextOff;
+                    rSrc = b && Camobject.settings.audiomodel != "None" ? MainForm.RText : MainForm.RTextOff;
                     break;
                 case 7://listen
-                    if (b && Camobject.settings.micpair > -1)
-                        rSrc = Listening ? MainForm.RListenOn : MainForm.RListen;
-                    else
-                        rSrc = MainForm.RListenOff;
+                    rSrc = (b && Camobject.settings.micpair > -1) ? Listening ? MainForm.RListenOn : MainForm.RListen : MainForm.RListenOff;
                     break;
 
             }
@@ -2859,10 +2742,9 @@ namespace iSpyApplication.Controls
 
         private void DrawButton(Graphics gCam, int buttonIndex)
         {
-            Rectangle rDest;
-            Rectangle rSrc = GetButtonByIndex(buttonIndex, out rDest);
+            Rectangle rSrc = GetButtonByIndex(buttonIndex, out Rectangle rDest);
 
-            gCam.DrawImage(MainForm.Conf.BigButtons ? Properties.Resources.icons_big : Properties.Resources.icons,rDest,rSrc, GraphicsUnit.Pixel);
+            gCam.DrawImage(MainForm.Conf.BigButtons ? Properties.Resources.icons_big : Properties.Resources.icons, rDest, rSrc, GraphicsUnit.Pixel);
         }
 
         private void DrawOverlay(Graphics gCam)
@@ -2876,20 +2758,19 @@ namespace iSpyApplication.Controls
             {
                 gCam.FillRectangle(MainForm.OverlayBackgroundBrush, rPanel);
             }
-            for(int i=0;i<ButtonCount;i++)
+            for (int i = 0; i < ButtonCount; i++)
                 DrawButton(gCam, i);
         }
 
         private void AddSeekOverlay(Graphics gCam)
         {
-            var vs = Camera.VideoSource as VlcStream;
             long time = 0, duration = 0;
-            if (vs != null)
+            if (Camera.VideoSource is VlcStream vs)
             {
                 time = vs.Time;
                 duration = vs.Duration;
             }
-            
+
             if (duration > 0)
             {
                 var rPanel = ButtonPanel;
@@ -2898,7 +2779,7 @@ namespace iSpyApplication.Controls
 
                 gCam.FillRectangle(MainForm.OverlayBackgroundBrush, rPanel.X, rPanel.Y - 25, rPanel.Width, rPanel.Height + 25);
                 //draw seek bar
-                gCam.DrawLine(Pens.White, rPanel.X, rPanel.Y - 2, rPanel.Width + rPanel.X, rPanel.Y -2);
+                gCam.DrawLine(Pens.White, rPanel.X, rPanel.Y - 2, rPanel.Width + rPanel.X, rPanel.Y - 2);
                 var xpos = (Convert.ToDouble(time) / Convert.ToDouble(duration)) * rPanel.Width;
                 if (_newSeek > 0)
                     xpos = _newSeek;
@@ -2906,7 +2787,7 @@ namespace iSpyApplication.Controls
                 int x = rPanel.X + Convert.ToInt32(xpos);
                 var navPoints = new[]
                 {
-                    new Point(x-4,rPanel.Y-8), 
+                    new Point(x-4,rPanel.Y-8),
                     new Point(x+4,rPanel.Y-2),
                     new Point(x-4, rPanel.Y+4)
                 };
@@ -2915,7 +2796,7 @@ namespace iSpyApplication.Controls
                 gCam.DrawPolygon(Pens.Black, navPoints);
                 var s = gCam.MeasureString(timedisplay, MainForm.Drawfont);
                 gCam.DrawString(timedisplay, MainForm.Drawfont, MainForm.OverlayBrush, Width / 2f - s.Width / 2,
-                                rPanel.Y -s.Height - 6);
+                                rPanel.Y - s.Height - 6);
             }
         }
 
@@ -2949,7 +2830,7 @@ namespace iSpyApplication.Controls
                 Camera.ZPoint = p;
 
                 gCam.DrawString(LocRm.GetString("DIGITAL"), MainForm.Drawfont, MainForm.CameraDrawBrush, PTZReference.X - 21, PTZReference.Y - 25);
-                
+
             }
         }
 
@@ -2979,8 +2860,7 @@ namespace iSpyApplication.Controls
                     Camobject.resolution = e.Frame.Width + "x" + e.Frame.Height;
                     SetVideoSize();
                     _firstFrame = false;
-                    var vlc = Camera.VideoSource as VlcStream;
-                    if (vlc != null)
+                    if (Camera.VideoSource is VlcStream vlc)
                         Seekable = vlc.Seekable;
                     RC = Rectangle.Empty;
                 }
@@ -3004,30 +2884,31 @@ namespace iSpyApplication.Controls
                     }
                     VideoSourceErrorState = false;
                     _reconnectFailCount = 0;
-                }             
-                    
+                }
+
                 var dt = Helper.Now.AddSeconds(0 - Camobject.recorder.bufferseconds);
-                    
-                if (!Recording) { 
-                while (Buffer.Count > 0)
+
+                if (!Recording)
                 {
-                    Helper.FrameAction fa;
-                    if (Buffer.TryPeek(out fa))
+                    while (Buffer.Count > 0)
                     {
-                        if (fa.TimeStamp < dt)
+                        if (Buffer.TryPeek(out Helper.FrameAction fa))
                         {
-                            if (Buffer.TryDequeue(out fa))
-                                fa.Dispose();
-                        }
-                        else
-                        {
-                            break;
+                            if (fa.TimeStamp < dt)
+                            {
+                                if (Buffer.TryDequeue(out fa))
+                                    fa.Dispose();
+                            }
+                            else
+                            {
+                                break;
+                            }
                         }
                     }
-                }}
+                }
 
-                
-                
+
+
                 if (Camobject.recorder.bufferseconds > 0 || Recording)
                     Buffer.Enqueue(new Helper.FrameAction(e.Frame, Camera.MotionLevel, Helper.Now));
                 //EnqueueAsync.BeginInvoke(Buffer, new Bitmap(e.Frame), Camera.MotionLevel, Helper.Now, null,null);
@@ -3046,7 +2927,7 @@ namespace iSpyApplication.Controls
                 {
                     LastFrame = e.Frame;
                 }
-                
+
 
                 if (_reconnectTarget != DateTime.MinValue)
                 {
@@ -3070,10 +2951,11 @@ namespace iSpyApplication.Controls
             }
         }
 
-        private static readonly EnqueueAsyncDelegate EnqueueAsync = (q, b, f, d) => {
-                                                               q.Enqueue(new Helper.FrameAction(b, f, d));
-                                                               b.Dispose();
-                                                           };
+        private static readonly EnqueueAsyncDelegate EnqueueAsync = (q, b, f, d) =>
+        {
+            q.Enqueue(new Helper.FrameAction(b, f, d));
+            b.Dispose();
+        };
 
         private delegate void EnqueueAsyncDelegate(ConcurrentQueue<Helper.FrameAction> buffer, Bitmap frame, float motionLevel, DateTime frameTime);
 
@@ -3115,18 +2997,19 @@ namespace iSpyApplication.Controls
                 }
                 _recordingStartTime = DateTime.UtcNow;
                 _recordingThread = new Thread(Record)
-                                   {
-                                       Name = "Recording Thread (" + Camobject.id + ")",
-                                       IsBackground = true,
-                                       Priority = ThreadPriority.Normal
-                                   };
+                {
+                    Name = "Recording Thread (" + Camobject.id + ")",
+                    IsBackground = true,
+                    Priority = ThreadPriority.Normal
+                };
                 _recordingThread.Start();
             }
         }
 
         public void OpenWebInterface()
         {
-            if (SupportsWebInterface) { 
+            if (SupportsWebInterface)
+            {
                 try
                 {
                     var uri = new Uri(Camobject.settings.videosourcestring);
@@ -3136,13 +3019,13 @@ namespace iSpyApplication.Controls
                         url = url.ReplaceFirst(uri.Scheme, "http");
                         url = url.ReplaceFirst(":" + uri.Port, ":80");
                     }
-                    url = url.Replace(uri.UserInfo+"@", "");
+                    url = url.Replace(uri.UserInfo + "@", "");
 
                     MainForm.OpenUrl(url);
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogException(ex,"open web browser");
+                    Logger.LogException(ex, "open web browser");
                 }
             }
         }
@@ -3183,9 +3066,8 @@ namespace iSpyApplication.Controls
                 string previewImage = "";
 
 
-                Helper.FrameAction fa;
                 DateTime recordingStart = DateTime.UtcNow;
-                if (Buffer.TryPeek(out fa))
+                if (Buffer.TryPeek(out Helper.FrameAction fa))
                 {
                     recordingStart = fa.TimeStamp;
                 }
@@ -3198,12 +3080,12 @@ namespace iSpyApplication.Controls
                         {
                             case "1":
                                 VolumeLevel vl = MainForm.InstanceReference.GetVolumeLevel(Convert.ToInt32(tid[1]));
-                                if (vl != null && !vl.Recording)
+                                if (vl?.Recording == false)
                                     vl.RecordSwitch(true);
                                 break;
                             case "2":
                                 CameraWindow cw = MainForm.InstanceReference.GetCameraWindow(Convert.ToInt32(tid[1]));
-                                if (cw != null && !cw.Recording)
+                                if (cw?.Recording == false)
                                     cw.RecordSwitch(true);
                                 break;
                         }
@@ -3211,7 +3093,7 @@ namespace iSpyApplication.Controls
 
                     try
                     {
-                        DateTime date = DateTime.Now.AddHours(Convert.ToDouble(Camobject.settings.timestampoffset)).AddSeconds(0-Camobject.recorder.bufferseconds);
+                        DateTime date = DateTime.Now.AddHours(Convert.ToDouble(Camobject.settings.timestampoffset)).AddSeconds(0 - Camobject.recorder.bufferseconds);
 
                         string filename =
                             $"{date.Year}-{Helper.ZeroPad(date.Month)}-{Helper.ZeroPad(date.Day)}_{Helper.ZeroPad(date.Hour)}-{Helper.ZeroPad(date.Minute)}-{Helper.ZeroPad(date.Second)}";
@@ -3237,26 +3119,26 @@ namespace iSpyApplication.Controls
                             if (!Directory.Exists(folder))
                                 Directory.CreateDirectory(folder);
 
-                            
+
                             if (bAudio)
                             {
                                 _writer = new MediaWriter
-                                          {
-                                              Gpu = MediaWriter.Encoders.FirstOrDefault(
+                                {
+                                    Gpu = MediaWriter.Encoders.FirstOrDefault(
                                                   p => p.Name == Camobject.settings.encoder)
-                                          };
-                                _writer.Open(videopath, _videoWidth, _videoHeight, Codec, CodecFramerate,CodecAudio, recordingStart, Helper.CalcCRF(Camobject.recorder.quality));
+                                };
+                                _writer.Open(videopath, _videoWidth, _videoHeight, Codec, CodecFramerate, CodecAudio, recordingStart, Helper.CalcCRF(Camobject.recorder.quality));
                             }
                             else
                             {
                                 _writer = new MediaWriter
-                                          {
-                                              Gpu = MediaWriter.Encoders.FirstOrDefault(p => p.Name == Camobject.settings.encoder)
-                                          };
+                                {
+                                    Gpu = MediaWriter.Encoders.FirstOrDefault(p => p.Name == Camobject.settings.encoder)
+                                };
 
                                 _writer.Open(videopath, _videoWidth, _videoHeight, Codec, CodecFramerate, AVCodecID.AV_CODEC_ID_NONE, recordingStart, Helper.CalcCRF(Camobject.recorder.quality));
                             }
-                                
+
                             try
                             {
                                 linktofile = Uri.EscapeDataString(MainForm.IPAddress + "loadclip.mp4?oid=" + Camobject.id + "&ot=2&fn=" + VideoFileName + CodecExtension + "&auth=" + MainForm.Identifier);
@@ -3267,7 +3149,7 @@ namespace iSpyApplication.Controls
                             }
 
                             DoAlert("recordingstarted", linktofile);
-                           
+
                             Helper.FrameAction peakFrame = null;
                             bool _writtenVideo = false;
                             while (!_stopWrite.WaitOne(5))
@@ -3278,12 +3160,9 @@ namespace iSpyApplication.Controls
                                     _writtenVideo = true;
                                 }
 
-                                if (bAudio && _writtenVideo)
+                                if (bAudio && _writtenVideo && vc.Buffer.TryDequeue(out fa))
                                 {
-                                    if (vc.Buffer.TryDequeue(out fa))
-                                    {
-                                        WriteFrame(fa, ref maxAlarm, ref peakFrame);
-                                    }
+                                    WriteFrame(fa, ref maxAlarm, ref peakFrame);
                                 }
                             }
 
@@ -3307,9 +3186,9 @@ namespace iSpyApplication.Controls
                                             MainForm.Encoder,
                                             MainForm.EncoderParams);
                                     }
-                               
+
                                     previewImage = folder + @"thumbs\" + VideoFileName + ".jpg";
-                                    
+
 
                                 }
                                 catch (Exception ex)
@@ -3326,7 +3205,7 @@ namespace iSpyApplication.Controls
                         }
                         finally
                         {
-                            if (_writer != null && !_writer.Closed)
+                            if (_writer?.Closed == false)
                             {
                                 try
                                 {
@@ -3336,7 +3215,7 @@ namespace iSpyApplication.Controls
                                 {
                                     ErrorHandler?.Invoke(ex.Message);
                                 }
-                                
+
                                 _writer = null;
                             }
                             vc?.StopSaving();
@@ -3382,7 +3261,7 @@ namespace iSpyApplication.Controls
 
                         ff.CreatedDateTicks = DateTime.Now.Ticks;
                         ff.Filename = fn;
-                        ff.MaxAlarm = Math.Min(maxAlarm*100, 100);
+                        ff.MaxAlarm = Math.Min(maxAlarm * 100, 100);
                         ff.SizeBytes = fi.Length;
                         ff.DurationSeconds = dSeconds;
                         ff.IsTimelapse = false;
@@ -3449,7 +3328,7 @@ namespace iSpyApplication.Controls
 
                 Notification?.Invoke(this, new NotificationType("NewRecording", Camobject.name, previewImage));
 
-                end:
+            end:
 
                 LogToPlugin("Recording Stopped");
                 DoAlert("recordingstopped", linktofile);
@@ -3480,13 +3359,13 @@ namespace iSpyApplication.Controls
                         keepFrame = true;
                     }
 
-                    _motionData.Append(string.Format(CultureInfo.InvariantCulture, "{0:0.000}", Math.Min(fa.Level * 100, 100)));
+                    _motionData.AppendFormat(CultureInfo.InvariantCulture, "{0:0.000}", Math.Min(fa.Level * 100, 100));
                     _motionData.Append(",");
                     break;
                 case Enums.FrameType.Audio:
-                {
-                    _writer.WriteAudio(fa.Content, fa.DataLength, 0, fa.TimeStamp);
-                }
+                    {
+                        _writer.WriteAudio(fa.Content, fa.DataLength, 0, fa.TimeStamp);
+                    }
 
                     break;
             }
@@ -3494,12 +3373,12 @@ namespace iSpyApplication.Controls
                 fa.Dispose();
         }
 
-        
+
         //Motion Detection
         public void Detect(object sender, EventArgs e)
         {
             LastActivity = DateTime.UtcNow;
-            
+
             if (!Calibrating)
             {
                 if (Camobject.detector.recordondetect)
@@ -3512,42 +3391,36 @@ namespace iSpyApplication.Controls
                     _suspendPTZSchedule = true;
                 }
 
-                if (Camobject.ftp.mode == 0)
+                if (Camobject.ftp.mode == 0 && Camobject.ftp.enabled && Camobject.ftp.ready)
                 {
-                    if (Camobject.ftp.enabled && Camobject.ftp.ready)
+                    if ((Helper.Now - _lastFrameUploaded).TotalSeconds > Camobject.ftp.minimumdelay)
                     {
-                        if ((Helper.Now - _lastFrameUploaded).TotalSeconds > Camobject.ftp.minimumdelay)
-                        {
-                            FtpFrame();
+                        FtpFrame();
 
-                        }
                     }
                 }
-                if (Camobject.savelocal.mode == 0)
+                if (Camobject.savelocal.mode == 0 && Camobject.savelocal.enabled)
                 {
-                    if (Camobject.savelocal.enabled)
+                    if ((Helper.Now - _lastFrameSaved).TotalSeconds > Camobject.savelocal.minimumdelay)
                     {
-                        if ((Helper.Now - _lastFrameSaved).TotalSeconds > Camobject.savelocal.minimumdelay)
-                        {
-                            SaveFrame();
-                        }
+                        SaveFrame();
                     }
                 }
-                
+
 
             }
 
             if (sender is Camera)
             {
-                FlashCounter = Helper.Now.AddSeconds(10);                
+                FlashCounter = Helper.Now.AddSeconds(10);
                 if (Camera?.Plugin != null && !Calibrating)
                 {
                     var o = Camera.Plugin.GetType();
                     var m = o.GetMethod("MotionDetect");
-                    var r = (string) m?.Invoke(Camera.Plugin, null);
+                    var r = (string)m?.Invoke(Camera.Plugin, null);
                     if (!string.IsNullOrEmpty(r))
                     {
-                        ProcessAlertFromPlugin(r,"Motion Detected");
+                        ProcessAlertFromPlugin(r, "Motion Detected");
                     }
                 }
                 return;
@@ -3557,8 +3430,7 @@ namespace iSpyApplication.Controls
         public void Alert(object sender, EventArgs e)
         {
             LastActivity = DateTime.UtcNow;
-            var c = sender as CameraWindow;
-            if (c != null) //triggered from another camera
+            if (sender is CameraWindow c) //triggered from another camera
             {
                 FlashCounter = Helper.Now.AddSeconds(10);
                 DoAlert("alert");
@@ -3578,8 +3450,7 @@ namespace iSpyApplication.Controls
                 {
                     FlashCounter = Helper.Now.AddSeconds(10);
                     string msg = "";
-                    var s = sender as string;
-                    if (s != null)
+                    if (sender is string s)
                         msg = s;
                     else
                     {
@@ -3598,14 +3469,11 @@ namespace iSpyApplication.Controls
 
             if (type == "alert")
             {
-                if (Alerted)
+                if (Alerted && (Helper.Now - LastAlerted).TotalSeconds < Camobject.alerts.minimuminterval)
                 {
-                    if ((Helper.Now - LastAlerted).TotalSeconds < Camobject.alerts.minimuminterval)
-                    {
-                        return;
-                    }
+                    return;
                 }
-                
+
                 Alerted = true;
                 UpdateFloorplans(true);
                 LastAlerted = Helper.Now;
@@ -3616,8 +3484,7 @@ namespace iSpyApplication.Controls
                     StartSaving();
                 }
                 var wss = MainForm.MWS.WebSocketServer;
-                if (wss!=null)
-                    wss.SendToAll("alert|" + ObjectName);
+                wss?.SendToAll("alert|" + ObjectName);
             }
 
             var t = new Thread(() => AlertThread(type, msg, Camobject.id)) { Name = type + " (" + Camobject.id + ")", IsBackground = true };
@@ -3627,10 +3494,9 @@ namespace iSpyApplication.Controls
 
         private void AlertThread(string mode, string msg, int oid)
         {
-            if (Notification != null)
+            if (Notification != null && MainForm.AlertNotifications.Contains(mode))
             {
-                if (MainForm.AlertNotifications.Contains(mode))
-                    Notification(this, new NotificationType(mode, Camobject.name, ""));
+                Notification(this, new NotificationType(mode, Camobject.name, ""));
             }
 
             if (MainForm.Conf.ScreensaverWakeup)
@@ -3650,19 +3516,19 @@ namespace iSpyApplication.Controls
             using (var imageStream = new MemoryStream())
             {
                 byte[] rawgrab = null;
-                if (MainForm.Encoder != null && bmp!=null)
+                if (MainForm.Encoder != null && bmp != null)
                 {
                     //  Set the quality
 
                     var parameters = new EncoderParameters(1)
-                                     {
-                                         Param =
+                    {
+                        Param =
                                          {
                                              [0] =
                                                  new EncoderParameter(Encoder.Quality,
                                                  Camobject.ftp.quality)
                                          }
-                                     };
+                    };
                     try
                     {
                         bmp.Save(imageStream, MainForm.Encoder, parameters);
@@ -3673,7 +3539,7 @@ namespace iSpyApplication.Controls
                         Logger.LogException(ex);
                     }
                 }
-                
+
 
                 int i = 0;
                 var le = MainForm.Actions.Where(p => p.objectid == oid && p.objecttypeid == 2 && p.mode == mode && p.active).ToList();
@@ -3681,31 +3547,26 @@ namespace iSpyApplication.Controls
                 {
                     ProcessAlertEvent(ev.mode, rawgrab, msg, ev.type, ev.param1, ev.param2, ev.param3, ev.param4);
                 }
-                if (i>0)
+                if (i > 0)
                     MainForm.LastAlert = Helper.Now;
 
             }
 
             if (bmp != null)
             {
-                if (Camobject.ftp.mode == 1)
+                if (Camobject.ftp.mode == 1 && Camobject.ftp.enabled && Camobject.ftp.ready)
                 {
-                    if (Camobject.ftp.enabled && Camobject.ftp.ready)
+                    if ((Helper.Now - _lastFrameUploaded).TotalSeconds > Camobject.ftp.minimumdelay)
                     {
-                        if ((Helper.Now - _lastFrameUploaded).TotalSeconds > Camobject.ftp.minimumdelay)
-                        {
-                            FtpFrame(bmp);
-                        }
+                        FtpFrame(bmp);
                     }
-                        
+
                 }
-                if (Camobject.savelocal.mode == 1)   {
-                    if (Camobject.savelocal.enabled)
+                if (Camobject.savelocal.mode == 1 && Camobject.savelocal.enabled)
+                {
+                    if ((Helper.Now - _lastFrameSaved).TotalSeconds > Camobject.savelocal.minimumdelay)
                     {
-                        if ((Helper.Now - _lastFrameSaved).TotalSeconds > Camobject.savelocal.minimumdelay)
-                        {
-                            SaveFrame();
-                        }
+                        SaveFrame();
                     }
                 }
                 bmp.Dispose();
@@ -3728,7 +3589,7 @@ namespace iSpyApplication.Controls
                 {
                     case "Exe":
                         {
-                            if (param1.ToLower() == "ispy.exe" || param1.ToLower() == "ispy")
+                            if (string.Equals(param1, "ispy.exe", StringComparison.OrdinalIgnoreCase) || string.Equals(param1, "ispy", StringComparison.OrdinalIgnoreCase))
                             {
                                 MainForm.InstanceReference.ProcessCommandString(param2);
                             }
@@ -3738,11 +3599,11 @@ namespace iSpyApplication.Controls
                                 {
 
                                     var startInfo = new ProcessStartInfo
-                                                        {
-                                                            UseShellExecute = true,
-                                                            FileName = param1,
-                                                            Arguments = param2
-                                                        };
+                                    {
+                                        UseShellExecute = true,
+                                        FileName = param1,
+                                        Arguments = param2
+                                    };
                                     try
                                     {
                                         var fi = new FileInfo(param1);
@@ -3770,7 +3631,7 @@ namespace iSpyApplication.Controls
                         break;
                     case "URL":
                         {
-                            bool postgrab = Convert.ToBoolean(param2) && rawgrab!=null && rawgrab.Length > 0;
+                            bool postgrab = Convert.ToBoolean(param2) && rawgrab?.Length > 0;
                             if (postgrab)
                             {
                                 const string file = "grab.jpg";
@@ -3779,7 +3640,7 @@ namespace iSpyApplication.Controls
                                 string boundary = "---------------------------" + Helper.Now.Ticks.ToString("x");
                                 byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
 
-                                var wr = (HttpWebRequest) WebRequest.Create(param1);
+                                var wr = (HttpWebRequest)WebRequest.Create(param1);
                                 wr.ContentType = "multipart/form-data; boundary=" + boundary;
                                 wr.Method = "POST";
                                 wr.KeepAlive = true;
@@ -3823,9 +3684,9 @@ namespace iSpyApplication.Controls
                             }
                             else
                             {
-                                var request = (HttpWebRequest) WebRequest.Create(param1);
+                                var request = (HttpWebRequest)WebRequest.Create(param1);
                                 request.Credentials = CredentialCache.DefaultCredentials;
-                                var response = (HttpWebResponse) request.GetResponse();
+                                var response = (HttpWebResponse)request.GetResponse();
 
                                 // Get the stream associated with the response.
                                 Stream receiveStream = response.GetResponseStream();
@@ -3848,35 +3709,29 @@ namespace iSpyApplication.Controls
                         {
                             case "TCP":
                                 {
-                                    IPAddress ip;
-                                    if (IPAddress.TryParse(param2, out ip))
+                                    if (IPAddress.TryParse(param2, out IPAddress ip) && int.TryParse(param3, out int port))
                                     {
-                                        int port;
-                                        if (int.TryParse(param3, out port))
+                                        using (var tcpClient = new TcpClient())
                                         {
-                                            using (var tcpClient = new TcpClient())
+                                            try
                                             {
-                                                try
+                                                tcpClient.Connect(ip, port);
+                                                using (var networkStream = tcpClient.GetStream())
                                                 {
-                                                    tcpClient.Connect(ip, port);
-                                                    using (var networkStream = tcpClient.GetStream())
+                                                    using (var clientStreamWriter = new StreamWriter(networkStream))
                                                     {
-                                                        using (var clientStreamWriter = new StreamWriter(networkStream))
-                                                        {
-                                                            clientStreamWriter.Write(param4);
-                                                            clientStreamWriter.Flush();
-                                                            clientStreamWriter.Close();
-                                                        }
-                                                        networkStream.Close();
+                                                        clientStreamWriter.Write(param4);
+                                                        clientStreamWriter.Flush();
+                                                        clientStreamWriter.Close();
                                                     }
+                                                    networkStream.Close();
                                                 }
-                                                catch (Exception ex)
-                                                {
-                                                    ErrorHandler?.Invoke(ex.Message);
-                                                }
-                                                tcpClient.Close();
                                             }
-
+                                            catch (Exception ex)
+                                            {
+                                                ErrorHandler?.Invoke(ex.Message);
+                                            }
+                                            tcpClient.Close();
                                         }
                                     }
                                 }
@@ -3884,32 +3739,26 @@ namespace iSpyApplication.Controls
                                 break;
                             case "UDP":
                                 {
-                                    IPAddress ip;
-                                    if (IPAddress.TryParse(param2, out ip))
+                                    if (IPAddress.TryParse(param2, out IPAddress ip) && int.TryParse(param3, out int port))
                                     {
-                                        int port;
-                                        if (int.TryParse(param3, out port))
+                                        using (var udpClient = new UdpClient())
                                         {
-                                            using (var udpClient = new UdpClient())
+                                            try
                                             {
-                                                try
-                                                {
 
-                                                    udpClient.Connect(ip, port);
-                                                    var cmd = Encoding.ASCII.GetBytes(param4);
-                                                    udpClient.Send(cmd, cmd.Length);
+                                                udpClient.Connect(ip, port);
+                                                var cmd = Encoding.ASCII.GetBytes(param4);
+                                                udpClient.Send(cmd, cmd.Length);
 
-                                                }
-                                                catch (Exception ex)
-                                                {
-                                                    ErrorHandler?.Invoke(ex.Message);
-                                                }
-                                                finally
-                                                {
-                                                    udpClient.Close();
-                                                }
                                             }
-
+                                            catch (Exception ex)
+                                            {
+                                                ErrorHandler?.Invoke(ex.Message);
+                                            }
+                                            finally
+                                            {
+                                                udpClient.Close();
+                                            }
                                         }
                                     }
                                 }
@@ -3945,61 +3794,61 @@ namespace iSpyApplication.Controls
                         break;
                     case "TA":
                         {
-                            
-                                string[] tid = param1.Split(',');
-                                switch (tid[0])
-                                {
-                                    case "1":
-                                        VolumeLevel vl =
-                                            MainForm.InstanceReference.GetVolumeLevel(Convert.ToInt32(tid[1]));
-                                        vl?.Alert(this, EventArgs.Empty);
-                                        break;
-                                    case "2":
-                                        CameraWindow cw =
-                                            MainForm.InstanceReference.GetCameraWindow(Convert.ToInt32(tid[1]));
-                                        if (cw != null && cw!=this) //prevent recursion
-                                            cw.Alert(this, EventArgs.Empty);
-                                        break;
-                                }
+
+                            string[] tid = param1.Split(',');
+                            switch (tid[0])
+                            {
+                                case "1":
+                                    VolumeLevel vl =
+                                        MainForm.InstanceReference.GetVolumeLevel(Convert.ToInt32(tid[1]));
+                                    vl?.Alert(this, EventArgs.Empty);
+                                    break;
+                                case "2":
+                                    CameraWindow cw =
+                                        MainForm.InstanceReference.GetCameraWindow(Convert.ToInt32(tid[1]));
+                                    if (cw != null && cw != this) //prevent recursion
+                                        cw.Alert(this, EventArgs.Empty);
+                                    break;
+                            }
                         }
                         break;
                     case "SOO":
                         {
-                            
-                                string[] tid = param1.Split(',');
-                                switch (tid[0])
-                                {
-                                    case "1":
-                                        VolumeLevel vl =
-                                            MainForm.InstanceReference.GetVolumeLevel(Convert.ToInt32(tid[1]));
-                                        vl?.Enable();
-                                        break;
-                                    case "2":
-                                        CameraWindow cw =
-                                            MainForm.InstanceReference.GetCameraWindow(Convert.ToInt32(tid[1]));
-                                        cw?.Enable();
-                                        break;
-                                }
-                            
+
+                            string[] tid = param1.Split(',');
+                            switch (tid[0])
+                            {
+                                case "1":
+                                    VolumeLevel vl =
+                                        MainForm.InstanceReference.GetVolumeLevel(Convert.ToInt32(tid[1]));
+                                    vl?.Enable();
+                                    break;
+                                case "2":
+                                    CameraWindow cw =
+                                        MainForm.InstanceReference.GetCameraWindow(Convert.ToInt32(tid[1]));
+                                    cw?.Enable();
+                                    break;
+                            }
+
                         }
                         break;
                     case "SOF":
                         {
-                            
-                                string[] tid = param1.Split(',');
-                                switch (tid[0])
-                                {
-                                    case "1":
-                                        VolumeLevel vl =
-                                            MainForm.InstanceReference.GetVolumeLevel(Convert.ToInt32(tid[1]));
-                                        vl?.Disable();
-                                        break;
-                                    case "2":
-                                        CameraWindow cw =
-                                            MainForm.InstanceReference.GetCameraWindow(Convert.ToInt32(tid[1]));
-                                        cw?.Disable();
-                                        break;
-                                }
+
+                            string[] tid = param1.Split(',');
+                            switch (tid[0])
+                            {
+                                case "1":
+                                    VolumeLevel vl =
+                                        MainForm.InstanceReference.GetVolumeLevel(Convert.ToInt32(tid[1]));
+                                    vl?.Disable();
+                                    break;
+                                case "2":
+                                    CameraWindow cw =
+                                        MainForm.InstanceReference.GetCameraWindow(Convert.ToInt32(tid[1]));
+                                    cw?.Disable();
+                                    break;
+                            }
                         }
                         break;
                     case "E":
@@ -4015,7 +3864,7 @@ namespace iSpyApplication.Controls
                                 message += MainForm.Conf.AppendLinkText;
 
 
-                                if (includeGrab && rawgrab!=null)
+                                if (includeGrab && rawgrab != null)
                                     WsWrapper.SendAlertWithImage(param1, subject, message, rawgrab);
                                 else
                                     WsWrapper.SendAlert(param1, subject, message);
@@ -4048,9 +3897,9 @@ namespace iSpyApplication.Controls
                         }
                         break;
                     case "MO":
-                    {
+                        {
                             NativeCalls.WakeScreen();
-                    }
+                        }
                         break;
 
                 }
@@ -4094,13 +3943,13 @@ namespace iSpyApplication.Controls
                 VideoSourceErrorState = true;
                 ErrorHandler?.Invoke(reason);
 
-               
+
                 if (_errorTime == DateTime.MinValue)
                     _errorTime = Helper.Now;
                 var vl = VolumeControl;
                 if (vl?.AudioSource != null && vl.IsEnabled)
                 {
-                    if ((Camera!=null && vl.AudioSource == Camera.VideoSource) || vl.IsClone)
+                    if ((Camera != null && vl.AudioSource == Camera.VideoSource) || vl.IsClone)
                     {
                         vl.AudioSourceErrorMessage = reason;
                         vl.AudioSourceErrorState = true;
@@ -4132,27 +3981,27 @@ namespace iSpyApplication.Controls
                 Invoke(new Delegates.DisableDelegate(Disable), stopSource);
                 return;
             }
-            
+
             lock (_lockobject)
             {
                 if (!IsEnabled)
                     return;
                 IsEnabled = false;
             }
-            
+
             _disabling = true;
 
             try
             {
                 RecordSwitch(false);
 
-                if (VolumeControl != null && VolumeControl.IsEnabled)
+                if (VolumeControl?.IsEnabled == true)
                     VolumeControl.Disable();
 
-                
-                    if (MainForm.InstanceReference.TalkCamera == this)
-                        MainForm.InstanceReference.TalkTo(this, false);
-                
+
+                if (MainForm.InstanceReference.TalkCamera == this)
+                    MainForm.InstanceReference.TalkTo(this, false);
+
 
                 Application.DoEvents();
 
@@ -4175,33 +4024,29 @@ namespace iSpyApplication.Controls
 
                     if (Camera?.VideoSource != null)
                     {
-
                         if (Camera.Plugin != null)
                         {
                             //wait for plugin to exit
-                            int i = 0;
-                            while (Camera.PluginRunning && i < 10)
+                            for (
+                            //wait for plugin to exit
+                            int i = 0; Camera.PluginRunning && i < 10; i++)
                             {
                                 Thread.Sleep(100);
-                                i++;
                             }
                         }
 
-                        var source = Camera.VideoSource as KinectStream;
-                        if (source != null)
+                        if (Camera.VideoSource is KinectStream source)
                         {
                             source.TripWire -= Alert;
                         }
 
-                        var source1 = Camera.VideoSource as KinectNetworkStream;
-                        if (source1 != null)
+                        if (Camera.VideoSource is KinectNetworkStream source1)
                         {
                             //remove the alert handler from the source stream
                             source1.AlertHandler -= CameraWindow_AlertHandler;
                         }
 
-                        var audiostream = Camera.VideoSource as ISupportsAudio;
-                        if (audiostream != null)
+                        if (Camera.VideoSource is ISupportsAudio audiostream)
                         {
                             audiostream.HasAudioStream -= VideoSourceHasAudioStream;
                         }
@@ -4290,13 +4135,12 @@ namespace iSpyApplication.Controls
         {
             lock (_lockobject)
             {
-                Helper.FrameAction fa;
-                while (Buffer.TryDequeue(out fa))
+                while (Buffer.TryDequeue(out Helper.FrameAction fa))
                 {
                     fa.Dispose();
                 }
             }
-            
+
         }
 
 
@@ -4337,16 +4181,11 @@ namespace iSpyApplication.Controls
         {
             try
             {
-                int v;
-                if (int.TryParse(Nv(Camobject.settings.procAmpConfig, n), out v))
+                if (int.TryParse(Nv(Camobject.settings.procAmpConfig, n), out int v) && v > int.MinValue)
                 {
-                    if (v > int.MinValue)
+                    if (int.TryParse(Nv(Camobject.settings.procAmpConfig, "f" + n), out int fv))
                     {
-                        int fv;
-                        if (int.TryParse(Nv(Camobject.settings.procAmpConfig, "f" + n), out fv))
-                        {
-                            device.SetProperty(prop, v, (VideoProcAmpFlags)fv);
-                        }
+                        device.SetProperty(prop, v, (VideoProcAmpFlags)fv);
                     }
                 }
             }
@@ -4376,10 +4215,7 @@ namespace iSpyApplication.Controls
             }
         }
 
-        public void Restart()
-        {
-            Camera?.VideoSource?.Restart();
-        }
+        public void Restart() => Camera?.VideoSource?.Restart();
 
         private string _sourceOverload = "";
         public string Source
@@ -4388,7 +4224,7 @@ namespace iSpyApplication.Controls
             {
                 if (!string.IsNullOrEmpty(_sourceOverload))
                 {
-                    switch(_sourceOverload)
+                    switch (_sourceOverload)
                     {
                         case "onvif":
                             return ONVIFDevice?.StreamEndpoint?.Uri?.Uri.ToString();
@@ -4440,7 +4276,7 @@ namespace iSpyApplication.Controls
                         var ffmpegSource = new MediaStream(this);
                         OpenVideoSource(ffmpegSource, true);
                         break;
-                    case 3:                       
+                    case 3:
                         var videoSource = new VideoCaptureDevice(this);
                         OpenVideoSource(videoSource, true);
                         break;
@@ -4453,14 +4289,14 @@ namespace iSpyApplication.Controls
                         OpenVideoSource(vlcSource, true);
                         break;
                     case 6:
-                        if (XimeaSource == null || !XimeaSource.IsRunning)
+                        if (XimeaSource?.IsRunning != true)
                             XimeaSource =
                                 new XimeaVideoSource(this);
                         OpenVideoSource(XimeaSource, true);
                         break;
                     case 7:
-                        var ks = new KinectStream(this);                            
-                        OpenVideoSource(ks, true);                        
+                        var ks = new KinectStream(this);
+                        OpenVideoSource(ks, true);
                         break;
                     case 8:
                         switch (Nv(Camobject.settings.namevaluesettings, "custom"))
@@ -4480,8 +4316,8 @@ namespace iSpyApplication.Controls
                         break;
                     case 9:
                         _sourceOverload = "onvif";
-                        
-                        if (Nv("use")=="VLC")
+
+                        if (Nv("use") == "VLC")
                         {
                             OpenVideoSource(new VlcStream(this), true);
                         }
@@ -4500,7 +4336,7 @@ namespace iSpyApplication.Controls
 
                         }
                         break;
-                    }
+                }
 
                 if (Camera != null)
                 {
@@ -4544,36 +4380,36 @@ namespace iSpyApplication.Controls
                         {
                             case "Grid Processing":
                                 motionProcessor = new GridMotionAreaProcessing
-                                                    {
-                                                        HighlightColor =
+                                {
+                                    HighlightColor =
                                                             ColorTranslator.FromHtml(Camobject.detector.color),
-                                                        HighlightMotionGrid = Camobject.detector.highlight
-                                                    };
+                                    HighlightMotionGrid = Camobject.detector.highlight
+                                };
                                 break;
                             case "Object Tracking":
                                 motionProcessor = new BlobCountingObjectsProcessing
-                                                    {
-                                                        HighlightColor =
+                                {
+                                    HighlightColor =
                                                             ColorTranslator.FromHtml(Camobject.detector.color),
-                                                        HighlightMotionRegions = Camobject.detector.highlight,
-                                                        MinObjectsHeight = Camobject.detector.minheight,
-                                                        MinObjectsWidth = Camobject.detector.minwidth
-                                                    };
+                                    HighlightMotionRegions = Camobject.detector.highlight,
+                                    MinObjectsHeight = Camobject.detector.minheight,
+                                    MinObjectsWidth = Camobject.detector.minwidth
+                                };
 
                                 break;
                             case "Border Highlighting":
                                 motionProcessor = new MotionBorderHighlighting
-                                                    {
-                                                        HighlightColor =
+                                {
+                                    HighlightColor =
                                                             ColorTranslator.FromHtml(Camobject.detector.color)
-                                                    };
+                                };
                                 break;
                             case "Area Highlighting":
                                 motionProcessor = new MotionAreaHighlighting
-                                                    {
-                                                        HighlightColor =
+                                {
+                                    HighlightColor =
                                                             ColorTranslator.FromHtml(Camobject.detector.color)
-                                                    };
+                                };
                                 break;
                             case "None":
                                 break;
@@ -4623,12 +4459,10 @@ namespace iSpyApplication.Controls
                             Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "x")));
                         XimeaSource.SetParam(CameraParameter.OffsetY,
                             Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "y")));
-                        float gain;
-                        float.TryParse(Nv(Camobject.settings.namevaluesettings, "gain"), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out gain);
+                        float.TryParse(Nv(Camobject.settings.namevaluesettings, "gain"), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out float gain);
                         XimeaSource.SetParam(CameraParameter.Gain, gain);
-                        float exp;
-                        float.TryParse(Nv(Camobject.settings.namevaluesettings, "exposure"), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out exp);
-                        XimeaSource.SetParam(CameraParameter.Exposure, exp*1000);
+                        float.TryParse(Nv(Camobject.settings.namevaluesettings, "exposure"), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out float exp);
+                        XimeaSource.SetParam(CameraParameter.Exposure, exp * 1000);
                         XimeaSource.SetParam(CameraParameter.Downsampling,
                             Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "downsampling")));
                         XimeaSource.SetParam(CameraParameter.Width,
@@ -4653,7 +4487,7 @@ namespace iSpyApplication.Controls
                 MainForm.NeedsSync = true;
                 _lastReconnect = DateTime.UtcNow;
                 _dtPTZLastCheck = DateTime.Now;
-                
+
                 _firstFrame = true;
                 _autoofftimer = 0;
 
@@ -4684,8 +4518,7 @@ namespace iSpyApplication.Controls
 
         public void SetVideoSourceProperties()
         {
-            var videoSource = Camera.VideoSource as VideoCaptureDevice;
-            if (videoSource != null && !string.IsNullOrEmpty(Camobject.settings.procAmpConfig) && videoSource.SupportsProperties && Nv("manual")!="false")
+            if (Camera.VideoSource is VideoCaptureDevice videoSource && !string.IsNullOrEmpty(Camobject.settings.procAmpConfig) && videoSource.SupportsProperties && Nv("manual") != "false")
             {
                 try
                 {
@@ -4722,19 +4555,18 @@ namespace iSpyApplication.Controls
                 Camera.AlarmLevelMax = Helper.CalculateTrigger(Camobject.detector.maxsensitivity);
                 Camera.UpdateResources();
             }
-            
+
             _firstFrame = true; //for rotate mode changes
 
             if (Camobject.settings.ignoreaudio)
             {
-                if (VolumeControl!=null)
-                    MainForm.InstanceReference.RemoveMicrophone(VolumeControl,false);
+                if (VolumeControl != null)
+                    MainForm.InstanceReference.RemoveMicrophone(VolumeControl, false);
             }
             else
             {
                 //add an event to check for audio
-                var audiostream = Camera?.VideoSource as ISupportsAudio;
-                if (audiostream != null)
+                if (Camera?.VideoSource is ISupportsAudio audiostream)
                 {
                     audiostream.HasAudioStream -= VideoSourceHasAudioStream;
                     audiostream.HasAudioStream += VideoSourceHasAudioStream;
@@ -4745,7 +4577,7 @@ namespace iSpyApplication.Controls
                 CloseTimeLapseWriter();
         }
 
-        void VideoSourceHasAudioStream(object sender, EventArgs eventArgs)
+        private void VideoSourceHasAudioStream(object sender, EventArgs eventArgs)
         {
             if (InvokeRequired)
             {
@@ -4772,7 +4604,7 @@ namespace iSpyApplication.Controls
                 }
 
                 var m = vl.Micobject;
-                if (m != null && m.settings.typeindex==4)
+                if (m?.settings.typeindex == 4)
                 {
                     var c = Camera.VideoSource as ISupportsAudio;
                     if (c?.RecordingFormat != null)
@@ -4785,16 +4617,13 @@ namespace iSpyApplication.Controls
                     m.settings.bits = 16;
                     vl.Enable();
                 }
-                
+
             }
         }
 
-        public string Nv(string name)
-        {
-            return Nv(Camobject.settings.namevaluesettings, name);
-        }
+        public string Nv(string name) => Nv(Camobject.settings.namevaluesettings, name);
 
-        public string Nv(string csv, string name)
+        public static string Nv(string csv, string name)
         {
             if (string.IsNullOrEmpty(csv))
                 return "";
@@ -4842,7 +4671,8 @@ namespace iSpyApplication.Controls
             }
 
             ForcedRecording = false;
-            try {
+            try
+            {
                 if (VolumeControl != null)
                     VolumeControl.ForcedRecording = false;
             }
@@ -4881,13 +4711,13 @@ namespace iSpyApplication.Controls
                 Camera.Alert -= Alert;
                 Camera.Detect -= Detect;
                 Camera.ErrorHandler -= CameraWindow_ErrorHandler;
-                    
+
                 Camera.NewFrame += CameraNewFrame;
                 Camera.PlayingFinished += VideoDeviceVideoFinished;
                 Camera.Alert += Alert;
                 Camera.Detect += Detect;
                 Camera.ErrorHandler += CameraWindow_ErrorHandler;
-              
+
                 Calibrating = true;
                 _lastRun = Helper.Now.Ticks;
                 Camera.Start();
@@ -4904,7 +4734,7 @@ namespace iSpyApplication.Controls
                         vl = MainForm.InstanceReference.AddCameraMicrophone(Camobject.id, Camobject.name + " mic");
                         Camobject.settings.micpair = vl.Micobject.id;
                     }
-                       
+
                     var m = vl.Micobject;
                     if (m != null)
                     {
@@ -4922,7 +4752,7 @@ namespace iSpyApplication.Controls
                     vl.Enable();
 
                     cw.VolumeControl.AudioDeviceEnabled += VLAudioDeviceEnabled;
-                        
+
                 }
                 opened = true;
             }
@@ -4933,7 +4763,7 @@ namespace iSpyApplication.Controls
             }
         }
 
-        void CWCameraReconnect(object sender, EventArgs e)
+        private void CWCameraReconnect(object sender, EventArgs e)
         {
             if (Camera != null)
             {
@@ -4947,17 +4777,17 @@ namespace iSpyApplication.Controls
             }
         }
 
-        void CWCameraDisabled(object sender, EventArgs e)
+        private void CWCameraDisabled(object sender, EventArgs e)
         {
             if (IsEnabled)
             {
                 SetErrorState("Source camera offline");
-                StopSaving();               
+                StopSaving();
             }
 
         }
 
-        void CWCameraEnabled(object sender, EventArgs e)
+        private void CWCameraEnabled(object sender, EventArgs e)
         {
             if (IsEnabled)
             {
@@ -4966,25 +4796,19 @@ namespace iSpyApplication.Controls
             }
         }
 
-        void VLAudioDeviceEnabled(object sender, EventArgs e)
+        private void VLAudioDeviceEnabled(object sender, EventArgs e)
         {
-            if (IsClone)
+            if (IsClone && VolumeControl != null)
             {
-                if (VolumeControl != null)
+                if (VolumeControl.IsEnabled)
                 {
-                    if (VolumeControl.IsEnabled)
-                    {
-                        VolumeControl.Disable();
-                        VolumeControl.Enable();
-                    }
-
+                    VolumeControl.Disable();
+                    VolumeControl.Enable();
                 }
             }
         }
 
-
-
-        void CWCameraReconnected(object sender, EventArgs e)
+        private void CWCameraReconnected(object sender, EventArgs e)
         {
             if (Camera != null)
             {
@@ -5005,7 +4829,7 @@ namespace iSpyApplication.Controls
                 {
                     Calibrating = true;
                 }
-                CameraReconnected?.Invoke(this,EventArgs.Empty);
+                CameraReconnected?.Invoke(this, EventArgs.Empty);
             }
 
         }
@@ -5019,24 +4843,21 @@ namespace iSpyApplication.Controls
                 return;
             }
             var vlcStream = source as VlcStream;
-            
 
-            var kinectStream = source as KinectStream;
-            if (kinectStream != null)
+
+            if (source is KinectStream kinectStream)
             {
                 kinectStream.InitTripWires(Camobject.alerts.pluginconfig);
                 kinectStream.TripWire += Alert;
             }
 
-            var kinectNetworkStream = source as KinectNetworkStream;
-            if (kinectNetworkStream != null)
+            if (source is KinectNetworkStream kinectNetworkStream)
             {
                 //add the camera alert handler hook to the provider
                 kinectNetworkStream.AlertHandler += CameraWindow_AlertHandler;
             }
 
-            var audiostream = source as ISupportsAudio;
-            if (audiostream != null)
+            if (source is ISupportsAudio audiostream)
             {
                 audiostream.HasAudioStream += VideoSourceHasAudioStream;
             }
@@ -5070,9 +4891,9 @@ namespace iSpyApplication.Controls
                 //update plugin with latest list of groups
 
                 SetPluginGroups(o);
-                
 
-                var config = (string) o.GetMethod("Configure").Invoke(Camera.Plugin, null);
+
+                var config = (string)o.GetMethod("Configure").Invoke(Camera.Plugin, null);
                 Camobject.alerts.pluginconfig = config;
             }
         }
@@ -5080,10 +4901,8 @@ namespace iSpyApplication.Controls
         private void SetPluginGroups(Type o)
         {
             string groups = MainForm.Conf.Permissions.Aggregate("", (current, g) => current + (g.name + ",")).Trim(',');
-            if (o.GetProperty("Groups") != null)
-                o.GetProperty("Groups").SetValue(Camera.Plugin, groups, null);
-            if (o.GetProperty("Group") != null)
-                o.GetProperty("Group").SetValue(Camera.Plugin, MainForm.Group, null);
+            o.GetProperty("Groups")?.SetValue(Camera.Plugin, groups, null);
+            o.GetProperty("Group")?.SetValue(Camera.Plugin, MainForm.Group, null);
         }
 
         public List<string> PluginCommands
@@ -5096,7 +4915,7 @@ namespace iSpyApplication.Controls
                     SetPluginGroups(o);
 
                     var c = o.GetProperty("Commands");
-                    if (c!=null)
+                    if (c != null)
                     {
                         try
                         {
@@ -5114,14 +4933,14 @@ namespace iSpyApplication.Controls
                 }
                 return null;
             }
-        } 
+        }
 
         public void ExecutePluginCommand(string command)
         {
             var a = Camera?.Plugin?.GetType().GetMethod("ExecuteCommand");
             if (a != null)
             {
-                var b = (String) a.Invoke(Camera.Plugin, new object[] {command});
+                var b = (String)a.Invoke(Camera.Plugin, new object[] { command });
                 if (b != "OK")
                 {
                     ErrorHandler?.Invoke("Plugin response: " + a);
@@ -5150,7 +4969,7 @@ namespace iSpyApplication.Controls
             {
                 try
                 {
-                    l.Invoke(Camera.Plugin, new object[] {message});
+                    l.Invoke(Camera.Plugin, new object[] { message });
                 }
                 catch (Exception ex)
                 {
@@ -5160,7 +4979,7 @@ namespace iSpyApplication.Controls
         }
 
         //ispykinect: this processes commands from the plugin
-        void CameraWindow_AlertHandler(object sender, AlertEventArgs eventArgs)
+        private void CameraWindow_AlertHandler(object sender, AlertEventArgs eventArgs)
         {
             if (Camera?.Plugin != null)
             {
@@ -5240,13 +5059,13 @@ namespace iSpyApplication.Controls
                 case "Custom Frame":
                     Camera.MotionDetector =
                         new MotionDetector(
-                            new CustomFrameDifferenceDetector(Camobject.settings.suppressnoise,Camobject.detector.keepobjectedges));
+                            new CustomFrameDifferenceDetector(Camobject.settings.suppressnoise, Camobject.detector.keepobjectedges));
                     SetProcessor();
                     break;
                 case "Background Modeling":
                     Camera.MotionDetector =
                         new MotionDetector(
-                            new SimpleBackgroundModelingDetector(Camobject.settings.suppressnoise,Camobject.detector.keepobjectedges));
+                            new SimpleBackgroundModelingDetector(Camobject.settings.suppressnoise, Camobject.detector.keepobjectedges));
                     SetProcessor();
                     break;
                 case "Two Frames (Color)":
@@ -5258,13 +5077,13 @@ namespace iSpyApplication.Controls
                 case "Custom Frame (Color)":
                     Camera.MotionDetector =
                         new MotionDetector(
-                            new CustomFrameColorDifferenceDetector(Camobject.settings.suppressnoise,Camobject.detector.keepobjectedges));
+                            new CustomFrameColorDifferenceDetector(Camobject.settings.suppressnoise, Camobject.detector.keepobjectedges));
                     SetProcessor();
                     break;
                 case "Background Modeling (Color)":
                     Camera.MotionDetector =
                         new MotionDetector(
-                            new SimpleColorBackgroundModelingDetector(Camobject.settings.suppressnoise,Camobject.detector.keepobjectedges));
+                            new SimpleColorBackgroundModelingDetector(Camobject.settings.suppressnoise, Camobject.detector.keepobjectedges));
                     SetProcessor();
                     break;
                 case "None":
@@ -5353,15 +5172,9 @@ namespace iSpyApplication.Controls
 
         #endregion
 
-        private void CameraWindowResize(object sender, EventArgs e)
-        {
-            SetVolumeLevelLocation();
-        }
+        private void CameraWindowResize(object sender, EventArgs e) => SetVolumeLevelLocation();
 
-        private void CameraWindowLocationChanged(object sender, EventArgs e)
-        {
-            SetVolumeLevelLocation();
-        }
+        private void CameraWindowLocationChanged(object sender, EventArgs e) => SetVolumeLevelLocation();
 
         public void SetVolumeLevelLocation()
         {

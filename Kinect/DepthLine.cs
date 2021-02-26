@@ -50,11 +50,7 @@ namespace iSpyApplication.Kinect
             }
         }
 
-        public void RecalculateSummaryPoint()
-        {
-            _summaryPoint = Point.Empty;
-
-        }
+        public void RecalculateSummaryPoint() => _summaryPoint = Point.Empty;
 
         public string SummaryText
         {
@@ -62,9 +58,9 @@ namespace iSpyApplication.Kinect
             {
                 var dMin = String.Format("{0:#.##}", Convert.ToDouble(DepthMin) / 1000);
                 var dMax = String.Format("{0:#.##}", Convert.ToDouble(DepthMax) / 1000);
-                if (dMin == "")
+                if (dMin?.Length == 0)
                     dMin = "0";
-                if (dMax == "")
+                if (dMax?.Length == 0)
                     dMax = "0";
 
                 return String.Format("{0}m - {1}m", dMin, dMax);
@@ -73,12 +69,7 @@ namespace iSpyApplication.Kinect
 
         public int SummaryWidth
         {
-            get
-            {
-                if (_summaryWidth > 0)
-                    return _summaryWidth;
-                return 60;
-            }
+            get => _summaryWidth > 0 ? _summaryWidth : 60;
             set
             {
                 _summaryWidth = value + 5;

@@ -1,10 +1,10 @@
-﻿using System;
+﻿using FlickrNet;
+using iSpyApplication.Utilities;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using FlickrNet;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.Cloud
 {
@@ -49,11 +49,11 @@ namespace iSpyApplication.Cloud
                 {
                     return _service;
                 }
-				if (string.IsNullOrEmpty(MainForm.Conf.Cloud.Flickr))
+                if (string.IsNullOrEmpty(MainForm.Conf.Cloud.Flickr))
                     _service = new FlickrNet.Flickr(ApiKey, Secret);
                 else
                 {
-					string[] cfg = MainForm.Conf.Cloud.Flickr.Split('|');
+                    string[] cfg = MainForm.Conf.Cloud.Flickr.Split('|');
                     if (cfg.Length == 2)
                     {
                         _service = new FlickrNet.Flickr(ApiKey, Secret);
@@ -65,7 +65,7 @@ namespace iSpyApplication.Cloud
                 return _service;
             }
         }
-        
+
         public static bool Authorise(string code)
         {
 
@@ -114,7 +114,7 @@ namespace iSpyApplication.Cloud
 
                         return true;
                     }
-                    
+
                 }
                 catch (Exception ex)
                 {
@@ -154,7 +154,8 @@ namespace iSpyApplication.Cloud
 
         private static void Upload(object state)
         {
-            try { 
+            try
+            {
                 if (UploadList.Count == 0)
                 {
                     _uploading = false;
@@ -188,17 +189,17 @@ namespace iSpyApplication.Cloud
                 try
                 {
                     fi = new FileInfo(entry.SourceFilename);
-                    var r = s.UploadPicture(entry.SourceFilename, fi.Name,"iSpy video");
+                    var r = s.UploadPicture(entry.SourceFilename, fi.Name, "iSpy video");
                     if (r != null)
                         Logger.LogMessage("Uploaded to flickr: " + fi.Name);
                     else
-                        Logger.LogMessage("Upload to flickr failed ("+ fi.Name + ")");
+                        Logger.LogMessage("Upload to flickr failed (" + fi.Name + ")");
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogException(ex,"Flickr");
+                    Logger.LogException(ex, "Flickr");
                 }
-                
+
                 Upload(null);
             }
             catch (Exception ex)

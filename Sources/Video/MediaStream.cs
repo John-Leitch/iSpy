@@ -1,16 +1,16 @@
-﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
-using FFmpeg.AutoGen;
+﻿using FFmpeg.AutoGen;
 using iSpyApplication.Controls;
 using iSpyApplication.Sources.Audio;
 using iSpyApplication.Utilities;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
+using System;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Runtime.ExceptionServices;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace iSpyApplication.Sources.Video
 {
@@ -66,7 +66,7 @@ namespace iSpyApplication.Sources.Video
         private AVCodecContext* _videoCodecContext;
         private AVStream* _videoStream, _audioStream;
 
-        
+
         private SwsContext* pConvertContext = null;
 
         private IntPtr pConvertedFrameBuffer = IntPtr.Zero;
@@ -110,12 +110,7 @@ namespace iSpyApplication.Sources.Video
 
         public bool Listening
         {
-            get
-            {
-                if (IsRunning && _listening)
-                    return true;
-                return false;
-            }
+            get => IsRunning && _listening;
             set
             {
                 if (RecordingFormat == null)
@@ -132,11 +127,11 @@ namespace iSpyApplication.Sources.Video
 
                 if (value)
                     WaveOutProvider = new BufferedWaveProvider(OutFormat)
-                                      {
-                                          DiscardOnBufferOverflow = true,
-                                          BufferDuration =
+                    {
+                        DiscardOnBufferOverflow = true,
+                        BufferDuration =
                                               TimeSpan.FromMilliseconds(500)
-                                      };
+                    };
                 _listening = value;
             }
         }
@@ -146,26 +141,9 @@ namespace iSpyApplication.Sources.Video
         public event NewFrameEventHandler NewFrame;
         public event PlayingFinishedEventHandler PlayingFinished;
 
-        public string Source
-        {
-            get
-            {
-                if (IsAudio)
-                    return _audiosource.settings.sourcename;
+        public string Source => IsAudio ? _audiosource.settings.sourcename : _cw.Source;
 
-                return _cw.Source;
-            }
-        }
-
-        public string SourceName
-        {
-            get
-            {
-                if (IsAudio)
-                    return _audiosource.name;
-                return _source.name;
-            }
-        }
+        public string SourceName => IsAudio ? _audiosource.name : _source.name;
 
 
         public void Start()
@@ -212,10 +190,7 @@ namespace iSpyApplication.Sources.Video
         }
 
         // Public implementation of Dispose pattern callable by consumers. 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         public event Delegates.ErrorHandler ErrorHandler;
 
@@ -246,10 +221,7 @@ namespace iSpyApplication.Sources.Video
         }
 
 
-        public void Close()
-        {
-            Stop();
-        }
+        public void Close() => Stop();
 
         private void DoStart()
         {
@@ -267,7 +239,7 @@ namespace iSpyApplication.Sources.Video
             }
 
             AVDictionary* options = null;
-            string prefix="";
+            string prefix = "";
             if (_inputFormat == null)
             {
                 prefix = vss.ToLower().Substring(0, vss.IndexOf(":", StringComparison.Ordinal));
@@ -328,8 +300,7 @@ namespace iSpyApplication.Sources.Video
                         var v = nv.Substring(i + 1).Trim();
                         if (!string.IsNullOrEmpty(n) && !string.IsNullOrEmpty(v))
                         {
-                            int j;
-                            if (int.TryParse(v, out j))
+                            if (int.TryParse(v, out int j))
                                 ffmpeg.av_dict_set_int(&options, n, j, 0);
                             else
                                 ffmpeg.av_dict_set(&options, n, v, 0);
@@ -350,9 +321,9 @@ namespace iSpyApplication.Sources.Video
                 _interruptCallbackAddress = Marshal.GetFunctionPointerForDelegate(_interruptCallback);
 
                 _aviocb = new AVIOInterruptCB_callback_func
-                          {
-                              Pointer = _interruptCallbackAddress
-                          };
+                {
+                    Pointer = _interruptCallbackAddress
+                };
                 pFormatContext->interrupt_callback.callback = _aviocb;
                 pFormatContext->interrupt_callback.opaque = null;
                 pFormatContext->max_analyze_duration = 0; //0 = auto
@@ -408,10 +379,7 @@ namespace iSpyApplication.Sources.Video
             _starting = false;
         }
 
-        private void LogMessage(string msg)
-        {
-            Logger.LogMessage(SourceName + ": "+msg);
-        }
+        private void LogMessage(string msg) => Logger.LogMessage(SourceName + ": " + msg);
 
         private void SetupHardwareDecoding(AVCodec* codec)
         {
@@ -516,7 +484,7 @@ namespace iSpyApplication.Sources.Video
 
                     var outlayout = ffmpeg.av_get_default_channel_layout(OutFormat.Channels);
                     _audioCodecContext->request_sample_fmt = AVSampleFormat.AV_SAMPLE_FMT_S16;
-                    _audioCodecContext->request_channel_layout = (ulong) outlayout;
+                    _audioCodecContext->request_channel_layout = (ulong)outlayout;
 
                 }
             }
@@ -527,7 +495,7 @@ namespace iSpyApplication.Sources.Video
             _lastPacket = DateTime.UtcNow;
             if (_abort) throw new Exception("Connect aborted");
 
-            _thread = new Thread(ReadFrames) {Name = Source, IsBackground = false};
+            _thread = new Thread(ReadFrames) { Name = Source, IsBackground = false };
             _thread.Start();
         }
 
@@ -549,6 +517,11 @@ namespace iSpyApplication.Sources.Video
         [HandleProcessCorruptedStateExceptions]
         private void ReadFrames()
         {
+            //if (packet == null)
+            //{
+            //    packet = new AVPacket();
+            //}
+
             pConvertedFrameBuffer = IntPtr.Zero;
             pConvertContext = null;
 
@@ -603,7 +576,7 @@ namespace iSpyApplication.Sources.Video
                                 do
                                 {
                                     ret = ffmpeg.avcodec_receive_frame(_audioCodecContext, af);
-                                    
+
                                     if (ret == 0)
                                     {
                                         int numSamplesOut = 0;
@@ -642,7 +615,7 @@ namespace iSpyApplication.Sources.Video
                                         {
                                             ret = numSamplesOut; //(error)
                                         }
-                                        
+
                                     }
                                     if (af->decode_error_flags > 0) break;
                                 } while (ret == 0);
@@ -659,10 +632,10 @@ namespace iSpyApplication.Sources.Video
                                             _audioCodecContext->channels);
 
                                         waveProvider = new BufferedWaveProvider(RecordingFormat)
-                                                       {
-                                                           DiscardOnBufferOverflow = true,
-                                                           BufferDuration = TimeSpan.FromMilliseconds(200)
-                                                       };
+                                        {
+                                            DiscardOnBufferOverflow = true,
+                                            BufferDuration = TimeSpan.FromMilliseconds(200)
+                                        };
                                         sampleChannel = new SampleChannel(waveProvider);
 
                                         sampleChannel.PreVolumeMeter += SampleChannelPreVolumeMeter;
@@ -688,7 +661,7 @@ namespace iSpyApplication.Sources.Video
                 if (nf != null && _videoStream != null && packet.stream_index == _videoStream->index &&
                     _videoCodecContext != null)
                 {
-                    
+
                     var ef = ShouldEmitFrame;
                     ffmpeg.avcodec_send_packet(_videoCodecContext, &packet);
                     do
@@ -750,12 +723,11 @@ namespace iSpyApplication.Sources.Video
                     } while (ret == 0);
                 }
 
-                if (nf != null && _videoStream != null)
-                    if ((DateTime.UtcNow - _lastVideoFrame).TotalMilliseconds * 1000 > _timeoutMicroSeconds)
-                    {
-                        _res = ReasonToFinishPlaying.DeviceLost;
-                        _abort = true;
-                    }
+                if (nf != null && _videoStream != null && (DateTime.UtcNow - _lastVideoFrame).TotalMilliseconds * 1000 > _timeoutMicroSeconds)
+                {
+                    _res = ReasonToFinishPlaying.DeviceLost;
+                    _abort = true;
+                }
 
                 ffmpeg.av_packet_unref(&packet);
                 if (ret == -11)
@@ -784,7 +756,7 @@ namespace iSpyApplication.Sources.Video
         {
             try
             {
-                Program.MutexHelper.Wait();             
+                Program.MutexHelper.Wait();
 
                 if (pConvertedFrameBuffer != IntPtr.Zero)
                 {
@@ -796,7 +768,7 @@ namespace iSpyApplication.Sources.Video
                 {
                     if (_formatContext->streams != null)
                     {
-                        var j = (int) _formatContext->nb_streams;
+                        var j = (int)_formatContext->nb_streams;
                         for (var i = j - 1; i >= 0; i--)
                         {
                             var stream = _formatContext->streams[i];
@@ -849,11 +821,11 @@ namespace iSpyApplication.Sources.Video
                     sampleChannel.PreVolumeMeter -= SampleChannelPreVolumeMeter;
                     sampleChannel = null;
                 }
-                
+
             }
             catch (Exception ex)
             {
-                Logger.LogException(ex, SourceName+ ": Media Stream (close)");
+                Logger.LogException(ex, SourceName + ": Media Stream (close)");
             }
             finally
             {
@@ -870,10 +842,7 @@ namespace iSpyApplication.Sources.Video
             AudioFinished?.Invoke(this, new PlayingFinishedEventArgs(_res));
         }
 
-        private void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e)
-        {
-            LevelChanged?.Invoke(this, new LevelChangedEventArgs(e.MaxSampleValues));
-        }
+        private void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e) => LevelChanged?.Invoke(this, new LevelChangedEventArgs(e.MaxSampleValues));
 
         // Protected implementation of Dispose pattern. 
         protected virtual void Dispose(bool disposing)
@@ -883,7 +852,7 @@ namespace iSpyApplication.Sources.Video
 
             if (disposing)
             {
-                
+
 
             }
 

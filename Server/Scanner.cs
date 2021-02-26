@@ -1,9 +1,9 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Threading;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.Server
 {
@@ -36,8 +36,7 @@ namespace iSpyApplication.Server
                         string ip = shost.Replace("x", i.ToString(CultureInfo.InvariantCulture));
                         int k = j;
                         manualEvents[k].Reset();
-                        IPAddress ipa;
-                        if (IPAddress.TryParse(ip, out ipa))
+                        if (IPAddress.TryParse(ip, out IPAddress ipa))
                         {
                             var scanner = new Thread(p => PortScanner(ports, ipa, manualEvents[k]));
                             scanner.Start();
@@ -178,10 +177,7 @@ namespace iSpyApplication.Server
         public NetworkDevice Device;
 
         // Constructor
-        public DeviceFoundEventArgs(NetworkDevice device)
-        {
-            Device = device;
-        }
+        public DeviceFoundEventArgs(NetworkDevice device) => Device = device;
     }
 
 }

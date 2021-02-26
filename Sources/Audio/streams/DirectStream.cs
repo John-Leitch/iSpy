@@ -1,18 +1,18 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using iSpyApplication.Utilities;
+﻿using iSpyApplication.Utilities;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
+using System;
+using System.IO;
+using System.Threading;
 
 namespace iSpyApplication.Sources.Audio.streams
 {
-    class DirectStream: IAudioSource, IDisposable
+    internal class DirectStream : IAudioSource, IDisposable
     {
         private Stream _stream;
         private float _gain;
         private bool _listening;
-        private ManualResetEvent _abort = new ManualResetEvent(false);
+        private readonly ManualResetEvent _abort = new ManualResetEvent(false);
         private ReasonToFinishPlaying _res = ReasonToFinishPlaying.DeviceLost;
 
         private Thread _thread;
@@ -22,7 +22,7 @@ namespace iSpyApplication.Sources.Audio.streams
 
         public int PacketSize = 882;
         public int Interval = 40;
-        public bool IsAudio => true;
+        public static bool IsAudio => true;
 
 
         public BufferedWaveProvider WaveOutProvider { get; set; }
@@ -81,7 +81,7 @@ namespace iSpyApplication.Sources.Audio.streams
 
         public float Gain
         {
-            get { return _gain; }
+            get => _gain;
             set
             {
                 _gain = value;
@@ -94,13 +94,7 @@ namespace iSpyApplication.Sources.Audio.streams
 
         public bool Listening
         {
-            get
-            {
-                if (IsRunning && _listening)
-                    return true;
-                return false;
-
-            }
+            get => IsRunning && _listening;
             set
             {
                 if (RecordingFormat == null)
@@ -111,7 +105,7 @@ namespace iSpyApplication.Sources.Audio.streams
 
                 if (WaveOutProvider != null)
                 {
-                    if (WaveOutProvider.BufferedBytes>0) WaveOutProvider.ClearBuffer();
+                    if (WaveOutProvider.BufferedBytes > 0) WaveOutProvider.ClearBuffer();
                     WaveOutProvider = null;
                 }
 
@@ -119,7 +113,7 @@ namespace iSpyApplication.Sources.Audio.streams
                 {
                     WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true, BufferDuration = TimeSpan.FromMilliseconds(500) };
                 }
-                
+
                 _listening = value;
             }
         }
@@ -161,10 +155,7 @@ namespace iSpyApplication.Sources.Audio.streams
         /// 
         /// <param name="stream">source, which provides audio data.</param>
         /// 
-        public DirectStream(Stream stream)
-        {
-            _stream = stream;
-        }
+        public DirectStream(Stream stream) => _stream = stream;
 
         /// <summary>
         /// Start audio source.
@@ -190,18 +181,15 @@ namespace iSpyApplication.Sources.Audio.streams
 
                 _abort.Reset();
                 _thread = new Thread(DirectStreamListener)
-                                          {
-                                              Name = "DirectStream Audio Receiver"
-                                          };
+                {
+                    Name = "DirectStream Audio Receiver"
+                };
                 _thread.Start();
 
             }
         }
 
-        void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e)
-        {
-            LevelChanged?.Invoke(this, new LevelChangedEventArgs(e.MaxSampleValues));
-        }
+        private void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e) => LevelChanged?.Invoke(this, new LevelChangedEventArgs(e.MaxSampleValues));
 
 
         private void DirectStreamListener()
@@ -228,13 +216,13 @@ namespace iSpyApplication.Sources.Audio.streams
                                     int read = _sampleChannel.Read(sampleBuffer, 0, recbytesize);
 
                                     da(this, new DataAvailableEventArgs((byte[])data.Clone(), read));
-                                    
+
                                     if (Listening)
                                     {
                                         WaveOutProvider?.AddSamples(data, 0, read);
                                     }
                                 }
-                                
+
                             }
                             else
                             {
@@ -245,16 +233,16 @@ namespace iSpyApplication.Sources.Audio.streams
                                 break;
                         }
 
-                        
+
                     }
                 }
             }
             catch (Exception e)
             {
                 _res = ReasonToFinishPlaying.DeviceLost;
-                Logger.LogException(e,"Direct");
+                Logger.LogException(e, "Direct");
             }
-            
+
             _stream?.Close();
             _stream = null;
 
@@ -262,7 +250,7 @@ namespace iSpyApplication.Sources.Audio.streams
             if (_sampleChannel != null)
                 _sampleChannel.PreVolumeMeter -= SampleChannelPreVolumeMeter;
 
-            if (_waveProvider != null && _waveProvider.BufferedBytes > 0)
+            if (_waveProvider?.BufferedBytes > 0)
                 _waveProvider.ClearBuffer();
 
             if (WaveOutProvider?.BufferedBytes > 0) WaveOutProvider.ClearBuffer();
@@ -270,7 +258,7 @@ namespace iSpyApplication.Sources.Audio.streams
             AudioFinished?.Invoke(this, new PlayingFinishedEventArgs(_res));
             _abort.Close();
         }
-        
+
 
         public void Stop()
         {
@@ -298,10 +286,7 @@ namespace iSpyApplication.Sources.Audio.streams
 
         private bool _disposed;
         // Public implementation of Dispose pattern callable by consumers. 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         // Protected implementation of Dispose pattern. 
         protected virtual void Dispose(bool disposing)

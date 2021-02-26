@@ -1,9 +1,9 @@
-﻿using System;
-using NAudio.Wave;
+﻿using NAudio.Wave;
+using System;
 
 namespace iSpyApplication.Sources.Audio.talk
 {
-    internal class TalkLocal: ITalkTarget, IDisposable
+    internal class TalkLocal : ITalkTarget, IDisposable
     {
         private readonly object _obj = new object();
         private bool _bTalking;
@@ -11,10 +11,7 @@ namespace iSpyApplication.Sources.Audio.talk
         private IWavePlayer _waveOut;
         private BufferedWaveProvider _bwp;
 
-        public TalkLocal(IAudioSource audioSource)
-        {
-            _audioSource = audioSource;
-        }
+        public TalkLocal(IAudioSource audioSource) => _audioSource = audioSource;
 
         public void Start()
         {
@@ -41,16 +38,13 @@ namespace iSpyApplication.Sources.Audio.talk
             }
         }
 
-        void _audioSource_DataAvailablePipe(object sender, DataAvailableEventArgs eventArgs)
+        private void _audioSource_DataAvailablePipe(object sender, DataAvailableEventArgs eventArgs)
         {
             //event here because it's checked for null
         }
 
-        void AudioSourceDataAvailable(object sender, DataAvailableEventArgs eventArgs)
-        {
-            _bwp.AddSamples(eventArgs.RawData,0,eventArgs.BytesRecorded);
-        }
-        
+        private void AudioSourceDataAvailable(object sender, DataAvailableEventArgs eventArgs) => _bwp.AddSamples(eventArgs.RawData, 0, eventArgs.BytesRecorded);
+
         public void Stop()
         {
             if (_bTalking)
@@ -84,10 +78,7 @@ namespace iSpyApplication.Sources.Audio.talk
 
         private bool _disposed;
         // Public implementation of Dispose pattern callable by consumers. 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         // Protected implementation of Dispose pattern. 
         protected virtual void Dispose(bool disposing)

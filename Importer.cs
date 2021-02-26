@@ -16,16 +16,13 @@ namespace iSpyApplication
             button2.Text = LocRm.GetString("OK");
         }
 
-        public override sealed string Text
+        public sealed override string Text
         {
-            get { return base.Text; }
-            set { base.Text = value; }
+            get => base.Text;
+            set => base.Text = value;
         }
 
-        private void Importer_Load(object sender, EventArgs e)
-        {
-            mainForm = (MainForm) Owner;
-        }
+        private void Importer_Load(object sender, EventArgs e) => mainForm = (MainForm)Owner;
 
         private void button2_Click(object sender, EventArgs e)
         {
@@ -44,7 +41,7 @@ namespace iSpyApplication
                         ent.objectid = o.C.id;
                         MainForm.AddObject(ent);
                     }
-                                       
+
                     mainForm.DisplayCamera(o.C, true);
                 }
                 //if (o?.M != null)
@@ -110,10 +107,7 @@ namespace iSpyApplication
 
         private class clb
         {
-            public clb(objectsCamera c)
-            {
-                C = c;
-            }
+            public clb(objectsCamera c) => C = c;
 
             //public clb(objectsMicrophone m)
             //{
@@ -121,10 +115,7 @@ namespace iSpyApplication
             //}
             public objectsCamera C;
             //public objectsMicrophone M;
-            public override string ToString()
-            {
-                return C.name;//!=null?C.name:M.name;
-            }
+            public override string ToString() => C.name;//!=null?C.name:M.name;
         }
     }
 }

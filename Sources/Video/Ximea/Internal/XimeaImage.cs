@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 
 namespace iSpyApplication.Sources.Video.Ximea.Internal
 {
-    [StructLayout( LayoutKind.Sequential )]
+    [StructLayout(LayoutKind.Sequential)]
     internal struct XimeaImage
     {
         public int StructSize;

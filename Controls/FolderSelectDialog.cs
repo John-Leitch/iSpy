@@ -20,17 +20,14 @@ namespace iSpyApplication.Controls
         /// <summary>
         /// Default constructor
         /// </summary>
-        public FolderSelectDialog()
+        public FolderSelectDialog() => _ofd = new OpenFileDialog
         {
-            _ofd = new OpenFileDialog
-                      {
-                          Filter = "Folders|\n",
-                          AddExtension = false,
-                          CheckFileExists = false,
-                          DereferenceLinks = true,
-                          Multiselect = false
-                      };
-        }
+            Filter = "Folders|\n",
+            AddExtension = false,
+            CheckFileExists = false,
+            DereferenceLinks = true,
+            Multiselect = false
+        };
 
         #region Properties
 
@@ -39,8 +36,8 @@ namespace iSpyApplication.Controls
         /// </summary>
         public string InitialDirectory
         {
-            get { return _ofd.InitialDirectory; }
-            set { _ofd.InitialDirectory = string.IsNullOrEmpty(value) ? Environment.CurrentDirectory : value; }
+            get => _ofd.InitialDirectory;
+            set => _ofd.InitialDirectory = string.IsNullOrEmpty(value) ? Environment.CurrentDirectory : value;
         }
 
         /// <summary>
@@ -48,17 +45,14 @@ namespace iSpyApplication.Controls
         /// </summary>
         public string Title
         {
-            get { return _ofd.Title; }
-            set { _ofd.Title = value ?? "Select a folder"; }
+            get => _ofd.Title;
+            set => _ofd.Title = value ?? "Select a folder";
         }
 
         /// <summary>
         /// Gets the selected folder
         /// </summary>
-        public string FileName
-        {
-            get { return _ofd.FileName; }
-        }
+        public string FileName => _ofd.FileName;
 
         #endregion
 
@@ -68,10 +62,7 @@ namespace iSpyApplication.Controls
         /// Shows the dialog
         /// </summary>
         /// <returns>True if the user presses OK else false</returns>
-        public bool ShowDialog()
-        {
-            return ShowDialog(IntPtr.Zero);
-        }
+        public bool ShowDialog() => ShowDialog(IntPtr.Zero);
 
         /// <summary>
         /// Shows the dialog
@@ -91,17 +82,17 @@ namespace iSpyApplication.Controls
                 object dialog = r.Call(_ofd, "CreateVistaDialog");
                 r.Call(_ofd, "OnBeforeVistaDialog", dialog);
 
-                var options = (uint) r.CallAs(typeof (FileDialog), _ofd, "GetOptions");
-                options |= (uint) r.GetEnum("FileDialogNative.FOS", "FOS_PICKFOLDERS");
+                var options = (uint)r.CallAs(typeof(FileDialog), _ofd, "GetOptions");
+                options |= (uint)r.GetEnum("FileDialogNative.FOS", "FOS_PICKFOLDERS");
                 r.CallAs(typeIFileDialog, dialog, "SetOptions", options);
 
                 object pfde = r.New("FileDialog.VistaDialogEvents", _ofd);
-                var parameters = new[] {pfde, num};
-                r.CallAs2(typeIFileDialog, dialog, "Advise", parameters);
-                num = (uint) parameters[1];
+                var parameters = new[] { pfde, num };
+                Reflector.CallAs2(typeIFileDialog, dialog, "Advise", parameters);
+                num = (uint)parameters[1];
                 try
                 {
-                    var num2 = (int) r.CallAs(typeIFileDialog, dialog, "Show", hWndOwner);
+                    var num2 = (int)r.CallAs(typeIFileDialog, dialog, "Show", hWndOwner);
                     flag = 0 == num2;
                 }
                 finally
@@ -113,7 +104,7 @@ namespace iSpyApplication.Controls
             else
             {
                 var fbd = new FolderBrowserDialog
-                              {Description = Title, SelectedPath = InitialDirectory, ShowNewFolderButton = true};
+                { Description = Title, SelectedPath = InitialDirectory, ShowNewFolderButton = true };
                 if (fbd.ShowDialog(new WindowWrapper(hWndOwner)) != DialogResult.OK) return false;
                 _ofd.FileName = fbd.SelectedPath;
                 flag = true;
@@ -136,20 +127,14 @@ namespace iSpyApplication.Controls
         /// Constructor
         /// </summary>
         /// <param name="handle">Handle to wrap</param>
-        public WindowWrapper(IntPtr handle)
-        {
-            _hwnd = handle;
-        }
+        public WindowWrapper(IntPtr handle) => _hwnd = handle;
 
         #region IWin32Window Members
 
         /// <summary>
         /// Original ptr
         /// </summary>
-        public IntPtr Handle
-        {
-            get { return _hwnd; }
-        }
+        public IntPtr Handle => _hwnd;
 
         #endregion
     }

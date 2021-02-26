@@ -1,9 +1,8 @@
 ﻿
-using System;
-using System.Drawing;
-using System.Threading;
 using iSpyApplication.Controls;
 using iSpyApplication.Utilities;
+using System;
+using System.Threading;
 
 namespace iSpyApplication.Sources.Video.Ximea
 {
@@ -46,16 +45,16 @@ namespace iSpyApplication.Sources.Video.Ximea
     internal class XimeaVideoSource : VideoBase, IVideoSource
     {
         // XIMEA camera to capture images from
-        private readonly XimeaCamera _camera = new XimeaCamera( );
+        private readonly XimeaCamera _camera = new XimeaCamera();
 
         // camera ID
         private readonly int _deviceID;
         private Thread _thread;
-        private ManualResetEvent _abort = new ManualResetEvent(false);
+        private readonly ManualResetEvent _abort = new ManualResetEvent(false);
         private ReasonToFinishPlaying _res = ReasonToFinishPlaying.DeviceLost;
 
         // dummy object to lock for synchronization
-        private readonly object _sync = new object( );
+        private readonly object _sync = new object();
 
         /// <summary>
         /// New frame event.
@@ -98,35 +97,29 @@ namespace iSpyApplication.Sources.Video.Ximea
             {
                 Thread tempThread;
 
-                lock ( _sync )
+                lock (_sync)
                 {
                     tempThread = _thread;
                 }
 
-                if ( tempThread != null )
+                if (tempThread != null)
                 {
                     // check thread status
-                    if ( tempThread.Join( 0 ) == false )
+                    if (tempThread.Join(0) == false)
                         return true;
 
                     // the thread is not running, so free resources
-                    Free( );
+                    Free();
                 }
 
                 return false;
             }
         }
 
-       
-        public XimeaVideoSource(CameraWindow source):base(source)
-        {
-            _deviceID = Convert.ToInt32(source.Nv(source.Camobject.settings.namevaluesettings, "device"));
-        }
 
-        public XimeaVideoSource(int deviceid) : base(null)
-        {
-            _deviceID = deviceid;
-        }
+        public XimeaVideoSource(CameraWindow source) : base(source) => _deviceID = Convert.ToInt32(CameraWindow.Nv(source.Camobject.settings.namevaluesettings, "device"));
+
+        public XimeaVideoSource(int deviceid) : base(null) => _deviceID = deviceid;
 
         /// <summary>
         /// Start video source.
@@ -137,31 +130,31 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// 
         /// <exception cref="ArgumentException">There is no XIMEA camera with specified ID connected to the system.</exception>
         /// 
-        public void Start( )
+        public void Start()
         {
-            if ( IsRunning )
+            if (IsRunning)
                 return;
 
-            lock ( _sync )
+            lock (_sync)
             {
-                if ( _thread == null )
+                if (_thread == null)
                 {
                     // check source
-                    if ( _deviceID >= XimeaCamera.CamerasCount )
+                    if (_deviceID >= XimeaCamera.CamerasCount)
                     {
-                        throw new ArgumentException( "There is no XIMEA camera with specified ID connected to the system." );
+                        throw new ArgumentException("There is no XIMEA camera with specified ID connected to the system.");
                     }
 
                     // prepare the camera
-                    _camera.Open( _deviceID );
+                    _camera.Open(_deviceID);
 
                     // create events
                     _abort.Reset();
                     _res = ReasonToFinishPlaying.DeviceLost;
 
                     // create and start new thread
-                    _thread = new Thread(WorkerThread) {Name = Source};
-                    _thread.Start( );
+                    _thread = new Thread(WorkerThread) { Name = Source };
+                    _thread.Start();
                 }
             }
         }
@@ -172,21 +165,21 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// 
         /// <remarks><para></para></remarks>
         /// 
-        public void WaitForStop( )
+        public void WaitForStop()
         {
             Thread tempThread;
 
-            lock ( _sync )
+            lock (_sync)
             {
                 tempThread = _thread;
             }
 
-            if ( tempThread != null )
+            if (tempThread != null)
             {
                 // wait for thread stop
-                tempThread.Join( );
+                tempThread.Join();
 
-                Free( );
+                Free();
             }
         }
 
@@ -198,7 +191,7 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// and does not consume any resources.</para>
         /// </remarks>
         /// 
-        public void Stop( )
+        public void Stop()
         {
             if (!IsRunning)
                 return;
@@ -223,10 +216,7 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// 
         /// <remarks><para><note>The call is redirected to <see cref="XimeaCamera.SetParam(string, int)"/>.</note></para></remarks>
         ///
-        public void SetParam( string parameterName, int value )
-        {
-            _camera.SetParam( parameterName, value );
-        }
+        public void SetParam(string parameterName, int value) => _camera.SetParam(parameterName, value);
 
         /// <summary>
         /// Set camera's parameter.
@@ -237,10 +227,7 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// 
         /// <remarks><para><note>The call is redirected to <see cref="XimeaCamera.GetParamFloat"/>.</note></para></remarks>
         ///
-        public void SetParam( string parameterName, float value )
-        {
-            _camera.SetParam( parameterName, value );
-        }
+        public void SetParam(string parameterName, float value) => _camera.SetParam(parameterName, value);
 
         /// <summary>
         /// Get camera's parameter as integer value.
@@ -252,10 +239,7 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// 
         /// <remarks><para><note>The call is redirected to <see cref="XimeaCamera.GetParamFloat"/>.</note></para></remarks>
         ///
-        public int GetParamInt( string parameterName )
-        {
-            return _camera.GetParamInt( parameterName );
-        }
+        public int GetParamInt(string parameterName) => _camera.GetParamInt(parameterName);
 
         /// <summary>
         /// Get camera's parameter as float value.
@@ -267,10 +251,7 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// 
         /// <remarks><para><note>The call is redirected to <see cref="XimeaCamera.GetParamFloat"/>.</note></para></remarks>
         ///
-        public float GetParamFloat( string parameterName )
-        {
-            return _camera.GetParamFloat( parameterName );
-        }
+        public float GetParamFloat(string parameterName) => _camera.GetParamFloat(parameterName);
 
         /// <summary>
         /// Get camera's parameter as string value.
@@ -282,28 +263,25 @@ namespace iSpyApplication.Sources.Video.Ximea
         /// 
         /// <remarks><para><note>The call is redirected to <see cref="XimeaCamera.GetParamString"/>.</note></para></remarks>
         ///
-        public string GetParamString( string parameterName )
-        {
-            return _camera.GetParamString( parameterName );
-        }
+        public string GetParamString(string parameterName) => _camera.GetParamString(parameterName);
 
         // Free resources
-        private void Free( )
+        private void Free()
         {
             _thread = null;
-            _camera.Close( );
-            
+            _camera.Close();
+
         }
 
         // Worker thread
-        private void WorkerThread( )
+        private void WorkerThread()
         {
             try
             {
-                _camera.StartAcquisition( );
+                _camera.StartAcquisition();
 
                 // while there is no request for stop
-                while ( !_abort.WaitOne(10) && !MainForm.ShuttingDown )
+                while (!_abort.WaitOne(10) && !MainForm.ShuttingDown)
                 {
                     // start time
                     DateTime start = DateTime.Now;
@@ -318,7 +296,7 @@ namespace iSpyApplication.Sources.Video.Ximea
                     }
                 }
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
                 Logger.LogException(ex, "XIMEA");
                 _res = ReasonToFinishPlaying.VideoSourceError;
@@ -327,22 +305,19 @@ namespace iSpyApplication.Sources.Video.Ximea
             {
                 try
                 {
-                    _camera?.StopAcquisition( );
+                    _camera?.StopAcquisition();
                 }
                 catch
                 {
                 }
             }
 
-            PlayingFinished?.Invoke( this, new PlayingFinishedEventArgs(_res));
+            PlayingFinished?.Invoke(this, new PlayingFinishedEventArgs(_res));
         }
 
         private bool _disposed;
         // Public implementation of Dispose pattern callable by consumers. 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         // Protected implementation of Dispose pattern. 
         protected virtual void Dispose(bool disposing)

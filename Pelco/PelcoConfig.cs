@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO.Ports;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using iSpyApplication.Controls;
 
 namespace iSpyApplication.Pelco
 {
@@ -15,10 +8,7 @@ namespace iSpyApplication.Pelco
     {
         public string Config;
 
-        public PelcoConfig()
-        {
-            InitializeComponent();
-        }
+        public PelcoConfig() => InitializeComponent();
 
         private void PelcoConfig_Load(object sender, EventArgs e)
         {
@@ -45,7 +35,7 @@ namespace iSpyApplication.Pelco
         private void SetSelected(ComboBox cb, string val)
         {
             int i = 0;
-            foreach(var s in cb.Items)
+            foreach (var s in cb.Items)
             {
                 if (s.ToString() == val)
                 {
@@ -54,14 +44,14 @@ namespace iSpyApplication.Pelco
                 }
                 i++;
             }
-            if (cb.Items.Count>0)
+            if (cb.Items.Count > 0)
                 cb.SelectedIndex = 0;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             Config = ddlComPort.SelectedItem + "|" + ddlBaud.SelectedItem + "|" + ddlData.SelectedItem + "|" +
-                     ddlStop.SelectedItem + "|" + ddlParity.SelectedItem + "|" + (int) numAddress.Value;
+                     ddlStop.SelectedItem + "|" + ddlParity.SelectedItem + "|" + (int)numAddress.Value;
             DialogResult = DialogResult.OK;
             Close();
 

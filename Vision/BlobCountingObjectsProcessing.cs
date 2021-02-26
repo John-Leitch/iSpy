@@ -6,9 +6,9 @@
 // contacts@aforgenet.com
 //
 
+using AForge.Imaging;
 using System.Drawing;
 using System.Drawing.Imaging;
-using AForge.Imaging;
 
 namespace iSpyApplication.Vision
 {
@@ -59,7 +59,7 @@ namespace iSpyApplication.Vision
     public class BlobCountingObjectsProcessing : IMotionProcessing
     {
         // blob counter to detect separate blobs
-        private readonly BlobCounter _blobCounter = new BlobCounter( );
+        private readonly BlobCounter _blobCounter = new BlobCounter();
         // color used for blobs highlighting
         private Color _highlightColor;
         // highlight motion regions or not
@@ -79,8 +79,8 @@ namespace iSpyApplication.Vision
         /// 
         public bool HighlightMotionRegions
         {
-            get { return _highlightMotionRegions; }
-            set { _highlightMotionRegions = value; }
+            get => _highlightMotionRegions;
+            set => _highlightMotionRegions = value;
         }
 
         /// <summary>
@@ -93,8 +93,8 @@ namespace iSpyApplication.Vision
         /// 
         public Color HighlightColor
         {
-            get { return _highlightColor; }
-            set { _highlightColor = value; }
+            get => _highlightColor;
+            set => _highlightColor = value;
         }
 
         /// <summary>
@@ -109,10 +109,10 @@ namespace iSpyApplication.Vision
         /// 
         public int MinObjectsWidth
         {
-            get { return _blobCounter.MinWidth; }
+            get => _blobCounter.MinWidth;
             set
             {
-                lock ( _blobCounter )
+                lock (_blobCounter)
                 {
                     _blobCounter.MinWidth = value;
                 }
@@ -131,10 +131,10 @@ namespace iSpyApplication.Vision
         /// 
         public int MinObjectsHeight
         {
-            get { return _blobCounter.MinHeight; }
+            get => _blobCounter.MinHeight;
             set
             {
-                lock ( _blobCounter )
+                lock (_blobCounter)
                 {
                     _blobCounter.MinHeight = value;
                 }
@@ -152,7 +152,7 @@ namespace iSpyApplication.Vision
         {
             get
             {
-                lock ( _blobCounter )
+                lock (_blobCounter)
                 {
                     return _blobCounter.ObjectsCount;
                 }
@@ -170,9 +170,9 @@ namespace iSpyApplication.Vision
         {
             get
             {
-                lock ( _blobCounter )
+                lock (_blobCounter)
                 {
-                    return _blobCounter.GetObjectsRectangles( );
+                    return _blobCounter.GetObjectsRectangles();
                 }
             }
         }
@@ -181,7 +181,7 @@ namespace iSpyApplication.Vision
         /// Initializes a new instance of the <see cref="BlobCountingObjectsProcessing"/> class.
         /// </summary>
         /// 
-        public BlobCountingObjectsProcessing( ) : this( 10, 10 ) { }
+        public BlobCountingObjectsProcessing() : this(10, 10) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BlobCountingObjectsProcessing"/> class.
@@ -189,7 +189,7 @@ namespace iSpyApplication.Vision
         /// 
         /// <param name="highlightMotionRegions">Highlight motion regions or not (see <see cref="HighlightMotionRegions"/> property).</param>
         /// 
-        public BlobCountingObjectsProcessing( bool highlightMotionRegions ) : this( 10, 10, highlightMotionRegions ) { }
+        public BlobCountingObjectsProcessing(bool highlightMotionRegions) : this(10, 10, highlightMotionRegions) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BlobCountingObjectsProcessing"/> class.
@@ -198,8 +198,9 @@ namespace iSpyApplication.Vision
         /// <param name="minWidth">Minimum width of acceptable object (see <see cref="MinObjectsWidth"/> property).</param>
         /// <param name="minHeight">Minimum height of acceptable object (see <see cref="MinObjectsHeight"/> property).</param>
         /// 
-        public BlobCountingObjectsProcessing( int minWidth, int minHeight ) :
-            this( minWidth, minHeight, Color.Red ) { }
+        public BlobCountingObjectsProcessing(int minWidth, int minHeight) :
+            this(minWidth, minHeight, Color.Red)
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BlobCountingObjectsProcessing"/> class.
@@ -209,13 +210,13 @@ namespace iSpyApplication.Vision
         /// <param name="minHeight">Minimum height of acceptable object (see <see cref="MinObjectsHeight"/> property).</param>
         /// <param name="highlightColor">Color used to highlight motion regions.</param>
         /// 
-        public BlobCountingObjectsProcessing( int minWidth, int minHeight, Color highlightColor )
+        public BlobCountingObjectsProcessing(int minWidth, int minHeight, Color highlightColor)
         {
             _blobCounter.FilterBlobs = true;
-            _blobCounter.MinHeight   = minHeight;
-            _blobCounter.MinWidth    = minWidth;
+            _blobCounter.MinHeight = minHeight;
+            _blobCounter.MinWidth = minWidth;
 
-            _highlightColor     = highlightColor;
+            _highlightColor = highlightColor;
         }
 
         /// <summary>
@@ -226,11 +227,8 @@ namespace iSpyApplication.Vision
         /// <param name="minHeight">Minimum height of acceptable object (see <see cref="MinObjectsHeight"/> property).</param>
         /// <param name="highlightMotionRegions">Highlight motion regions or not (see <see cref="HighlightMotionRegions"/> property).</param>
         /// 
-        public BlobCountingObjectsProcessing( int minWidth, int minHeight, bool highlightMotionRegions )
-            : this( minWidth, minHeight )
-        {
-            _highlightMotionRegions = highlightMotionRegions;
-        }
+        public BlobCountingObjectsProcessing(int minWidth, int minHeight, bool highlightMotionRegions)
+            : this(minWidth, minHeight) => _highlightMotionRegions = highlightMotionRegions;
 
         /// <summary>
         /// Process video and motion frames doing further post processing after
@@ -251,40 +249,40 @@ namespace iSpyApplication.Vision
         /// <exception cref="InvalidImagePropertiesException">Motion frame is not 8 bpp image, but it must be so.</exception>
         /// <exception cref="UnsupportedImageFormatException">Video frame must be 8 bpp grayscale image or 24/32 bpp color image.</exception>
         /// 
-        public void ProcessFrame( UnmanagedImage videoFrame, UnmanagedImage motionFrame )
+        public void ProcessFrame(UnmanagedImage videoFrame, UnmanagedImage motionFrame)
         {
-            if ( motionFrame.PixelFormat != PixelFormat.Format8bppIndexed )
+            if (motionFrame.PixelFormat != PixelFormat.Format8bppIndexed)
             {
-                throw new InvalidImagePropertiesException( "Motion frame must be 8 bpp image." );
+                throw new InvalidImagePropertiesException("Motion frame must be 8 bpp image.");
             }
 
-            if ( ( videoFrame.PixelFormat != PixelFormat.Format8bppIndexed ) &&
-                 ( videoFrame.PixelFormat != PixelFormat.Format24bppRgb ) &&
-                 ( videoFrame.PixelFormat != PixelFormat.Format32bppRgb ) &&
-                 ( videoFrame.PixelFormat != PixelFormat.Format32bppArgb ) )
+            if ((videoFrame.PixelFormat != PixelFormat.Format8bppIndexed) &&
+                 (videoFrame.PixelFormat != PixelFormat.Format24bppRgb) &&
+                 (videoFrame.PixelFormat != PixelFormat.Format32bppRgb) &&
+                 (videoFrame.PixelFormat != PixelFormat.Format32bppArgb))
             {
-                throw new UnsupportedImageFormatException( "Video frame must be 8 bpp grayscale image or 24/32 bpp color image." );
-            } 
+                throw new UnsupportedImageFormatException("Video frame must be 8 bpp grayscale image or 24/32 bpp color image.");
+            }
 
-            int width  = videoFrame.Width;
+            int width = videoFrame.Width;
             int height = videoFrame.Height;
 
-            if ( ( motionFrame.Width != width ) || ( motionFrame.Height != height ) )
+            if ((motionFrame.Width != width) || (motionFrame.Height != height))
                 return;
 
-            lock ( _blobCounter )
+            lock (_blobCounter)
             {
-                _blobCounter.ProcessImage( motionFrame );
+                _blobCounter.ProcessImage(motionFrame);
             }
 
-            if ( _highlightMotionRegions )
+            if (_highlightMotionRegions)
             {
                 // highlight each moving object
-                Rectangle[] rects = _blobCounter.GetObjectsRectangles( );
+                Rectangle[] rects = _blobCounter.GetObjectsRectangles();
 
-                foreach ( Rectangle rect in rects )
+                foreach (Rectangle rect in rects)
                 {
-                    Drawing.Rectangle( videoFrame, rect, _highlightColor );
+                    Drawing.Rectangle(videoFrame, rect, _highlightColor);
                 }
             }
         }
@@ -297,7 +295,7 @@ namespace iSpyApplication.Vision
         /// algorithm and prepare it for processing of next video stream or to restart
         /// the algorithm.</para></remarks>
         ///
-        public void Reset( )
+        public void Reset()
         {
         }
     }

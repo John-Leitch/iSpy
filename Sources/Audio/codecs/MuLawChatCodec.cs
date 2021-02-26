@@ -1,21 +1,20 @@
-﻿using System;
-using NAudio.Codecs;
+﻿using NAudio.Codecs;
 using NAudio.Wave;
+using System;
 
 namespace iSpyApplication.Sources.Audio.codecs
 {
-    class AcmMuLawChatCodec : AcmChatCodec
+    internal class AcmMuLawChatCodec : AcmChatCodec
     {
         public AcmMuLawChatCodec()
-            : base (new WaveFormat(8000,16,1), WaveFormat.CreateMuLawFormat(8000,1))
+            : base(new WaveFormat(8000, 16, 1), WaveFormat.CreateMuLawFormat(8000, 1))
         {
         }
 
         public override string Name => "ACM G.711 mu-law";
     }
 
-
-    class MuLawChatCodec : INetworkChatCodec
+    internal class MuLawChatCodec : INetworkChatCodec
     {
         public string Name => "G.711 mu-law";
 
@@ -27,7 +26,7 @@ namespace iSpyApplication.Sources.Audio.codecs
         {
             byte[] encoded = new byte[length / 2];
             int outIndex = 0;
-            for(int n = 0; n < length; n+=2)
+            for (int n = 0; n < length; n += 2)
             {
                 encoded[outIndex++] = MuLawEncoder.LinearToMuLawSample(BitConverter.ToInt16(data, offset + n));
             }

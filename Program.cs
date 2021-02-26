@@ -1,3 +1,8 @@
+using FFmpeg.AutoGen;
+using iSpyApplication;
+using iSpyApplication.Controls;
+using iSpyApplication.Utilities;
+using Microsoft.Win32;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -5,16 +10,10 @@ using System.Linq;
 using System.Net;
 using System.Net.Security;
 using System.Runtime.InteropServices;
-using System.Security.AccessControl;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using FFmpeg.AutoGen;
-using iSpyApplication;
-using iSpyApplication.Controls;
-using iSpyApplication.Utilities;
-using Microsoft.Win32;
 
 internal static class Program
 {
@@ -40,7 +39,7 @@ internal static class Program
                 _apppath += @"\";
             Directory.SetCurrentDirectory(_apppath);
             return _apppath;
-        }   
+        }
     }
     public static string AppDataPath
     {
@@ -53,9 +52,9 @@ internal static class Program
         }
     }
 
-    public static string ExecutableDirectory = "";   
+    public static string ExecutableDirectory = "";
     public static Mutex FfmpegMutex;
-    
+
     /// <summary>
     /// The main entry point for the application.
     /// </summary>
@@ -67,7 +66,7 @@ internal static class Program
 
         foreach (string argument in arguments)
         {
-            if (argument.Split('=')[0].ToLower() == "/u")
+            if (string.Equals(argument.Split('=')[0], "/u", StringComparison.OrdinalIgnoreCase))
             {
                 string guid = argument.Split('=')[1];
                 string path = Environment.GetFolderPath(Environment.SpecialFolder.System);
@@ -91,7 +90,7 @@ internal static class Program
                     case 0:
                         canrun = false;
                         break;
-                    
+
                 }
                 break;
         }
@@ -104,7 +103,7 @@ internal static class Program
 
         try
         {
-            Application.EnableVisualStyles();            
+            Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
 
@@ -119,7 +118,7 @@ internal static class Program
             {
                 firstInstance = false;
             }
-            
+
             string executableName = Application.ExecutablePath;
             var executableFileInfo = new FileInfo(executableName);
             ExecutableDirectory = executableFileInfo.DirectoryName;
@@ -132,7 +131,7 @@ internal static class Program
             {
                 try
                 {
-                    var o = Registry.CurrentUser.OpenSubKey(@"Software\ispy",true);
+                    var o = Registry.CurrentUser.OpenSubKey(@"Software\ispy", true);
                     if (o?.GetValue("firstrun") != null)
                     {
                         o.DeleteValue("firstrun");
@@ -193,7 +192,7 @@ internal static class Program
                     File.WriteAllText(AppDataPath + "external_command.txt", "showform");
                     Thread.Sleep(1000);
                 }
-                
+
                 Application.Exit();
                 return;
             }
@@ -209,17 +208,17 @@ internal static class Program
             ServicePointManager.DefaultConnectionLimit = 1000;
 
             FfmpegMutex = new Mutex();
-            
+
             Application.ThreadException += ApplicationThreadException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainUnhandledException;
-           
+
 
             _previousExecutionState = NativeCalls.SetThreadExecutionState(NativeCalls.EsContinuous | NativeCalls.EsSystemRequired);
 
             AppIdle = new WinFormsAppIdleHandler();
             var mf = new MainForm(silentstartup, command);
             GC.KeepAlive(FfmpegMutex);
-            
+
             Application.Run(mf);
             FfmpegMutex.Close();
 
@@ -230,16 +229,17 @@ internal static class Program
             {
                 NativeCalls.SetThreadExecutionState(_previousExecutionState);
             }
-            
+
         }
         catch (Exception ex)
         {
             try
             {
                 Logger.LogException(ex);
-            } catch
+            }
+            catch
             {
-                
+
             }
             while (ex.InnerException != null)
             {
@@ -276,9 +276,9 @@ internal static class Program
         _avLogCallback = AvFormatLogFunc;
         _delegatePtr = Marshal.GetFunctionPointerForDelegate(_avLogCallback);
         _avlog = new av_log_set_callback_callback_func
-                 {
-                     Pointer = _delegatePtr
-                 };
+        {
+            Pointer = _delegatePtr
+        };
 
         ffmpeg.av_log_set_callback(_avlog);
     }
@@ -307,17 +307,13 @@ internal static class Program
     }
 
 
-    private static bool ValidateRemoteCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors policyErrors)
+    private static bool ValidateRemoteCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors policyErrors) => true;
+
+    private static void CurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
-        return true;
-    } 
-
-
-    static void CurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
-    {        
         try
         {
-            var ex = (Exception)e.ExceptionObject;          
+            var ex = (Exception)e.ExceptionObject;
             Logger.LogException(ex);
         }
         catch (Exception ex2)
@@ -393,7 +389,7 @@ internal static class Program
 
         //reset layout position
         if (reset)
-            Registry.CurrentUser.DeleteSubKey(@"Software\ispy\startup",false);
+            Registry.CurrentUser.DeleteSubKey(@"Software\ispy\startup", false);
 
     }
 
@@ -408,7 +404,8 @@ internal static class Program
         // Copy each file into it’s new directory.
         foreach (FileInfo fi in source.GetFiles())
         {
-            try {fi.CopyTo(Path.Combine(target.ToString(), fi.Name), true);} catch
+            try { fi.CopyTo(Path.Combine(target.ToString(), fi.Name), true); }
+            catch
             {
             }
         }
@@ -426,11 +423,11 @@ internal static class Program
     {
         try
         {
-            if (!string.IsNullOrEmpty(e?.Exception?.Message) && e.Exception.Message.IndexOf("NoDriver", StringComparison.Ordinal)!=-1)
+            if (!string.IsNullOrEmpty(e?.Exception?.Message) && e.Exception.Message.IndexOf("NoDriver", StringComparison.Ordinal) != -1)
             {
                 //USB audio plugged/ unplugged (typically the cause) - no other way to catch this exception in the volume level control due to limitation in NAudio
             }
-            if (e!=null)
+            if (e != null)
                 Logger.LogException(e.Exception);
         }
         catch (Exception ex2)
@@ -441,14 +438,14 @@ internal static class Program
             }
             catch
             {
-                
+
             }
         }
     }
 
     public static class MutexHelper
     {
-        private static bool _enableMutex = false;
+        private static readonly bool _enableMutex = false;
         private static Mutex _mutex;
 
         private static Mutex FfmpegMutex

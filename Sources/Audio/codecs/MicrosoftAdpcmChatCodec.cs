@@ -2,10 +2,10 @@
 
 namespace iSpyApplication.Sources.Audio.codecs
 {
-    class MicrosoftAdpcmChatCodec : AcmChatCodec
+    internal class MicrosoftAdpcmChatCodec : AcmChatCodec
     {
         public MicrosoftAdpcmChatCodec()
-            : base(new WaveFormat(8000, 16, 1), new AdpcmWaveFormat(8000,1))
+            : base(new WaveFormat(8000, 16, 1), new AdpcmWaveFormat(8000, 1))
         {
         }
 

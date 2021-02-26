@@ -30,11 +30,8 @@ namespace iSpyApplication.Controls
                 "TM|SendTwitterMessage[SUBSCRIBER]"
             };
 
-        public ActionEditor()
-        {
-            InitializeComponent();
-        }
-        
+        public ActionEditor() => InitializeComponent();
+
         public void Init(string mode, int oid, int otid)
         {
             Oid = oid;
@@ -44,10 +41,11 @@ namespace iSpyApplication.Controls
 
         }
 
-        private void Init() {
+        private void Init()
+        {
             ddlAction.Items.Clear();
-            ddlAction.Items.Add(new ListItem {Name = LocRm.GetString("SelectAction"), Restricted = false, Value = ""});
-            for(int i=0;i < Actions.Length;i++)
+            ddlAction.Items.Add(new ListItem { Name = LocRm.GetString("SelectAction"), Restricted = false, Value = "" });
+            for (int i = 0; i < Actions.Length; i++)
             {
                 Actions[i] = Actions[i].Replace("[1]", MainForm.Conf.UseSMTP ? "" : "[SUBSCRIBER]");
             }
@@ -60,7 +58,7 @@ namespace iSpyApplication.Controls
                 oc[1] = LocRm.GetString(oc[1].Trim());
                 if (restricted)
                     oc[1] += " " + LocRm.GetString("SubscribersOnly");
-                
+
                 li.Name = oc[1];
                 li.Value = oc[0];
                 li.Restricted = restricted;
@@ -74,7 +72,7 @@ namespace iSpyApplication.Controls
             button1.Text = LocRm.GetString("Add");
         }
 
-        void RenderEventList()
+        private void RenderEventList()
         {
             flpActions.Controls.Clear();
             int vertScrollWidth = SystemInformation.VerticalScrollBarWidth;
@@ -87,25 +85,25 @@ namespace iSpyApplication.Controls
                 w = flpActions.Width - vertScrollWidth - 2;
             foreach (var e in oae)
             {
-                var c = new AlertEventRow(e) {Width = w};
+                var c = new AlertEventRow(e) { Width = w };
                 c.AlertEntryDelete += CAlertEntryDelete;
                 c.AlertEntryEdit += CAlertEntryEdit;
                 c.MouseOver += CMouseOver;
                 flpActions.Controls.Add(c);
                 flpActions.SetFlowBreak(c, true);
             }
-            
+
             flpActions.PerformLayout();
             flpActions.HorizontalScroll.Visible = flpActions.HorizontalScroll.Enabled = false;
-            
+
         }
 
-        void CMouseOver(object sender, EventArgs e)
+        private void CMouseOver(object sender, EventArgs e)
         {
             foreach (var c in flpActions.Controls)
             {
-                var o = (AlertEventRow) c;
-                if (o!=sender)
+                var o = (AlertEventRow)c;
+                if (o != sender)
                 {
                     o.RevertBackground();
 
@@ -113,7 +111,7 @@ namespace iSpyApplication.Controls
             }
         }
 
-        void CAlertEntryEdit(object sender, EventArgs e)
+        private void CAlertEntryEdit(object sender, EventArgs e)
         {
             var oe = ((AlertEventRow)sender).Oae;
             string t = oe.type;
@@ -123,8 +121,7 @@ namespace iSpyApplication.Controls
             string param4Val = oe.param4;
 
 
-            bool cancel;
-            var config = GetConfig(param2Val, param3Val, param4Val, param1Val, t, out cancel);
+            var config = GetConfig(param2Val, param3Val, param4Val, param1Val, t, out bool cancel);
 
             if (cancel)
                 return;
@@ -148,7 +145,7 @@ namespace iSpyApplication.Controls
             {
                 oe.param4 = config[3];
             }
-            
+
             RenderEventList();
         }
 
@@ -156,57 +153,47 @@ namespace iSpyApplication.Controls
                                    out bool cancel)
         {
             cancel = false;
-            var config = new string[] {};
             switch (t)
             {
                 case "Exe":
-                    config = GetParamConfig(GetName(t), out cancel, LocRm.GetString("File")+"|FBD:*.*", param1Val, LocRm.GetString("Arguments"), param2Val);
-                    break;
+                    return GetParamConfig(GetName(t), out cancel, LocRm.GetString("File") + "|FBD:*.*", param1Val, LocRm.GetString("Arguments"), param2Val);
                 case "URL":
-                    if (param1Val == "")
+                    if (param1Val?.Length == 0)
                         param1Val = "http://";
-                    if (param2Val == "")
+                    if (param2Val?.Length == 0)
                         param2Val = "True";
-                    config = GetParamConfig(GetName(t), out cancel, "URL", param1Val, LocRm.GetString("UploadImage")+"|Checkbox:True", param2Val);
-                    break;
+                    return GetParamConfig(GetName(t), out cancel, "URL", param1Val, LocRm.GetString("UploadImage") + "|Checkbox:True", param2Val);
                 case "NM":
-                    if (param3Val=="")
-                       param3Val = "1010";
-                    config = GetParamConfig(GetName(t), out cancel, LocRm.GetString("Type")+"|DDL:TCP,UDP", param1Val, "IP Address",
-                                            param2Val, LocRm.GetString("Port")+"|Numeric:0,65535", param3Val, LocRm.GetString("Message"), param4Val);
-                    break;
+                    if (param3Val?.Length == 0)
+                        param3Val = "1010";
+                    return GetParamConfig(GetName(t), out cancel, LocRm.GetString("Type") + "|DDL:TCP,UDP", param1Val, "IP Address",
+                                            param2Val, LocRm.GetString("Port") + "|Numeric:0,65535", param3Val, LocRm.GetString("Message"), param4Val);
                 case "S":
                 case "ATC":
-                    config = GetParamConfig(GetName(t), out cancel, LocRm.GetString("File") + "|FBD:*.wav", param1Val);
-                    break;
+                    return GetParamConfig(GetName(t), out cancel, LocRm.GetString("File") + "|FBD:*.wav", param1Val);
                 case "SW":
                 case "B":
                 case "M":
                 case "MO":
-                    config = new [] {"","","",""};
-                    break;
+                    return new[] { "", "", "", "" };
                 case "TA":
                 case "SOF":
                 case "SOO":
-                    config = GetParamConfig(GetName(t), out cancel, LocRm.GetString("Object")+"|Object", param1Val);
-                    break;
+                    return GetParamConfig(GetName(t), out cancel, LocRm.GetString("Object") + "|Object", param1Val);
                 case "E":
-                    if (param2Val == "")
+                    if (param2Val?.Length == 0)
                         param2Val = "True";
-                    config = GetParamConfig(GetName(t), out cancel, LocRm.GetString("EmailAddress"), param1Val, LocRm.GetString("IncludeImage") + "|Checkbox:True", param2Val);
-                    break;
+                    return GetParamConfig(GetName(t), out cancel, LocRm.GetString("EmailAddress"), param1Val, LocRm.GetString("IncludeImage") + "|Checkbox:True", param2Val);
                 case "SMS":
-                    config = GetParamConfig(GetName(t), out cancel, LocRm.GetString("SMSNumber")+"|SMS", param1Val);
-                    break;
+                    return GetParamConfig(GetName(t), out cancel, LocRm.GetString("SMSNumber") + "|SMS", param1Val);
                 case "TM":
-                    config = GetParamConfig(GetName(t), out cancel, "|Link:"+LocRm.GetString("AuthoriseTwitter"), MainForm.Webserver + "/account.aspx?task=twitter-auth");
-                    break;
+                    return GetParamConfig(GetName(t), out cancel, "|Link:" + LocRm.GetString("AuthoriseTwitter"), MainForm.Webserver + "/account.aspx?task=twitter-auth");
             }
-            
-            return config;
+
+            return Array.Empty<string>();
         }
 
-        string GetName(string id)
+        private string GetName(string id)
         {
             foreach (ListItem li in ddlAction.Items)
             {
@@ -216,7 +203,7 @@ namespace iSpyApplication.Controls
             return "";
         }
 
-        void CAlertEntryDelete(object sender, EventArgs e)
+        private void CAlertEntryDelete(object sender, EventArgs e)
         {
             var oe = ((AlertEventRow)sender).Oae;
             MainForm.Actions.Remove(oe);
@@ -229,10 +216,7 @@ namespace iSpyApplication.Controls
             public string Name, Value;
             public bool Restricted;
 
-            public override string ToString()
-            {
-                return Name;
-            }
+            public override string ToString() => Name;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -242,30 +226,29 @@ namespace iSpyApplication.Controls
                 MessageBox.Show(this, LocRm.GetString("SelectAnActionToAdd"));
                 return;
             }
-            var oa = (ListItem) ddlAction.SelectedItem;
-            
+            var oa = (ListItem)ddlAction.SelectedItem;
+
             if (!MainForm.Conf.Subscribed && oa.Restricted)
             {
                 LoginRequested?.Invoke(this, EventArgs.Empty);
                 return;
             }
-            bool cancel;
-            string[] config = GetConfig("", "", "", "", oa.Value, out cancel);
+            string[] config = GetConfig("", "", "", "", oa.Value, out bool cancel);
             if (cancel)
                 return;
 
-            
+
             var oae = new objectsActionsEntry
-                      {
-                                mode=Mode,
-                                objectid = Oid,
-                                objecttypeid = Otid,
-                                type = oa.Value,
-                                param1 = config[0],
-                                param2 = config[1],
-                                param3 = config[2],
-                                param4 = config[3],
-                                ident = Guid.NewGuid().ToString()
+            {
+                mode = Mode,
+                objectid = Oid,
+                objecttypeid = Otid,
+                type = oa.Value,
+                param1 = config[0],
+                param2 = config[1],
+                param3 = config[2],
+                param4 = config[3],
+                ident = Guid.NewGuid().ToString()
             };
             MainForm.Actions.Add(oae);
             RenderEventList();
@@ -273,20 +256,14 @@ namespace iSpyApplication.Controls
 
         public class ActionEntry
         {
-            public ActionEntry(objectsActionsEntry e)
-            {
-                OAE = e;
-            }
+            public ActionEntry(objectsActionsEntry e) => OAE = e;
 
             public objectsActionsEntry OAE { get; }
 
             public bool Checked
             {
-                get { return OAE.active; }
-                set
-                {
-                    OAE.active = value;
-                }
+                get => OAE.active;
+                set => OAE.active = value;
             }
 
             public string EditVisiblity
@@ -424,23 +401,30 @@ namespace iSpyApplication.Controls
             }
         }
 
-        private string[] GetParamConfig(string typeName, out bool cancel, 
+        private string[] GetParamConfig(string typeName, out bool cancel,
             string param1 = "", string param1Value = "",
             string param2 = "", string param2Value = "",
             string param3 = "", string param3Value = "",
             string param4 = "", string param4Value = "")
         {
             cancel = false;
-            var pc = new ParamConfig {TypeName = typeName, 
-                Param1 = param1, Param1Value = param1Value,
-                Param2 = param2, Param2Value = param2Value,
-                Param3 = param3, Param3Value = param3Value,
-                Param4 = param4, Param4Value = param4Value};
-            if (pc.ShowDialog(this)!=DialogResult.OK)
+            var pc = new ParamConfig
+            {
+                TypeName = typeName,
+                Param1 = param1,
+                Param1Value = param1Value,
+                Param2 = param2,
+                Param2Value = param2Value,
+                Param3 = param3,
+                Param3Value = param3Value,
+                Param4 = param4,
+                Param4Value = param4Value
+            };
+            if (pc.ShowDialog(this) != DialogResult.OK)
             {
                 cancel = true;
             }
-            var cfg = new [] { pc.Param1Value, pc.Param2Value, pc.Param3Value, pc.Param4Value };
+            var cfg = new[] { pc.Param1Value, pc.Param2Value, pc.Param3Value, pc.Param4Value };
             pc.Dispose();
             return cfg;
         }

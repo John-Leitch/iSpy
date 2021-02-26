@@ -10,8 +10,9 @@ namespace iSpyApplication.Controls
         public event EventHandler GetInput;
         public int ID
         {
-            get { return _id; }
-            set { 
+            get => _id;
+            set
+            {
                 _id = value;
                 if (_id > 0)
                 {
@@ -24,10 +25,7 @@ namespace iSpyApplication.Controls
             }
         }
 
-        public jbutton()
-        {
-            InitializeComponent();
-        }
+        public jbutton() => InitializeComponent();
 
         public void Reset()
         {
@@ -51,7 +49,7 @@ namespace iSpyApplication.Controls
                 return;
             }
 
-            if (GetInput!=null)
+            if (GetInput != null)
                 GetInput(this, EventArgs.Empty);
 
             LocRm.SetString(lblButton, "PressButton");

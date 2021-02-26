@@ -1,16 +1,16 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Net.Mail;
 using System.Drawing;
 using System.Linq;
+using System.Net.Mail;
 using System.Text;
-using System.Collections.Concurrent;
 
 namespace iSpyApplication
 {
     public static class Extensions
     {
-        public static string Replace(this string str, string oldValue, string newValue, StringComparison comparisonType, int maxIterations=Int32.MaxValue)
+        public static string Replace(this string str, string oldValue, string newValue, StringComparison comparisonType, int maxIterations = Int32.MaxValue)
         {
             StringBuilder resultStringBuilder = new StringBuilder(str.Length);
             bool isReplacementNullOrEmpty = string.IsNullOrEmpty(newValue);
@@ -18,8 +18,7 @@ namespace iSpyApplication
             const int valueNotFound = -1;
             int foundAt;
             int startSearchFromIndex = 0;
-            int iter = 0;
-            while ((foundAt = str.IndexOf(oldValue, startSearchFromIndex, comparisonType)) != valueNotFound && iter<maxIterations)
+            for (int iter = 0; (foundAt = str.IndexOf(oldValue, startSearchFromIndex, comparisonType)) != valueNotFound && iter < maxIterations; iter++)
             {
                 int charsUntilReplacment = foundAt - startSearchFromIndex;
                 bool isNothingToAppend = charsUntilReplacment == 0;
@@ -38,8 +37,6 @@ namespace iSpyApplication
                 {
                     return resultStringBuilder.ToString();
                 }
-
-                iter++;
             }
             int charsUntilStringEnd = str.Length - startSearchFromIndex;
             resultStringBuilder.Append(str, startSearchFromIndex, charsUntilStringEnd);
@@ -51,8 +48,7 @@ namespace iSpyApplication
 
         public static void Clear<T>(this ConcurrentQueue<T> queue)
         {
-            T item;
-            while (queue.TryDequeue(out item))
+            while (queue.TryDequeue(out T item))
             {
                 // do nothing
             }
@@ -81,55 +77,14 @@ namespace iSpyApplication
             var opt = insertLineBreaks ? Base64FormattingOptions.InsertLineBreaks : Base64FormattingOptions.None;
             return Convert.ToBase64String(bytes, opt);
         }
-        public static byte[] FromBase64(this string base64)
-        {
-            if (base64 == null)
-            {
-                return null;
-            }
-            return Convert.FromBase64String(base64);
-        }
-        public static byte[] ToUtf8(this string str)
-        {
-            if (str == null)
-            {
-                return null;
-            }
-            return Encoding.UTF8.GetBytes(str);
-        }
-        public static string FromUtf8(this byte[] utf8)
-        {
-            if (utf8 == null)
-            {
-                return null;
-            }
-            return Encoding.UTF8.GetString(utf8);
-        }
-        public static string FromUtf8(this byte[] utf8, int index, int count)
-        {
-            return Encoding.UTF8.GetString(utf8, index, count);
-        }
-        public static string FromUtf8(this byte[] utf8, int count)
-        {
-            return Encoding.UTF8.GetString(utf8, 0, count);
-        }
+        public static byte[] FromBase64(this string base64) => base64 == null ? null : Convert.FromBase64String(base64);
+        public static byte[] ToUtf8(this string str) => str == null ? null : Encoding.UTF8.GetBytes(str);
+        public static string FromUtf8(this byte[] utf8) => utf8 == null ? null : Encoding.UTF8.GetString(utf8);
+        public static string FromUtf8(this byte[] utf8, int index, int count) => Encoding.UTF8.GetString(utf8, index, count);
+        public static string FromUtf8(this byte[] utf8, int count) => Encoding.UTF8.GetString(utf8, 0, count);
 
-        public static byte[] ToAscii(this string str)
-        {
-            if (str == null)
-            {
-                return null;
-            }
-            return Encoding.ASCII.GetBytes(str);
-        }
-        public static string FromAscii(this byte[] ascii)
-        {
-            if (ascii == null)
-            {
-                return null;
-            }
-            return Encoding.ASCII.GetString(ascii);
-        }
+        public static byte[] ToAscii(this string str) => str == null ? null : Encoding.ASCII.GetBytes(str);
+        public static string FromAscii(this byte[] ascii) => ascii == null ? null : Encoding.ASCII.GetString(ascii);
 
 
         private static readonly Dictionary<string, Color> Colours = new Dictionary<string, Color>();
@@ -153,11 +108,7 @@ namespace iSpyApplication
         public static string ReplaceFirst(this string text, string search, string replace)
         {
             int pos = text.IndexOf(search, StringComparison.Ordinal);
-            if (pos < 0)
-            {
-                return text;
-            }
-            return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
+            return pos < 0 ? text : text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
         }
 
         public static string JsonSafe(this string text)
@@ -173,7 +124,7 @@ namespace iSpyApplication
 
             string[] cols = colorRGB.Split(',');
             var c = Color.FromArgb(Convert.ToInt16(cols[0]), Convert.ToInt16(cols[1]), Convert.ToInt16(cols[2]));
-            
+
             try
             {
                 Colours.Add(colorRGB, c);
@@ -182,15 +133,12 @@ namespace iSpyApplication
             {
                 //multiple threads can add colours in simultaneously
             }
-            
+
             return c;
 
         }
 
-        public static String ToRGBString(this Color color)
-        {
-            return color.R + "," + color.G + "," + color.B;
-        }
+        public static String ToRGBString(this Color color) => color.R + "," + color.G + "," + color.B;
 
         public static bool Has<T>(this Enum type, T value)
         {
@@ -226,7 +174,7 @@ namespace iSpyApplication
             catch (Exception ex)
             {
                 throw new ArgumentException(
-                    $"Could not append value from enumerated type '{typeof (T).Name}'.", ex);
+                    $"Could not append value from enumerated type '{typeof(T).Name}'.", ex);
             }
         }
 
@@ -240,7 +188,7 @@ namespace iSpyApplication
             catch (Exception ex)
             {
                 throw new ArgumentException(
-                    $"Could not remove value from enumerated type '{typeof (T).Name}'.", ex);
+                    $"Could not remove value from enumerated type '{typeof(T).Name}'.", ex);
             }
         }
     }

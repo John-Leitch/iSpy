@@ -23,11 +23,11 @@ namespace iSpyApplication.Server
 
                 RestartableStream?.Close();
                 RestartableStream = null;
-                
-                
+
+
                 Stream?.Close();
                 Stream = null;
-                
+
                 Buffer = null;
             }
             catch

@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using iSpyApplication.Sources.Audio.codecs;
+﻿using iSpyApplication.Sources.Audio.codecs;
+using System.Collections.Generic;
 
 namespace iSpyApplication.Sources.Audio
 {
-    static class CodecList
+    internal static class CodecList
     {
         private static List<INetworkChatCodec> _codecs;
         public static List<INetworkChatCodec> Codecs

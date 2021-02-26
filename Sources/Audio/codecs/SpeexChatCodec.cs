@@ -3,25 +3,25 @@ using NSpeex;
 
 namespace iSpyApplication.Sources.Audio.codecs
 {
-    class NarrowBandSpeexCodec : SpeexChatCodec
+    internal class NarrowBandSpeexCodec : SpeexChatCodec
     {
-        public NarrowBandSpeexCodec() : 
+        public NarrowBandSpeexCodec() :
             base(BandMode.Narrow, 8000, "Speex Narrow Band")
         {
-        
+
         }
     }
 
-    class WideBandSpeexCodec : SpeexChatCodec
+    internal class WideBandSpeexCodec : SpeexChatCodec
     {
-        public WideBandSpeexCodec() : 
+        public WideBandSpeexCodec() :
             base(BandMode.Wide, 16000, "Speex Wide Band (16kHz)")
         {
 
         }
     }
 
-    class UltraWideBandSpeexCodec : SpeexChatCodec
+    internal class UltraWideBandSpeexCodec : SpeexChatCodec
     {
         public UltraWideBandSpeexCodec() :
             base(BandMode.UltraWide, 32000, "Speex Ultra Wide Band (32kHz)")
@@ -30,7 +30,7 @@ namespace iSpyApplication.Sources.Audio.codecs
         }
     }
 
-    class SpeexChatCodec : INetworkChatCodec
+    internal class SpeexChatCodec : INetworkChatCodec
     {
         private readonly WaveFormat _recordingFormat;
         private readonly SpeexDecoder _decoder;

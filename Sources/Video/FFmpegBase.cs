@@ -1,21 +1,18 @@
-﻿using System;
+﻿using FFmpeg.AutoGen;
+using iSpyApplication.Utilities;
+using System;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using FFmpeg.AutoGen;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.Sources.Video
 {
-    abstract unsafe class FFmpegBase
+    internal abstract unsafe class FFmpegBase
     {
-        internal FFmpegBase(string classType)
-        {
-            ClassType = classType;
-        }
+        internal FFmpegBase(string classType) => ClassType = classType;
 
         public string ClassType;
-        private string CheckError(string method, int code)
+        private static string CheckError(string method, int code)
         {
             if (code < 0)
             {
@@ -68,9 +65,6 @@ namespace iSpyApplication.Sources.Video
             return false;
         }
 
-        internal void LogError(string err)
-        {
-            Logger.LogError(err, ClassType);
-        }
+        internal void LogError(string err) => Logger.LogError(err, ClassType);
     }
 }

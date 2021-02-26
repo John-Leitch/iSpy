@@ -20,15 +20,15 @@ namespace iSpyPRO.DirectShow.Internals
     /// </summary>
     /// 
     [ComImport, System.Security.SuppressUnmanagedCodeSecurity,
-    Guid( "56a86899-0ad4-11ce-b03a-0020af0ba770" ),
-    InterfaceType( ComInterfaceType.InterfaceIsIUnknown )]
+    Guid("56a86899-0ad4-11ce-b03a-0020af0ba770"),
+    InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     internal interface IMediaFilter : IPersist
     {
         #region IPersist Methods
 
         [PreserveSig]
         new int GetClassID(
-            [Out] out Guid pClassID );
+            [Out] out Guid pClassID);
 
         #endregion
 
@@ -39,7 +39,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int Stop( );
+        int Stop();
 
         /// <summary>
         /// This method informs the filter to transition to the new state. 
@@ -48,7 +48,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int Pause( );
+        int Pause();
 
         /// <summary>
         /// This method informs the filter to transition to the new (running) state. Passes a time value to synchronize independent streams. 
@@ -59,7 +59,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int Run( [In] long tStart );
+        int Run([In] long tStart);
 
         /// <summary>
         /// This method determines the filter's state. 
@@ -73,7 +73,7 @@ namespace iSpyPRO.DirectShow.Internals
         [PreserveSig]
         int GetState(
             [In] int dwMilliSecsTimeout,
-            [Out] out FilterState filtState );
+            [Out] out FilterState filtState);
 
         /// <summary>
         /// This method identifies the reference clock to which the filter should synchronize activity.
@@ -84,7 +84,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int SetSyncSource( [In] IReferenceClock pClock );
+        int SetSyncSource([In] IReferenceClock pClock);
 
         /// <summary>
         /// This method retrieves the current reference clock in use by this filter. 
@@ -96,7 +96,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int GetSyncSource( [Out] out IReferenceClock pClock );
+        int GetSyncSource([Out] out IReferenceClock pClock);
     }
 }
 

@@ -1,13 +1,13 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.Controls
 {
-    public class LayoutPanel:Panel
+    public class LayoutPanel : Panel
     {
         private static readonly List<LayoutItem> SavedLayout = new List<LayoutItem>();
         private ISpyControl _maximised = null;
@@ -17,8 +17,8 @@ namespace iSpyApplication.Controls
         {
             InitializeComponent();
             SetStyle(
-                ControlStyles.AllPaintingInWmPaint | 
-                ControlStyles.ResizeRedraw | 
+                ControlStyles.AllPaintingInWmPaint |
+                ControlStyles.ResizeRedraw |
                 ControlStyles.OptimizedDoubleBuffer |
                 ControlStyles.UserPaint, true);
 
@@ -37,7 +37,7 @@ namespace iSpyApplication.Controls
         }
 
         public PictureBox BrandedImage;
-        
+
 
         private static void GetRowsCols(int controls, double width, double height, out int rows, out int cols)
         {
@@ -58,7 +58,7 @@ namespace iSpyApplication.Controls
             }
         }
 
-        private int GridPadding = 2;
+        private readonly int GridPadding = 2;
         protected override void OnPaint(PaintEventArgs pe)
         {
             if (BrandedImage != null)
@@ -66,9 +66,9 @@ namespace iSpyApplication.Controls
                 BrandedImage.Left = Width / 2 - BrandedImage.Width / 2;
                 BrandedImage.Top = Height / 2 - BrandedImage.Height / 2;
             }
-            
+
             AutoGrid();
-            
+
             base.OnPaint(pe);
         }
 
@@ -97,7 +97,7 @@ namespace iSpyApplication.Controls
             {
                 if (c is CameraWindow || c is FloorPlanControl)
                 {
-                    lc.Add((ISpyControl) c);
+                    lc.Add((ISpyControl)c);
                     continue;
                 }
                 var vl = c as VolumeLevel;
@@ -108,11 +108,9 @@ namespace iSpyApplication.Controls
             int aw = DisplayRectangle.Width - Padding.Horizontal;
             int ah = DisplayRectangle.Height - Padding.Vertical;
 
-            int rows;
-            int cols;
-            GetRowsCols(lc.Count, aw, ah, out rows, out cols);
-            double w = Convert.ToDouble(aw)/cols;
-            double h = Convert.ToDouble(ah)/rows;
+            GetRowsCols(lc.Count, aw, ah, out int rows, out int cols);
+            double w = Convert.ToDouble(aw) / cols;
+            double h = Convert.ToDouble(ah) / rows;
 
             int row = 0;
             int col = 0;
@@ -122,8 +120,8 @@ namespace iSpyApplication.Controls
             {
                 io.Order = ind;
                 ind++;
-                var c = (PictureBox) io;
-                c.Location = new Point(Convert.ToInt32(col*w), Convert.ToInt32(row*h));
+                var c = (PictureBox)io;
+                c.Location = new Point(Convert.ToInt32(col * w), Convert.ToInt32(row * h));
                 c.Width = Convert.ToInt32(Math.Max(2, w - GridPadding));
                 var hc = Convert.ToInt32(Math.Max(2, h - GridPadding));
                 var cw = c as CameraWindow;
@@ -131,7 +129,7 @@ namespace iSpyApplication.Controls
                 if (vc?.IsDisposed == false)
                 {
                     hc = Math.Max(40, hc - 40);
-                    vc.Location = new Point(Convert.ToInt32(col*w), Convert.ToInt32(row*h) + hc);
+                    vc.Location = new Point(Convert.ToInt32(col * w), Convert.ToInt32(row * h) + hc);
                     vc.Width = c.Width;
                     vc.Height = 40;
                 }
@@ -170,8 +168,7 @@ namespace iSpyApplication.Controls
                 }
                 if (w == -1)
                 {
-                    var window = c as CameraWindow;
-                    if (window != null)
+                    if (c is CameraWindow window)
                     {
                         var cw = window;
 
@@ -195,11 +192,9 @@ namespace iSpyApplication.Controls
                 var cameraWindow = c as CameraWindow;
                 if (cameraWindow?.VolumeControl != null)
                     nh += 40;
-                var level = c as VolumeLevel;
-                if (level != null)
+                if (c is VolumeLevel level && level.Paired)
                 {
-                    if (level.Paired)
-                        skip = true;
+                    skip = true;
                 }
                 if (!skip)
                 {
@@ -210,7 +205,7 @@ namespace iSpyApplication.Controls
             Rectangle[] rects = rectslist.ToArray();
             int binWidth = Width;
             var proc = new C2BpProcessor();
-            proc.SubAlgFillOneColumn(binWidth, rects);
+            C2BpProcessor.SubAlgFillOneColumn(binWidth, rects);
             rectslist = rects.ToList();
             bool assigned = true;
             var indexesassigned = new List<int>();
@@ -232,11 +227,9 @@ namespace iSpyApplication.Controls
                                 var cw = window;
                                 if (cw?.VolumeControl != null)
                                     hoffset = 40;
-                                var level = c as VolumeLevel;
-                                if (level != null)
+                                if (c is VolumeLevel level && level.Paired)
                                 {
-                                    if (level.Paired)
-                                        skip = true;
+                                    skip = true;
                                 }
                                 if (!skip && c.Width == r.Width && c.Height + hoffset == r.Height)
                                 {
@@ -256,14 +249,14 @@ namespace iSpyApplication.Controls
             NeedsRedraw = true;
         }
 
-        public void PositionPanel(PictureBox p, Point xy, int w, int h)
+        public static void PositionPanel(PictureBox p, Point xy, int w, int h)
         {
             p.Width = w;
             p.Height = h;
             p.Location = new Point(xy.X, xy.Y);
         }
 
-        public void ResetLayout()
+        public static void ResetLayout()
         {
             foreach (LayoutItem li in SavedLayout)
             {
@@ -305,8 +298,7 @@ namespace iSpyApplication.Controls
             foreach (Control c in Controls)
             {
                 var r = new Rectangle(c.Location.X, c.Location.Y, c.Width, c.Height);
-                var window = c as CameraWindow;
-                if (window != null)
+                if (c is CameraWindow window)
                 {
                     SavedLayout.Add(new LayoutItem
                     {
@@ -316,8 +308,7 @@ namespace iSpyApplication.Controls
                     });
                     continue;
                 }
-                var control = c as FloorPlanControl;
-                if (control != null)
+                if (c is FloorPlanControl control)
                 {
                     SavedLayout.Add(new LayoutItem
                     {
@@ -327,8 +318,7 @@ namespace iSpyApplication.Controls
                     });
                     continue;
                 }
-                var level = c as VolumeLevel;
-                if (level != null)
+                if (c is VolumeLevel level)
                 {
                     SavedLayout.Add(new LayoutItem
                     {
@@ -339,13 +329,10 @@ namespace iSpyApplication.Controls
                 }
 
             }
-            
+
         }
 
-        public void Maximise(object obj)
-        {
-            Maximise(obj, true);
-        }
+        public void Maximise(object obj) => Maximise(obj, true);
 
         private delegate void MaximiseDelegate(object obj, bool minimiseIfMaximised);
 
@@ -358,8 +345,7 @@ namespace iSpyApplication.Controls
                 BeginInvoke(new MaximiseDelegate(Maximise), obj, minimiseIfMaximised);
                 return;
             }
-            var window = obj as CameraWindow;
-            if (window != null)
+            if (obj is CameraWindow window)
             {
 
                 var cameraControl = window;
@@ -415,8 +401,7 @@ namespace iSpyApplication.Controls
                 return;
             }
 
-            var level = obj as VolumeLevel;
-            if (level != null)
+            if (obj is VolumeLevel level)
             {
                 var vf = level;
                 vf.BringToFront();
@@ -456,8 +441,7 @@ namespace iSpyApplication.Controls
                 return;
             }
 
-            var control = obj as FloorPlanControl;
-            if (control != null)
+            if (obj is FloorPlanControl control)
             {
                 var fp = control;
                 fp.BringToFront();
@@ -497,8 +481,7 @@ namespace iSpyApplication.Controls
             _maximised = null;
             if (obj == null)
                 return;
-            var window = obj as CameraWindow;
-            if (window != null)
+            if (obj is CameraWindow window)
             {
                 var cw = window;
                 Rectangle r = cw.RestoreRect;
@@ -529,8 +512,7 @@ namespace iSpyApplication.Controls
                 cw.Invalidate();
             }
 
-            var level = obj as VolumeLevel;
-            if (level != null)
+            if (obj is VolumeLevel level)
             {
                 var cw = level;
                 Rectangle r = cw.RestoreRect;
@@ -548,8 +530,7 @@ namespace iSpyApplication.Controls
                 cw.Invalidate();
             }
 
-            var control = obj as FloorPlanControl;
-            if (control != null)
+            if (obj is FloorPlanControl control)
             {
                 var fp = control;
                 Rectangle r = fp.RestoreRect;
@@ -616,18 +597,15 @@ namespace iSpyApplication.Controls
         {
             foreach (Control c in Controls)
             {
-                var window = c as CameraWindow;
-                if (window != null)
+                if (c is CameraWindow window)
                 {
                     window.Highlighted = false;
                 }
-                var control = c as FloorPlanControl;
-                if (control != null)
+                if (c is FloorPlanControl control)
                 {
                     control.Highlighted = false;
                 }
-                var level = c as VolumeLevel;
-                if (level != null)
+                if (c is VolumeLevel level)
                 {
                     level.Highlighted = false;
                 }
@@ -665,8 +643,7 @@ namespace iSpyApplication.Controls
             foreach (var c in Controls)
             {
                 var ctrl = c;
-                var pb = ctrl as PictureBox;
-                if (pb != null && c is ISpyControl)
+                if (ctrl is PictureBox pb && c is ISpyControl)
                 {
                     if (ctrl is VolumeLevel)
                     {
@@ -684,21 +661,18 @@ namespace iSpyApplication.Controls
 
         public void ISpyControlUp(Point p)
         {
-            
+
             if (MainForm.LayoutMode == Enums.LayoutMode.AutoGrid)
             {
                 var c = GetiSpyControl(p);
-                if (_mDown && c!=null)
+                if (_mDown && c != null && _dControl != null)
                 {
-                    if (_dControl != null)
-                    {
-                        var uControl = c;
-                        var i = uControl.Order;
-                        var j = _dControl.Order;
-                        _dControl.Order = i;
-                        uControl.Order = j;
-                        Invalidate();
-                    }
+                    var uControl = c;
+                    var i = uControl.Order;
+                    var j = _dControl.Order;
+                    _dControl.Order = i;
+                    uControl.Order = j;
+                    Invalidate();
                 }
                 _mDown = false;
             }

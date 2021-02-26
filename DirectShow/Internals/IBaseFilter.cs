@@ -9,15 +9,15 @@ namespace iSpyPRO.DirectShow.Internals
 {
     using System;
     using System.Runtime.InteropServices;
-    
+
     /// <summary>
     /// The IBaseFilter interface provides methods for controlling a filter.
     /// All DirectShow filters expose this interface
     /// </summary>
     /// 
     [ComImport,
-    Guid( "56A86895-0AD4-11CE-B03A-0020AF0BA770" ),
-    InterfaceType( ComInterfaceType.InterfaceIsIUnknown )]
+    Guid("56A86895-0AD4-11CE-B03A-0020AF0BA770"),
+    InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     internal interface IBaseFilter
     {
         // --- IPersist Methods
@@ -31,7 +31,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int GetClassID( [Out] out Guid ClassID );
+        int GetClassID([Out] out Guid ClassID);
 
         // --- IMediaFilter Methods
 
@@ -42,7 +42,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int Stop( );
+        int Stop();
 
         /// <summary>
         /// Pauses the filter.
@@ -51,7 +51,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int Pause( );
+        int Pause();
 
         /// <summary>
         /// Runs the filter.
@@ -62,7 +62,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int Run( long start );
+        int Run(long start);
 
         /// <summary>
         /// Retrieves the state of the filter (running, stopped, or paused).
@@ -74,7 +74,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int GetState( int milliSecsTimeout, [Out] out int filterState );
+        int GetState(int milliSecsTimeout, [Out] out int filterState);
 
         /// <summary>
         /// Sets the reference clock for the filter or the filter graph.
@@ -85,7 +85,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int SetSyncSource( [In] IntPtr clock );
+        int SetSyncSource([In] IntPtr clock);
 
         /// <summary>
         /// Retrieves the current reference clock.
@@ -96,7 +96,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int GetSyncSource( [Out] out IntPtr clock );
+        int GetSyncSource([Out] out IntPtr clock);
 
         // --- IBaseFilter Methods
 
@@ -109,7 +109,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int EnumPins( [Out] out IEnumPins enumPins );
+        int EnumPins([Out] out IEnumPins enumPins);
 
         /// <summary>
         /// Retrieves the pin with the specified identifier.
@@ -121,7 +121,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int FindPin( [In, MarshalAs( UnmanagedType.LPWStr )] string id, [Out] out IPin pin );
+        int FindPin([In, MarshalAs(UnmanagedType.LPWStr)] string id, [Out] out IPin pin);
 
         /// <summary>
         /// Retrieves information about the filter.
@@ -132,7 +132,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int QueryFilterInfo( [Out] out FilterInfo filterInfo );
+        int QueryFilterInfo([Out] out FilterInfo filterInfo);
 
         /// <summary>
         /// Notifies the filter that it has joined or left the filter graph.
@@ -145,7 +145,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int JoinFilterGraph( [In] IFilterGraph graph, [In, MarshalAs( UnmanagedType.LPWStr )] string name );
+        int JoinFilterGraph([In] IFilterGraph graph, [In, MarshalAs(UnmanagedType.LPWStr)] string name);
 
         /// <summary>
         /// Retrieves a string containing vendor information.
@@ -156,6 +156,6 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int QueryVendorInfo( [Out, MarshalAs( UnmanagedType.LPWStr )] out string vendorInfo );
+        int QueryVendorInfo([Out, MarshalAs(UnmanagedType.LPWStr)] out string vendorInfo);
     }
 }

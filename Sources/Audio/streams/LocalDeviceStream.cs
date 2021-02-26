@@ -1,11 +1,11 @@
-﻿using System;
-using iSpyApplication.Utilities;
+﻿using iSpyApplication.Utilities;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
+using System;
 
 namespace iSpyApplication.Sources.Audio.streams
 {
-    class LocalDeviceStream: IAudioSource
+    internal class LocalDeviceStream : IAudioSource
     {
         private string _source;
         private volatile bool _started;
@@ -15,7 +15,7 @@ namespace iSpyApplication.Sources.Audio.streams
         private WaveInEvent _waveIn;
         private WaveInProvider _waveProvider;
         private SampleChannel _sampleChannel;
-        public bool IsAudio => true;
+        public static bool IsAudio => true;
 
         private ReasonToFinishPlaying _res = ReasonToFinishPlaying.DeviceLost;
 
@@ -74,13 +74,13 @@ namespace iSpyApplication.Sources.Audio.streams
         /// 
         public virtual string Source
         {
-            get { return _source; }
-            set { _source = value; }
+            get => _source;
+            set => _source = value;
         }
 
         public float Gain
         {
-            get { return _gain; }
+            get => _gain;
             set
             {
                 _gain = value;
@@ -93,13 +93,7 @@ namespace iSpyApplication.Sources.Audio.streams
 
         public bool Listening
         {
-            get
-            {
-                if (IsRunning && _listening)
-                    return true;
-                return false;
-
-            }
+            get => IsRunning && _listening;
             set
             {
                 if (RecordingFormat == null)
@@ -110,15 +104,15 @@ namespace iSpyApplication.Sources.Audio.streams
 
                 if (WaveOutProvider != null)
                 {
-                    if (WaveOutProvider.BufferedBytes>0) WaveOutProvider.ClearBuffer();
+                    if (WaveOutProvider.BufferedBytes > 0) WaveOutProvider.ClearBuffer();
                     WaveOutProvider = null;
                 }
 
                 if (value)
                 {
-                    WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true, BufferDuration = TimeSpan.FromMilliseconds(500)};
+                    WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true, BufferDuration = TimeSpan.FromMilliseconds(500) };
                 }
-                
+
                 _listening = value;
             }
         }
@@ -144,10 +138,7 @@ namespace iSpyApplication.Sources.Audio.streams
         /// 
         /// <param name="source">source, which provides audio data.</param>
         /// 
-        public LocalDeviceStream(string source)
-        {
-            _source = source;
-        }
+        public LocalDeviceStream(string source) => _source = source;
 
         private readonly object _lock = new object();
         /// <summary>
@@ -167,7 +158,7 @@ namespace iSpyApplication.Sources.Audio.streams
 
 
             if (_started) return;
-            
+
             // check source
             lock (_lock)
             {
@@ -189,11 +180,11 @@ namespace iSpyApplication.Sources.Audio.streams
                 _started = true;
                 _res = ReasonToFinishPlaying.DeviceLost;
                 _waveIn = new WaveInEvent
-                          {
-                              BufferMilliseconds = 200,
-                              DeviceNumber = selind,
-                              WaveFormat = RecordingFormat
-                          };
+                {
+                    BufferMilliseconds = 200,
+                    DeviceNumber = selind,
+                    WaveFormat = RecordingFormat
+                };
                 _waveIn.DataAvailable += WaveInDataAvailable;
                 _waveIn.RecordingStopped += WaveInRecordingStopped;
 
@@ -204,15 +195,13 @@ namespace iSpyApplication.Sources.Audio.streams
             }
         }
 
-        void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e)
-        {
-            LevelChanged?.Invoke(this, new LevelChangedEventArgs(e.MaxSampleValues));
-        }
+        private void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e) => LevelChanged?.Invoke(this, new LevelChangedEventArgs(e.MaxSampleValues));
 
-        void WaveInDataAvailable(object sender, WaveInEventArgs e)
+        private void WaveInDataAvailable(object sender, WaveInEventArgs e)
         {
             if (_waveIn == null) return;
-            try { 
+            try
+            {
                 var da = DataAvailable;
                 if (da == null) return;
                 var sc = _sampleChannel;
@@ -236,11 +225,10 @@ namespace iSpyApplication.Sources.Audio.streams
             }
         }
 
-
-        void WaveInRecordingStopped(object sender, StoppedEventArgs e)
+        private void WaveInRecordingStopped(object sender, StoppedEventArgs e)
         {
             _started = false;
-            if (e.Exception!=null && e.Exception.Message.IndexOf("NoDriver", StringComparison.Ordinal)!=-1)
+            if (e.Exception != null && e.Exception.Message.IndexOf("NoDriver", StringComparison.Ordinal) != -1)
                 _res = ReasonToFinishPlaying.DeviceLost;
             AudioFinished?.Invoke(this, new PlayingFinishedEventArgs(_res));
         }

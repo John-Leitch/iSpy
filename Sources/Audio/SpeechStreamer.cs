@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace iSpyApplication.Sources.Audio
 {
-    class SpeechStreamer : Stream
+    internal class SpeechStreamer : Stream
     {
         private AutoResetEvent _writeEvent;
         private readonly List<byte> _buffer;
@@ -16,10 +16,10 @@ namespace iSpyApplication.Sources.Audio
         public SpeechStreamer(int bufferSize)
         {
             _writeEvent = new AutoResetEvent(false);
-             _buffersize = bufferSize;
-             _buffer = new List<byte>(_buffersize);
-             for (int i = 0; i < _buffersize;i++ )
-                 _buffer.Add(new byte());
+            _buffersize = bufferSize;
+            _buffer = new List<byte>(_buffersize);
+            for (int i = 0; i < _buffersize; i++)
+                _buffer.Add(new byte());
             _readposition = 0;
             _writeposition = 0;
         }
@@ -34,18 +34,15 @@ namespace iSpyApplication.Sources.Audio
 
         public override long Position
         {
-            get { return 0L; }
-            set {  }
+            get => 0L;
+            set { }
         }
 
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            return 0L;
-        }
+        public override long Seek(long offset, SeekOrigin origin) => 0L;
 
         public override void SetLength(long value)
         {
-            
+
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -58,7 +55,7 @@ namespace iSpyApplication.Sources.Audio
                     _writeEvent.WaitOne(100, true);
                     continue;
                 }
-                buffer[i] = _buffer[_readposition+offset];
+                buffer[i] = _buffer[_readposition + offset];
                 _readposition++;
                 if (_readposition == _buffersize)
                 {
@@ -73,7 +70,7 @@ namespace iSpyApplication.Sources.Audio
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            for (int i = offset; i < offset+count; i++)
+            for (int i = offset; i < offset + count; i++)
             {
                 _buffer[_writeposition] = buffer[i];
                 _writeposition++;
@@ -96,7 +93,7 @@ namespace iSpyApplication.Sources.Audio
 
         public override void Flush()
         {
-            
+
         }
     }
 }

@@ -13,10 +13,10 @@ namespace iSpyApplication
             lblInfo.Text = LocRm.GetString("NotSubscribed");
         }
 
-        public override sealed string Text
+        public sealed override string Text
         {
-            get { return base.Text; }
-            set { base.Text = value; }
+            get => base.Text;
+            set => base.Text = value;
         }
 
         private void NotSubscribed_Load(object sender, EventArgs e)
@@ -24,9 +24,6 @@ namespace iSpyApplication
 
         }
 
-        private void llblSubscribe_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            MainForm.OpenUrl(MainForm.Webserver + "/subscribe.aspx");
-        }
+        private void llblSubscribe_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => MainForm.OpenUrl(MainForm.Webserver + "/subscribe.aspx");
     }
 }

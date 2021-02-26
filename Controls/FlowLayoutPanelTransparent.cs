@@ -2,14 +2,9 @@
 
 namespace iSpyApplication.Controls
 {
-    
-
-    class FlowLayoutPanelTransparent : FlowLayoutPanel
+    internal class FlowLayoutPanelTransparent : FlowLayoutPanel
     {
-        public FlowLayoutPanelTransparent()
-        {
-            this.SetStyle(ControlStyles.Opaque, true);
-        }
+        public FlowLayoutPanelTransparent() => this.SetStyle(ControlStyles.Opaque, true);
         protected override CreateParams CreateParams
         {
             get

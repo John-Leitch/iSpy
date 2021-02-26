@@ -4,10 +4,10 @@ using System.Windows.Forms;
 
 namespace iSpyApplication
 {
-	/// <summary>
-	/// Summary description for AboutForm.
-	/// </summary>
-	public class AboutForm : Form
+    /// <summary>
+    /// Summary description for AboutForm.
+    /// </summary>
+    public class AboutForm : Form
     {
         private Label _lblCopyright;
         private PictureBox _pictureBox1;
@@ -15,59 +15,56 @@ namespace iSpyApplication
         private Button _btnOk;
         private LinkLabel linkLabel1;
         private TableLayoutPanel tableLayoutPanel1;
-        
-		/// <summary>
-		/// Required designer variable.
-		/// </summary>
-		private Container components = null;
 
-		public AboutForm( )
-		{
-			//
-			// Required for Windows Form Designer support
-			//
-			InitializeComponent();
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private readonly Container components = null;
+
+        public AboutForm()
+        {
+            //
+            // Required for Windows Form Designer support
+            //
+            InitializeComponent();
             RenderResources();
-			//
-			// TODO: Add any constructor code after InitializeComponent call
-			//
+            //
+            // TODO: Add any constructor code after InitializeComponent call
+            //
         }
 
         private void RenderResources()
         {
-            _lblVersion.Text = string.Format("{0}{1} v{2}", 
+            _lblVersion.Text = string.Format("{0}{1} v{2}",
                 Application.ProductName, Program.Platform != "x86" ? " 64" : "",
                 Application.ProductVersion);
 
             Helper.SetTitle(this);
 
-            _lblCopyright.Text = "Copyright \u00a9 2007-" + Helper.Now.Year+" DeveloperInABox";
+            _lblCopyright.Text = "Copyright \u00a9 2007-" + Helper.Now.Year + " DeveloperInABox";
         }
 
-       
 
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		protected override void Dispose( bool disposing )
-		{
-			if( disposing )
-			{
-				if(components != null)
-				{
-					components.Dispose();
-				}
-			}
-			base.Dispose( disposing );
-		}
 
-		#region Windows Form Designer generated code
-		/// <summary>
-		/// Required method for Designer support - do not modify
-		/// the contents of this method with the code editor.
-		/// </summary>
-		private void InitializeComponent()
-		{
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && components != null)
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
             this._lblCopyright = new System.Windows.Forms.Label();
             this._pictureBox1 = new System.Windows.Forms.PictureBox();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
@@ -112,7 +109,7 @@ namespace iSpyApplication
             // 
             // _btnOk
             // 
-            this._btnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this._btnOk.Anchor = (System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right);
             this._btnOk.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this._btnOk.Location = new System.Drawing.Point(333, 78);
             this._btnOk.Name = "_btnOk";
@@ -174,29 +171,20 @@ namespace iSpyApplication
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
 
-		}
-		#endregion
+        }
+        #endregion
 
         private void AboutFormLoad(object sender, EventArgs e)
         {
 
         }
 
-        private void LinkLabel2LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            MainForm.StartBrowser(MainForm.Website+"/");
-        }
+        private void LinkLabel2LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => MainForm.StartBrowser(MainForm.Website + "/");
 
-        private void BtnOkClick(object sender, EventArgs e)
-        {
-            Close();
-        }
+        private void BtnOkClick(object sender, EventArgs e) => Close();
 
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            MainForm.StartBrowser("http://www.ispyconnect.com");
-        }
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => MainForm.StartBrowser("http://www.ispyconnect.com");
 
-        
-	}
+
+    }
 }

@@ -19,10 +19,7 @@ namespace iSpyApplication.Controls
         [Category("Clipboard")]
         public event ClipboardEventHandler PastedText;
 
-        public ClipboardTextBox()
-        {
-            InitializeComponent();
-        }
+        public ClipboardTextBox() => InitializeComponent();
 
         protected override void WndProc(ref Message m)
         {
@@ -47,9 +44,6 @@ namespace iSpyApplication.Controls
     {
         public string ClipboardText { get; set; }
 
-        public ClipboardEventArgs(string clipboardText)
-        {
-            ClipboardText = clipboardText;
-        }
+        public ClipboardEventArgs(string clipboardText) => ClipboardText = clipboardText;
     }
 }

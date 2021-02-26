@@ -1,13 +1,11 @@
-﻿using System;
+﻿using FFmpeg.AutoGen;
+using iSpyApplication.Sources.Video;
+using iSpyApplication.Utilities;
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
-using FFmpeg.AutoGen;
-using iSpyApplication.Sources.Video;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.Realtime
 {
@@ -26,7 +24,7 @@ namespace iSpyApplication.Realtime
         private AVFrame* _audioFrame, _videoFrame;
 
         private AVIOInterruptCB_callback_func _aviocb;
-        private bool _closing;
+        private readonly bool _closing;
         private GCHandle _convHandle;
         private AVFormatContext* _formatContext;
         private int _frameNumber;
@@ -83,9 +81,9 @@ namespace iSpyApplication.Realtime
             new HwEncoder("h264_amf", "amd"),
         };
 
-        public MediaWriter(): base("Writer")
+        public MediaWriter() : base("Writer")
         {
-            
+
         }
 
         public bool Closed => !_opened;
@@ -106,16 +104,9 @@ namespace iSpyApplication.Realtime
             return 0;
         }
 
-        public int InterruptCb()
-        {
-            if ((DateTime.UtcNow - _lastPacket).TotalMilliseconds > Timeout || _abort)
-            {
-                return 1;
-            }
-            return 0;
-        }
+        public int InterruptCb() => (DateTime.UtcNow - _lastPacket).TotalMilliseconds > Timeout || _abort ? 1 : 0;
 
-        public void Open(string fileName, int width, int height, AVCodecID videoCodec, int framerate,AVCodecID audioCodec, DateTime created, int crf)
+        public void Open(string fileName, int width, int height, AVCodecID videoCodec, int framerate, AVCodecID audioCodec, DateTime created, int crf)
         {
             CreatedDate = created;
             Filename = fileName;
@@ -158,9 +149,9 @@ namespace iSpyApplication.Realtime
             _interruptCallbackAddress = Marshal.GetFunctionPointerForDelegate(_interruptCallback);
 
             _aviocb = new AVIOInterruptCB_callback_func
-                      {
-                          Pointer = _interruptCallbackAddress
-                      };
+            {
+                Pointer = _interruptCallbackAddress
+            };
             _formatContext->interrupt_callback.callback = _aviocb;
             _formatContext->interrupt_callback.opaque = null;
 
@@ -221,10 +212,7 @@ namespace iSpyApplication.Realtime
             _opened = true;
         }
 
-        public void Close()
-        {
-            DoClose();
-        }
+        public void Close() => DoClose();
 
         private void DoClose()
         {
@@ -291,7 +279,7 @@ namespace iSpyApplication.Realtime
 
                 if (_formatContext->streams != null)
                 {
-                    var j = (int) _formatContext->nb_streams;
+                    var j = (int)_formatContext->nb_streams;
                     for (var i = j - 1; i >= 0; i--)
                     {
                         var stream = _formatContext->streams[i];
@@ -360,10 +348,7 @@ namespace iSpyApplication.Realtime
             }
         }
 
-        public void WriteFrame(Bitmap frame)
-        {
-            WriteFrame(frame, DateTime.MinValue);
-        }
+        public void WriteFrame(Bitmap frame) => WriteFrame(frame, DateTime.MinValue);
         public void WriteFrame(Bitmap frame, DateTime timestamp)
         {
             if (!_opened)
@@ -383,8 +368,8 @@ namespace iSpyApplication.Realtime
                 ? PixelFormat.Format8bppIndexed
                 : PixelFormat.Format24bppRgb);
 
-            byte*[] srcData = {(byte*) bitmapData.Scan0};
-            int[] srcLinesize = {bitmapData.Stride};
+            byte*[] srcData = { (byte*)bitmapData.Scan0 };
+            int[] srcLinesize = { bitmapData.Stride };
 
             if (_pConvertContext == null)
             {
@@ -397,7 +382,7 @@ namespace iSpyApplication.Realtime
 
                 int w = _videoCodecContext->width;
                 int h = _videoCodecContext->height;
-                _pConvertContext = ffmpeg.sws_getContext(w, h, pfmt, w, h,_videoCodecContext->pix_fmt, ffmpeg.SWS_FAST_BILINEAR, null, null, null);
+                _pConvertContext = ffmpeg.sws_getContext(w, h, pfmt, w, h, _videoCodecContext->pix_fmt, ffmpeg.SWS_FAST_BILINEAR, null, null, null);
             }
 
 
@@ -432,22 +417,19 @@ namespace iSpyApplication.Realtime
             while (ret >= 0)
             {
                 ret = ffmpeg.avcodec_receive_packet(_videoCodecContext, &packet);
-                if (ret == 0)
+                if (ret == 0 && packet.size > 0)
                 {
-                    if (packet.size > 0)
-                    {
-                        if (packet.pts != ffmpeg.AV_NOPTS_VALUE)
-                            packet.pts = ffmpeg.av_rescale_q(packet.pts, _videoCodecContext->time_base,
-                                _videoStream->time_base);
-                        if (packet.dts != ffmpeg.AV_NOPTS_VALUE)
-                            packet.dts = ffmpeg.av_rescale_q(packet.dts, _videoCodecContext->time_base,
-                                _videoStream->time_base);
+                    if (packet.pts != ffmpeg.AV_NOPTS_VALUE)
+                        packet.pts = ffmpeg.av_rescale_q(packet.pts, _videoCodecContext->time_base,
+                            _videoStream->time_base);
+                    if (packet.dts != ffmpeg.AV_NOPTS_VALUE)
+                        packet.dts = ffmpeg.av_rescale_q(packet.dts, _videoCodecContext->time_base,
+                            _videoStream->time_base);
 
-                        packet.stream_index = _videoStream->index;
-                        // write the compressed frame to the media file
-                        _lastPacket = DateTime.UtcNow;
-                        ret = ffmpeg.av_interleaved_write_frame(_formatContext, &packet);
-                    }
+                    packet.stream_index = _videoStream->index;
+                    // write the compressed frame to the media file
+                    _lastPacket = DateTime.UtcNow;
+                    ret = ffmpeg.av_interleaved_write_frame(_formatContext, &packet);
                 }
             }
 
@@ -469,21 +451,18 @@ namespace iSpyApplication.Realtime
                     while (ret >= 0)
                     {
                         ret = ffmpeg.avcodec_receive_packet(_videoCodecContext, &packet);
-                        if (ret == 0)
+                        if (ret == 0 && packet.size > 0)
                         {
-                            if (packet.size > 0)
-                            {
-                                if (packet.pts != ffmpeg.AV_NOPTS_VALUE)
-                                    packet.pts = ffmpeg.av_rescale_q(packet.pts, _videoCodecContext->time_base,
-                                        _videoStream->time_base);
-                                if (packet.dts != ffmpeg.AV_NOPTS_VALUE)
-                                    packet.dts = ffmpeg.av_rescale_q(packet.dts, _videoCodecContext->time_base,
-                                        _videoStream->time_base);
+                            if (packet.pts != ffmpeg.AV_NOPTS_VALUE)
+                                packet.pts = ffmpeg.av_rescale_q(packet.pts, _videoCodecContext->time_base,
+                                    _videoStream->time_base);
+                            if (packet.dts != ffmpeg.AV_NOPTS_VALUE)
+                                packet.dts = ffmpeg.av_rescale_q(packet.dts, _videoCodecContext->time_base,
+                                    _videoStream->time_base);
 
-                                packet.stream_index = _videoStream->index;
-                                // write the compressed frame to the media file
-                                ret = ffmpeg.av_interleaved_write_frame(_formatContext, &packet);
-                            }
+                            packet.stream_index = _videoStream->index;
+                            // write the compressed frame to the media file
+                            ret = ffmpeg.av_interleaved_write_frame(_formatContext, &packet);
                         }
                     }
                     ffmpeg.av_packet_unref(&packet);
@@ -498,21 +477,18 @@ namespace iSpyApplication.Realtime
                     while (ret >= 0)
                     {
                         ret = ffmpeg.avcodec_receive_packet(_audioCodecContext, &packet);
-                        if (ret == 0)
+                        if (ret == 0 && packet.size > 0)
                         {
-                            if (packet.size > 0)
-                            {
-                                if (packet.pts != ffmpeg.AV_NOPTS_VALUE)
-                                    packet.pts = ffmpeg.av_rescale_q(packet.pts, _audioCodecContext->time_base,
-                                        _audioStream->time_base);
-                                if (packet.dts != ffmpeg.AV_NOPTS_VALUE)
-                                    packet.dts = ffmpeg.av_rescale_q(packet.dts, _audioCodecContext->time_base,
-                                        _audioStream->time_base);
+                            if (packet.pts != ffmpeg.AV_NOPTS_VALUE)
+                                packet.pts = ffmpeg.av_rescale_q(packet.pts, _audioCodecContext->time_base,
+                                    _audioStream->time_base);
+                            if (packet.dts != ffmpeg.AV_NOPTS_VALUE)
+                                packet.dts = ffmpeg.av_rescale_q(packet.dts, _audioCodecContext->time_base,
+                                    _audioStream->time_base);
 
-                                packet.stream_index = _audioStream->index;
-                                // write the compressed frame to the media file
-                                ret = ffmpeg.av_interleaved_write_frame(_formatContext, &packet);
-                            }
+                            packet.stream_index = _audioStream->index;
+                            // write the compressed frame to the media file
+                            ret = ffmpeg.av_interleaved_write_frame(_formatContext, &packet);
                         }
                     }
                     ffmpeg.av_packet_unref(&packet);
@@ -541,13 +517,12 @@ namespace iSpyApplication.Realtime
             fixed (byte* p = _audioBuffer)
             {
                 var inPointerLocal = p;
-                var pts = (long) (timestamp - CreatedDate).TotalMilliseconds;
-                while (remaining >= srcSize)
+                for (var pts = (long)(timestamp - CreatedDate).TotalMilliseconds; remaining >= srcSize; pts++)
                 {
                     ffmpeg.av_init_packet(&packet);
 
                     var ptr = _convHandle.AddrOfPinnedObject().ToPointer();
-                    var convOutPointerLocal = (byte*) ptr;
+                    var convOutPointerLocal = (byte*)ptr;
                     var dstNbSamples =
                         (int)
                             ffmpeg.av_rescale_rnd(
@@ -613,13 +588,12 @@ namespace iSpyApplication.Realtime
                                 return;
                             }
 
-                            
+
                         }
                     }
                     cursor += srcSize;
                     remaining -= srcSize;
                     ffmpeg.av_packet_unref(&packet);
-                    pts++;
                 }
             }
 
@@ -636,7 +610,7 @@ namespace iSpyApplication.Realtime
 
             _videoFrame->width = _videoCodecContext->width;
             _videoFrame->height = _videoCodecContext->height;
-            _videoFrame->format = (int) _videoCodecContext->pix_fmt;
+            _videoFrame->format = (int)_videoCodecContext->pix_fmt;
 
             ffmpeg.av_frame_get_buffer(_videoFrame, 32);
         }
@@ -666,7 +640,7 @@ namespace iSpyApplication.Realtime
                 }
             }
 
-            
+
             _videoCodec = ffmpeg.avcodec_find_encoder(baseCodec);
 
             if (TryOpenVideoCodec(baseCodec, null))
@@ -704,7 +678,7 @@ namespace iSpyApplication.Realtime
                         break;
                 }
             }
-            
+
             //ffmpeg.av_opt_set(_videoCodecContext->priv_data, "tune", "zerolatency", 0);
             _videoCodecContext->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P;
             switch (_videoCodecContext->codec_id)
@@ -760,7 +734,7 @@ namespace iSpyApplication.Realtime
                     break;
             }
 
-            
+
 
             if ((_formatContext->oformat->flags & ffmpeg.AVFMT_GLOBALHEADER) == ffmpeg.AVFMT_GLOBALHEADER)
             {
@@ -867,7 +841,7 @@ namespace iSpyApplication.Realtime
 
             _audioCodecContext->sample_rate = 22050;
 
-            _audioCodecContext->channel_layout = (ulong) ffmpeg.av_get_default_channel_layout(1);
+            _audioCodecContext->channel_layout = (ulong)ffmpeg.av_get_default_channel_layout(1);
             _audioCodecContext->channels = ffmpeg.av_get_channel_layout_nb_channels(_audioCodecContext->channel_layout);
 
             _audioStream->time_base.num = _audioCodecContext->time_base.num = 1;

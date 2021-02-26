@@ -7,7 +7,7 @@ namespace iSpyApplication.Utilities
     /// <summary>
     ///     Summary description for Class1.
     /// </summary>
-    public class NetApi32
+    public static class NetApi32
     {
         // constants
         public enum PLATFORM_ID
@@ -62,10 +62,7 @@ namespace iSpyApplication.Utilities
 
 
         public static int NetMessageSend(string serverName, string messageName, string fromName, string strMsgBuffer,
-            int iMsgBufferLen)
-        {
-            return NativeMethods.NetMessageBufferSend(serverName, messageName, fromName, strMsgBuffer, iMsgBufferLen * 2);
-        }
+            int iMsgBufferLen) => NativeMethods.NetMessageBufferSend(serverName, messageName, fromName, strMsgBuffer, iMsgBufferLen * 2);
 
         public static ArrayList GetServerList(SV_101_TYPES serverType)
         {
@@ -76,9 +73,8 @@ namespace iSpyApplication.Utilities
             {
                 // Buffer to store the available servers
                 // Filled by the NetServerEnum function
-                IntPtr buf;
 
-                int ret = NativeMethods.NetServerEnum(null, 101, out buf, -1,
+                int ret = NativeMethods.NetServerEnum(null, 101, out IntPtr buf, -1,
                     ref entriesread, ref totalentries,
                     serverType, null, IntPtr.Zero);
 

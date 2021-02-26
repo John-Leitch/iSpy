@@ -1,7 +1,7 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using FFmpeg.AutoGen;
+﻿using FFmpeg.AutoGen;
 using NAudio.Wave;
+using System;
+using System.Runtime.InteropServices;
 
 namespace iSpyApplication.Sources.Audio.talk
 {
@@ -10,7 +10,7 @@ namespace iSpyApplication.Sources.Audio.talk
         private readonly WaveFormat _fromFormat, _toFormat;
         private SwrContext* _swrContext;
         private GCHandle _convHandle;
-        readonly byte[] _convOut = new byte[44100];
+        private readonly byte[] _convOut = new byte[44100];
 
         public WaveFormatConverter(WaveFormat fromFormat, WaveFormat toFormat)
         {

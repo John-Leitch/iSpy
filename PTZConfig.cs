@@ -1,7 +1,7 @@
-﻿using System;
-using System.Windows.Forms;
-using iSpyApplication.Controls;
+﻿using iSpyApplication.Controls;
 using iSpyApplication.Pelco;
+using System;
+using System.Windows.Forms;
 
 namespace iSpyApplication
 {
@@ -22,17 +22,17 @@ namespace iSpyApplication
 
         private void chkPTZFlipX_CheckedChanged(object sender, EventArgs e)
         {
-            
+
         }
 
         private void chkPTZFlipY_CheckedChanged(object sender, EventArgs e)
         {
-            
+
         }
 
         private void chkPTZRotate90_CheckedChanged(object sender, EventArgs e)
         {
-            
+
         }
 
         private void PTZConfig_Load(object sender, EventArgs e)
@@ -58,7 +58,7 @@ namespace iSpyApplication
                 CameraControl.Camobject.settings.ptzusername = txtPTZUsername.Text;
                 CameraControl.Camobject.settings.ptzpassword = txtPTZPassword.Text;
                 CameraControl.Camobject.settings.ptzchannel = txtPTZChannel.Text;
-                CameraControl.Camobject.settings.ptzport = (int) numPort.Value;
+                CameraControl.Camobject.settings.ptzport = (int)numPort.Value;
                 CameraControl.Camobject.settings.ptzflipx = chkPTZFlipX.Checked;
                 CameraControl.Camobject.settings.ptzflipy = chkPTZFlipY.Checked;
                 CameraControl.Camobject.settings.ptzrotate90 = chkPTZRotate90.Checked;

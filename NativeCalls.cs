@@ -6,8 +6,8 @@ namespace iSpyApplication
 {
     public static class NativeCalls
     {
-        const int SysCommand = 0x0112;
-        const int MouseeventfMove = 0x0001;
+        private const int SysCommand = 0x0112;
+        private const int MouseeventfMove = 0x0001;
 
         public const uint EsContinuous = 0x80000000;
         public const uint EsSystemRequired = 0x00000001;
@@ -29,13 +29,13 @@ namespace iSpyApplication
         public static extern uint SetThreadExecutionState(uint esFlags);
 
         [DllImport("user32.dll")]
-        static extern void mouse_event(int dwFlags, int dx, int dy,
+        private static extern void mouse_event(int dwFlags, int dx, int dy,
                       int dwData, UIntPtr dwExtraInfo);
 
 
         public static void WakeScreen()
         {
-            mouse_event(MouseeventfMove,0,1,0,UIntPtr.Zero);
+            mouse_event(MouseeventfMove, 0, 1, 0, UIntPtr.Zero);
             Thread.Sleep(40);
             mouse_event(MouseeventfMove, 0, -1, 0, UIntPtr.Zero);
         }

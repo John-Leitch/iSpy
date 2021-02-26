@@ -1,14 +1,14 @@
-﻿using System;
+﻿using iSpyApplication.Sources.Audio.codecs;
+using iSpyApplication.Utilities;
+using NAudio.Wave;
+using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
-using iSpyApplication.Sources.Audio.codecs;
-using iSpyApplication.Utilities;
-using NAudio.Wave;
 
 namespace iSpyApplication.Sources.Audio.talk
 {
-    internal class TalkAxis: ITalkTarget, IDisposable
+    internal class TalkAxis : ITalkTarget, IDisposable
     {
         private readonly object _obj = new object();
         private readonly int _port;
@@ -46,11 +46,8 @@ namespace iSpyApplication.Sources.Audio.talk
                 TalkStopped?.Invoke(this, EventArgs.Empty);
             }
         }
-        
-        public void Stop()
-        {
-            StopTalk();
-        }
+
+        public void Stop() => StopTalk();
 
         public event TalkStoppedEventHandler TalkStopped;
         private TcpClient _client;
@@ -78,11 +75,11 @@ namespace iSpyApplication.Sources.Audio.talk
             sPost += "Cache-Control: no-cache\r\n";
 
             string usernamePassword = _username + ":" + _password;
-            sPost += "Authorization: Basic "+Convert.ToBase64String(new ASCIIEncoding().GetBytes(usernamePassword))+"\r\n\r\n";
+            sPost += "Authorization: Basic " + Convert.ToBase64String(new ASCIIEncoding().GetBytes(usernamePassword)) + "\r\n\r\n";
 
             _client = new TcpClient(_server, _port);
             _avstream = _client.GetStream();
-            
+
             byte[] hdr = Encoding.ASCII.GetBytes(sPost);
             _avstream.Write(hdr, 0, hdr.Length);
 
@@ -104,7 +101,7 @@ namespace iSpyApplication.Sources.Audio.talk
                     {
                         _bTalking = false;
                     }
-                    if (_client!=null)
+                    if (_client != null)
                     {
                         _client.Close();
                         _client = null;
@@ -129,7 +126,7 @@ namespace iSpyApplication.Sources.Audio.talk
             }
         }
 
-        
+
 
         private void AudioSourceDataAvailable(object sender, DataAvailableEventArgs e)
         {
@@ -146,7 +143,7 @@ namespace iSpyApplication.Sources.Audio.talk
                         if (!_audioSource.RecordingFormat.Equals(_waveFormat))
                         {
                             var ws = new TalkHelperStream(bSrc, totBytes, _audioSource.RecordingFormat);
-                                
+
                             var bDst = new byte[44100];
                             totBytes = 0;
                             using (var helpStm = new WaveFormatConversionStream(_waveFormat, ws))
@@ -158,7 +155,7 @@ namespace iSpyApplication.Sources.Audio.talk
                                 }
                             }
                             bSrc = bDst;
-                            
+
                         }
                         var enc = _muLawCodec.Encode(bSrc, 0, totBytes);
                         ALawEncoder.ALawEncode(bSrc, totBytes, enc);
@@ -167,7 +164,7 @@ namespace iSpyApplication.Sources.Audio.talk
                         Buffer.BlockCopy(enc, 0, _talkBuffer, _talkDatalen, enc.Length);
                         _talkDatalen += enc.Length;
 
-                        
+
                         j = 0;
                         try
                         {
@@ -176,8 +173,8 @@ namespace iSpyApplication.Sources.Audio.talk
                                 //need to write out in 240 byte packets
                                 var pkt = new byte[240];
                                 Buffer.BlockCopy(_talkBuffer, j, pkt, 0, 240);
-                                
-                               // _avstream.Write(_hdr, 0, _hdr.Length);
+
+                                // _avstream.Write(_hdr, 0, _hdr.Length);
                                 _avstream.Write(pkt, 0, 240);
                                 j += 240;
                             }
@@ -203,10 +200,7 @@ namespace iSpyApplication.Sources.Audio.talk
 
         private bool _disposed;
         // Public implementation of Dispose pattern callable by consumers. 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         // Protected implementation of Dispose pattern. 
         protected virtual void Dispose(bool disposing)

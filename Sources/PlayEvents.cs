@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace iSpyApplication.Sources
-{    
+{
     /// <summary>
     /// Delegate for new frame event handler.
     /// </summary>
@@ -61,10 +61,7 @@ namespace iSpyApplication.Sources
         /// 
         /// <param name="frame">New frame.</param>
         /// 
-        public NewFrameEventArgs(System.Drawing.Bitmap frame)
-        {
-            Frame = frame;
-        }
+        public NewFrameEventArgs(System.Drawing.Bitmap frame) => Frame = frame;
 
         /// <summary>
         /// New frame from video source.
@@ -85,10 +82,7 @@ namespace iSpyApplication.Sources
         /// 
         /// <param name="reason">Reason</param>
         /// 
-        public PlayingFinishedEventArgs(ReasonToFinishPlaying reason)
-        {
-            ReasonToFinishPlaying = reason;
-        }
+        public PlayingFinishedEventArgs(ReasonToFinishPlaying reason) => ReasonToFinishPlaying = reason;
 
         /// <summary>
         /// Audio source error description.
@@ -97,7 +91,7 @@ namespace iSpyApplication.Sources
         public ReasonToFinishPlaying ReasonToFinishPlaying { get; }
     }
 
-    
+
 
     public delegate void AlertEventHandler(object sender, AlertEventArgs e);
 
@@ -113,10 +107,7 @@ namespace iSpyApplication.Sources
         /// 
         /// <param name="description">Error description.</param>
         /// 
-        public AlertEventArgs(string description)
-        {
-            Description = description;
-        }
+        public AlertEventArgs(string description) => Description = description;
 
         /// <summary>
         /// Audio source error description.

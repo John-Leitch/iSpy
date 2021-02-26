@@ -2,7 +2,7 @@
 
 namespace iSpyApplication.Sources.Audio.codecs
 {
-    class Gsm610ChatCodec : AcmChatCodec
+    internal class Gsm610ChatCodec : AcmChatCodec
     {
         public Gsm610ChatCodec()
             : base(new WaveFormat(8000, 16, 1), new Gsm610WaveFormat())

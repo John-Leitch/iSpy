@@ -22,23 +22,14 @@ namespace iSpyApplication.Utilities
 
         public override bool CanWrite => false;
 
-        public override void Flush()
-        {
-            throw new InvalidOperationException();
-        }
+        public override void Flush() => throw new InvalidOperationException();
 
         public override long Length => _pos;
 
         public override long Position
         {
-            get
-            {
-                return _pos;
-            }
-            set
-            {
-                throw new InvalidOperationException();
-            }
+            get => _pos;
+            set => throw new InvalidOperationException();
         }
 
 
@@ -71,19 +62,10 @@ namespace iSpyApplication.Utilities
             return bytesRead;
         }
 
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            throw new InvalidOperationException();
-        }
+        public override long Seek(long offset, SeekOrigin origin) => throw new InvalidOperationException();
 
-        public override void SetLength(long value)
-        {
-            throw new InvalidOperationException();
-        }
+        public override void SetLength(long value) => throw new InvalidOperationException();
 
-        public override void Write(byte[] buffer, int offset, int count)
-        {
-            throw new InvalidOperationException();
-        }
+        public override void Write(byte[] buffer, int offset, int count) => throw new InvalidOperationException();
     }
 }

@@ -1,10 +1,10 @@
-﻿using System;
-using NAudio.Codecs;
+﻿using NAudio.Codecs;
 using NAudio.Wave;
+using System;
 
 namespace iSpyApplication.Sources.Audio.codecs
 {
-    class G722ChatCodec : INetworkChatCodec
+    internal class G722ChatCodec : INetworkChatCodec
     {
         private readonly int _bitrate;
         private readonly G722CodecState _encoderState;

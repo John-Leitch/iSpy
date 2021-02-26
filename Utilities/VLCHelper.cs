@@ -1,8 +1,6 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using Microsoft.Win32;
+using System;
 using System.Security.AccessControl;
-using Microsoft.Win32;
 
 namespace iSpyApplication.Utilities
 {
@@ -14,13 +12,7 @@ namespace iSpyApplication.Utilities
     {
         public static readonly Version MinVersion = new Version(3, 0, 0);
 
-        public static bool VLCAvailable
-        {
-            get
-            {
-                return !string.IsNullOrEmpty(VLCLocation);
-            }
-        }
+        public static bool VLCAvailable => !string.IsNullOrEmpty(VLCLocation);
         public static string VLCLocationAutoDetect = null;
 
         public static string VLCLocation
@@ -32,7 +24,7 @@ namespace iSpyApplication.Utilities
                 {
                     vlcLoc = VLCLocationAutoDetect;
                 }
-                return string.IsNullOrEmpty(vlcLoc)?null:vlcLoc;
+                return string.IsNullOrEmpty(vlcLoc) ? null : vlcLoc;
             }
         }
 
@@ -58,7 +50,7 @@ namespace iSpyApplication.Utilities
             {
                 Logger.LogError("Couldn't find VLC");
                 VlcHelper.VLCLocationAutoDetect = null;
-                
+
             }
             if (VLCLocation != null)
                 Logger.LogMessage("Using VLC in " + VLCLocation, "VLCHelper");

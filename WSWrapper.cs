@@ -1,13 +1,10 @@
+using iSpyApplication.iSpyWS;
+using iSpyApplication.Server;
+using iSpyApplication.Utilities;
 using System;
 using System.Diagnostics;
-using System.Linq;
-using System.ServiceModel.Configuration;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using AForge.Math;
-using iSpyApplication.iSpyWS;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication
 {
@@ -28,10 +25,10 @@ namespace iSpyApplication
                     return _wsa;
 
                 _wsa = new iSpyAPI
-                    {
-                        Url = MainForm.WebserverSecure + "/webservices/ispyapi.asmx",
-                        Timeout = 15000,
-                    };
+                {
+                    Url = MainForm.WebserverSecure + "/webservices/ispyapi.asmx",
+                    Timeout = 15000,
+                };
                 _wsa.Disposed += WsaDisposed;
                 _wsa.SyncCompleted += WsaSyncCompleted;
                 _wsa.PingAliveCompleted += WsaPingAliveCompleted;
@@ -41,21 +38,18 @@ namespace iSpyApplication
                 _wsa.SendSMSCompleted += WsaSendSMSCompleted;
                 _wsa.SendTweetCompleted += WsaSendTweetCompleted;
                 _wsa.DisconnectCompleted += WsaDisconnectCompleted;
-                
+
                 return _wsa;
             }
         }
 
-        static void WsaDisposed(object sender, EventArgs e)
-        {
-            _wsa = null;
-        }
+        private static void WsaDisposed(object sender, EventArgs e) => _wsa = null;
 
         public static string WebservicesDisabledMessage => LocRm.GetString("WebservicesDisabled");
 
         public static bool WebsiteLive
         {
-            get { return _websitelive; }
+            get => _websitelive;
             set
             {
                 if (_websitelive && !value)
@@ -66,7 +60,8 @@ namespace iSpyApplication
                         try
                         {
                             Process.Start(MainForm.Conf.AlertOnDisconnect);
-                        }catch (Exception ex)
+                        }
+                        catch (Exception ex)
                         {
                             Logger.LogException(ex);
                         }
@@ -80,14 +75,15 @@ namespace iSpyApplication
                         try
                         {
                             Process.Start(MainForm.Conf.AlertOnReconnect);
-                        }catch (Exception ex)
+                        }
+                        catch (Exception ex)
                         {
                             Logger.LogException(ex);
                         }
                     }
-                    
+
                     _websitelive = true;
-                    if (Connect()=="OK")
+                    if (Connect() == "OK")
                         ForceSync();
                 }
                 _websitelive = value;
@@ -120,7 +116,7 @@ namespace iSpyApplication
             if (!Enabled)
                 return;
             Debug.WriteLine("WEBSERVICE CALL: SendContentAsync");
-            Wsa.SendContentAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, emailAddress, subject, message,Guid.NewGuid());
+            Wsa.SendContentAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, emailAddress, subject, message, Guid.NewGuid());
         }
         private static bool Enabled => MainForm.Conf.ServicesEnabled && MainForm.Conf.Subscribed && WebsiteLive && !LoginFailed;
 
@@ -140,7 +136,7 @@ namespace iSpyApplication
                 return;
             }
             Debug.WriteLine("WEBSERVICE CALL: SendAlertWithImageAsync");
-            Wsa.SendAlertWithImageAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, emailAddress, subject, message, imageData,Guid.NewGuid());
+            Wsa.SendAlertWithImageAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, emailAddress, subject, message, imageData, Guid.NewGuid());
         }
 
         public static string ExternalIPv4(bool refresh, out bool success)
@@ -222,17 +218,14 @@ namespace iSpyApplication
             Wsa.SendTweetAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, message, Guid.NewGuid());
         }
 
-        public static void ForceSync()
-        {
-            ForceSync(MainForm.IPAddress, MainForm.Conf.LANPort);
-        }
+        public static void ForceSync() => ForceSync(MainForm.IPAddress, MainForm.Conf.LANPort);
 
         private static void ForceSync(string internalIPAddress, int internalPort)
         {
             if (LoginFailed || !WebsiteLive || !MainForm.Conf.ServicesEnabled || MainForm.ShuttingDown)
                 return;
 
-            string settings = MainForm.MWS.GetObjectList();
+            string settings = LocalServer.GetObjectList();
 
             MainForm.NeedsSync = false;
             int port = MainForm.Conf.ServerPort;
@@ -250,13 +243,10 @@ namespace iSpyApplication
             if (!MainForm.Conf.ServicesEnabled || LoginFailed || MainForm.ShuttingDown)
                 return;
 
-            if (LastLiveCheck < Helper.Now.AddSeconds(0 - (PingDelays[_pingIndex])))
+            if (LastLiveCheck < Helper.Now.AddSeconds(0 - (PingDelays[_pingIndex])) && _pingRequestThread == null)
             {
-                if (_pingRequestThread == null)
-                {
-                    _pingRequestThread = new Thread(DoPingRequest);
-                    _pingRequestThread.Start();
-                }
+                _pingRequestThread = new Thread(DoPingRequest);
+                _pingRequestThread.Start();
             }
         }
 
@@ -276,17 +266,17 @@ namespace iSpyApplication
                 r = Wsa.PingAlive(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddress, MainForm.IPAddress);
                 if (r[0] != lastResponse)
                 {
-                    Logger.LogMessage("Ping: "+r[0]);
+                    Logger.LogMessage("Ping: " + r[0]);
                 }
                 lastResponse = r[0];
                 WebsiteLive = true;
                 _pingIndex = 0;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 WebsiteLive = false;
-                Logger.LogException(ex,"Ping");
-                _pingIndex = Math.Min(_pingIndex+1, PingDelays.Length-1);
+                Logger.LogException(ex, "Ping");
+                _pingIndex = Math.Min(_pingIndex + 1, PingDelays.Length - 1);
             }
             _pingRequestThread = null;
         }
@@ -298,7 +288,7 @@ namespace iSpyApplication
                 int port = MainForm.Conf.ServerPort;
                 if (MainForm.Conf.IPMode == "IPv6")
                     port = MainForm.Conf.LANPort;
-                 
+
                 try
                 {
                     Wsa.Disconnect(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port);
@@ -309,23 +299,20 @@ namespace iSpyApplication
             }
         }
 
-        static void WsaPingAliveCompleted(object sender, PingAliveCompletedEventArgs e)
+        private static void WsaPingAliveCompleted(object sender, PingAliveCompletedEventArgs e)
         {
             if (e.Error == null)
             {
                 string[] r = e.Result;
-                
+
                 if (r.Length > 1)
                 {
-                    
-                    if (MainForm.Conf.ServicesEnabled)
+
+                    if (MainForm.Conf.ServicesEnabled && !MainForm.MWS.Running)
                     {
-                        if (!MainForm.MWS.Running)
-                        {
-                            MainForm.StopAndStartServer();
-                        }
+                        MainForm.StopAndStartServer();
                     }
-                    
+
                     WebsiteLive = true;
 
                     if (MainForm.Conf.IPMode == "IPv4")
@@ -342,7 +329,7 @@ namespace iSpyApplication
             }
         }
 
-        static void WsaSendAlertCompleted(object sender, SendAlertCompletedEventArgs e)
+        private static void WsaSendAlertCompleted(object sender, SendAlertCompletedEventArgs e)
         {
             if (e.Error != null)
             {
@@ -356,7 +343,7 @@ namespace iSpyApplication
 
         }
 
-        static void WsaSendContentCompleted(object sender, SendContentCompletedEventArgs e)
+        private static void WsaSendContentCompleted(object sender, SendContentCompletedEventArgs e)
         {
             if (e.Error != null)
             {
@@ -365,19 +352,19 @@ namespace iSpyApplication
             else
             {
                 if (e.Result != "OK")
-                    Logger.LogError("Send Content: " + e.Result);    
+                    Logger.LogError("Send Content: " + e.Result);
             }
-            
+
 
         }
 
-        static void WsaDisconnectCompleted(object sender, DisconnectCompletedEventArgs e)
+        private static void WsaDisconnectCompleted(object sender, DisconnectCompletedEventArgs e)
         {
             //var m = e.Result;
 
         }
 
-        static void WsaSendAlertWithImageCompleted(object sender, SendAlertWithImageCompletedEventArgs e)
+        private static void WsaSendAlertWithImageCompleted(object sender, SendAlertWithImageCompletedEventArgs e)
         {
             if (e.Error != null)
             {
@@ -391,7 +378,7 @@ namespace iSpyApplication
 
         }
 
-        static void WsaSendSMSCompleted(object sender, SendSMSCompletedEventArgs e)
+        private static void WsaSendSMSCompleted(object sender, SendSMSCompletedEventArgs e)
         {
             if (e.Error != null)
             {
@@ -405,7 +392,7 @@ namespace iSpyApplication
 
         }
 
-        static void WsaSendTweetCompleted(object sender, SendTweetCompletedEventArgs e)
+        private static void WsaSendTweetCompleted(object sender, SendTweetCompletedEventArgs e)
         {
             if (e.Error != null)
             {
@@ -419,7 +406,7 @@ namespace iSpyApplication
 
         }
 
-        static void WsaSyncCompleted(object sender, SyncCompletedEventArgs e)
+        private static void WsaSyncCompleted(object sender, SyncCompletedEventArgs e)
         {
             if (e.Error != null)
             {
@@ -434,40 +421,31 @@ namespace iSpyApplication
             }
         }
 
-        
 
-        public static string Connect()
-        {
-            return Connect(MainForm.LoopBack);
-        }
+
+        public static string Connect() => Connect(MainForm.LoopBack);
 
         public static string Connect(bool tryLoopback)
         {
             if (!MainForm.Conf.ServicesEnabled)
                 return WebservicesDisabledMessage;
             string r = "";
-            
+
             int port = MainForm.Conf.ServerPort;
             if (MainForm.Conf.IPMode == "IPv6")
                 port = MainForm.Conf.LANPort;
 
             try
             {
-                if (MainForm.CustomWebserver)
-                    r = Wsa.Connect2(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port, MainForm.Identifier, tryLoopback, Application.ProductVersion,
+                r = MainForm.CustomWebserver
+                    ? Wsa.Connect2(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port, MainForm.Identifier, tryLoopback, Application.ProductVersion,
                         MainForm.Conf.ServerName, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddress, MainForm.Affiliateid,
-                        X509.SslEnabled);
-                else
-                    r = Wsa.Connect4(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port,
+                        X509.SslEnabled)
+                    : Wsa.Connect4(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port,
                     MainForm.Identifier, tryLoopback, Application.ProductVersion,
                     MainForm.Conf.ServerName, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddress, MainForm.Affiliateid,
                     X509.SslEnabled);
-                if (r == "OK" && tryLoopback)
-                {
-                    MainForm.LoopBack = true;
-                }
-                else
-                    MainForm.LoopBack = false;
+                MainForm.LoopBack = r == "OK" && tryLoopback;
 
                 WebsiteLive = true;
             }
@@ -497,7 +475,7 @@ namespace iSpyApplication
 
         public static string[] TestConnection(string username, string password, bool tryLoopback)
         {
-            var r = new string[] {};
+            var r = Array.Empty<string>();
 
             int port = MainForm.Conf.ServerPort;
             if (MainForm.Conf.IPMode == "IPv6")
@@ -505,10 +483,9 @@ namespace iSpyApplication
 
             try
             {
-                if (MainForm.CustomWebserver)
-                    r = Wsa.TestConnection2(username, password, port, MainForm.Identifier, tryLoopback, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddress, X509.SslEnabled);
-                else
-                    r = Wsa.TestConnection3(username, password, port, MainForm.Identifier, tryLoopback, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddress, X509.SslEnabled);
+                r = MainForm.CustomWebserver
+                    ? Wsa.TestConnection2(username, password, port, MainForm.Identifier, tryLoopback, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddress, X509.SslEnabled)
+                    : Wsa.TestConnection3(username, password, port, MainForm.Identifier, tryLoopback, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddress, X509.SslEnabled);
                 WebsiteLive = true;
             }
             catch (Exception ex)
@@ -518,11 +495,11 @@ namespace iSpyApplication
             }
             if (WebsiteLive)
             {
-                LoginFailed = (r[0] == "Webservices_LoginFailed" || r[0]=="Expired");
+                LoginFailed = (r[0] == "Webservices_LoginFailed" || r[0] == "Expired");
                 if (r.Length == 1 && r[0] != "OK")
                 {
-                    r[0] = LocRm.GetString(r[0]);                    
-                    Logger.LogError("Webservices: "+r[0]);
+                    r[0] = LocRm.GetString(r[0]);
+                    Logger.LogError("Webservices: " + r[0]);
                 }
                 if (r.Length > 3 && r[3] != "")
                 {
@@ -531,7 +508,7 @@ namespace iSpyApplication
                 }
                 return r;
             }
-            
+
             return new[] { LocRm.GetString("iSpyDown") };
         }
     }

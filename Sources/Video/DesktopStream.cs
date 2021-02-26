@@ -1,12 +1,12 @@
-﻿using System;
+﻿using iSpyApplication.Controls;
+using iSpyApplication.Utilities;
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
-using iSpyApplication.Controls;
-using iSpyApplication.Utilities;
 using Cursor = System.Windows.Forms.Cursor;
 using Cursors = System.Windows.Forms.Cursors;
 
@@ -33,20 +33,20 @@ namespace iSpyApplication.Sources.Video
                 area = new Rectangle(i[0], i[1], i[2], i[3]);
             }
             _area = area;
-            
+
         }
 
         #region IVideoSource Members
 
         public event NewFrameEventHandler NewFrame;
-        
+
         public event PlayingFinishedEventHandler PlayingFinished;
 
 
         public virtual string Source
         {
-            get { return _screenindex.ToString(CultureInfo.InvariantCulture); }
-            set { _screenindex = Convert.ToInt32(value); }
+            get => _screenindex.ToString(CultureInfo.InvariantCulture);
+            set => _screenindex = Convert.ToInt32(value);
         }
 
 
@@ -78,8 +78,8 @@ namespace iSpyApplication.Sources.Video
             _res = ReasonToFinishPlaying.DeviceLost;
 
             // create and start new thread
-            _thread = new Thread(WorkerThread) { Name = "desktop" + _screenindex, IsBackground = true};
-            
+            _thread = new Thread(WorkerThread) { Name = "desktop" + _screenindex, IsBackground = true };
+
             _thread.Start();
         }
 
@@ -107,10 +107,10 @@ namespace iSpyApplication.Sources.Video
 
         #endregion
         [DllImport("User32.dll")]
-        private static extern IntPtr MonitorFromPoint([In]System.Drawing.Point pt, [In]uint dwFlags);
+        private static extern IntPtr MonitorFromPoint([In] System.Drawing.Point pt, [In] uint dwFlags);
 
         [DllImport("Shcore.dll")]
-        private static extern IntPtr GetDpiForMonitor([In]IntPtr hmonitor, [In]DpiType dpiType, [Out]out uint dpiX, [Out]out uint dpiY);
+        private static extern IntPtr GetDpiForMonitor([In] IntPtr hmonitor, [In] DpiType dpiType, [Out] out uint dpiX, [Out] out uint dpiY);
         public enum DpiType
         {
             Effective = 0,
@@ -119,12 +119,12 @@ namespace iSpyApplication.Sources.Video
         }
 
         private Rectangle _screenSize = Rectangle.Empty;
-        
+
         // Worker thread
         private void WorkerThread()
         {
             _abort = new ManualResetEvent(false);
-            double multiX = 0, multiY=0;
+            double multiX = 0, multiY = 0;
             while (!_abort.WaitOne(10) && !MainForm.ShuttingDown)
             {
                 try
@@ -133,7 +133,7 @@ namespace iSpyApplication.Sources.Video
                     // provide new image to clients
                     if (nf != null && ShouldEmitFrame)
                     {
-                        Screen s = Screen.AllScreens[_screenindex];                        
+                        Screen s = Screen.AllScreens[_screenindex];
                         if (_screenSize == Rectangle.Empty)
                         {
                             if (_area != Rectangle.Empty)
@@ -150,7 +150,7 @@ namespace iSpyApplication.Sources.Video
 
                         }
 
-                        using (var target = new Bitmap(_screenSize.Width, _screenSize.Height,PixelFormat.Format24bppRgb))
+                        using (var target = new Bitmap(_screenSize.Width, _screenSize.Height, PixelFormat.Format24bppRgb))
                         {
                             using (Graphics g = Graphics.FromImage(target))
                             {
@@ -180,8 +180,8 @@ namespace iSpyApplication.Sources.Video
                                     //    multiY = Convert.ToDouble(dpiY) /96d;
                                     //}
                                     multiX = 1; multiY = 1;
-                                    var mx=Convert.ToInt32(Cursor.Position.X * multiX - s.Bounds.X - _screenSize.X);
-                                    var my=Convert.ToInt32(Cursor.Position.Y * multiY - s.Bounds.Y - _screenSize.Y);
+                                    var mx = Convert.ToInt32(Cursor.Position.X * multiX - s.Bounds.X - _screenSize.X);
+                                    var my = Convert.ToInt32(Cursor.Position.Y * multiY - s.Bounds.Y - _screenSize.Y);
                                     var cursorBounds = new Rectangle(
                                         mx, my,
                                         Cursors.Default.Size.Width,
@@ -216,10 +216,7 @@ namespace iSpyApplication.Sources.Video
 
         private bool _disposed;
         // Public implementation of Dispose pattern callable by consumers. 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         // Protected implementation of Dispose pattern. 
         protected virtual void Dispose(bool disposing)

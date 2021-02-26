@@ -28,7 +28,7 @@ namespace iSpyApplication.Controls
         {
             if (CamalertSettings != null)
             {
-                CamalertSettings.minimuminterval = (int) numDistinctInterval.Value;
+                CamalertSettings.minimuminterval = (int)numDistinctInterval.Value;
                 CamalertSettings.resetinterval = (int)numResetInterval.Value;
                 CamalertSettings.groupname = cmbGroup.Text.Trim().ToLower();
             }
@@ -59,27 +59,22 @@ namespace iSpyApplication.Controls
             foreach (var cam in MainForm.Cameras)
             {
                 string gn = cam.alerts.groupname.Trim().ToLower();
-                if (!string.IsNullOrEmpty(gn))
+                if (!string.IsNullOrEmpty(gn) && !cmbGroup.Items.Contains(gn))
                 {
-                    if (!cmbGroup.Items.Contains(gn))
-                        cmbGroup.Items.Add(gn);
+                    cmbGroup.Items.Add(gn);
                 }
 
             }
             foreach (var mic in MainForm.Microphones)
             {
                 string gn = mic.alerts.groupname.Trim().ToLower();
-                if (!string.IsNullOrEmpty(gn))
+                if (!string.IsNullOrEmpty(gn) && !cmbGroup.Items.Contains(gn))
                 {
-                    if (!cmbGroup.Items.Contains(gn))
-                        cmbGroup.Items.Add(gn);
+                    cmbGroup.Items.Add(gn);
                 }
             }
         }
 
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            MainForm.OpenUrl(MainForm.Webserver + "/userguide-alert-intervals.aspx");
-        }
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => MainForm.OpenUrl(MainForm.Webserver + "/userguide-alert-intervals.aspx");
     }
 }

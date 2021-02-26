@@ -1,16 +1,13 @@
-﻿using System;
+﻿using iSpyApplication.Controls;
+using System;
 using System.Linq;
 using System.Windows.Forms;
-using iSpyApplication.Controls;
 
 namespace iSpyApplication
 {
     public partial class Features : Form
     {
-        public Features()
-        {
-            InitializeComponent();
-        }
+        public Features() => InitializeComponent();
 
         private void Features_Load(object sender, EventArgs e)
         {
@@ -30,7 +27,7 @@ namespace iSpyApplication
                 int i = tabControl1.TabPages.Count;
                 var pf = new PermissionsForm();
                 pf.Init(group);
-                tabControl1.TabPages[i-1].Controls.Add(pf);
+                tabControl1.TabPages[i - 1].Controls.Add(pf);
                 pf.Dock = DockStyle.Fill;
             }
             btnDelete.Enabled = false;
@@ -46,13 +43,9 @@ namespace iSpyApplication
         {
             for (int i = 0; i < tabControl1.TabPages.Count; i++)
             {
-                var c = tabControl1.TabPages[i].Controls[0] as PermissionsForm;
-                if (c != null)
+                if (tabControl1.TabPages[i].Controls[0] is PermissionsForm c && !c.Save())
                 {
-                    if (!c.Save())
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
             return true;
@@ -65,11 +58,11 @@ namespace iSpyApplication
                 var p = new Prompt(LocRm.GetString("Name"), "");
                 if (p.ShowDialog(this) == DialogResult.OK)
                 {
-                    var t = p.Val.Replace(",","").Trim();
+                    var t = p.Val.Replace(",", "").Trim();
                     if (t != "")
                     {
                         var cg = MainForm.Conf.Permissions.ToList();
-                        cg.Add(new configurationGroup {featureset = 0, name = t, password = ""});
+                        cg.Add(new configurationGroup { featureset = 0, name = t, password = "" });
                         MainForm.Conf.Permissions = cg.ToArray();
                         initgroups();
                     }
@@ -78,10 +71,7 @@ namespace iSpyApplication
             }
         }
 
-        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            btnDelete.Enabled = tabControl1.SelectedIndex > 0;
-        }
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e) => btnDelete.Enabled = tabControl1.SelectedIndex > 0;
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
@@ -94,9 +84,6 @@ namespace iSpyApplication
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
+        private void button1_Click(object sender, EventArgs e) => Close();
     }
 }

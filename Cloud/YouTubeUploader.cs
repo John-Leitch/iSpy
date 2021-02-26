@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading;
-using Google.Apis.Auth.OAuth2;
+﻿using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Services;
@@ -14,6 +7,13 @@ using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using iSpyApplication.Utilities;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading;
 
 namespace iSpyApplication.Cloud
 {
@@ -43,11 +43,11 @@ namespace iSpyApplication.Cloud
             if (UploadList.Count >= CloudGateway.MaxUploadQueue)
                 return "UploadQueueFull";
 
-            if (Uploaded.FirstOrDefault(p=>p==filename)!=null)
+            if (Uploaded.FirstOrDefault(p => p == filename) != null)
             {
                 return "AlreadyUploaded";
             }
-            
+
             var us = new UserState(objectId, filename);
             UploadList.Add(us);
 
@@ -70,7 +70,7 @@ namespace iSpyApplication.Cloud
                 {
                     return _service;
                 }
-				if (!string.IsNullOrEmpty(MainForm.Conf.Cloud.YouTube))
+                if (!string.IsNullOrEmpty(MainForm.Conf.Cloud.YouTube))
                 {
                     dynamic d = JsonConvert.DeserializeObject(MainForm.Conf.Cloud.YouTube);
                     var rt = d.refresh_token.ToString();
@@ -148,7 +148,8 @@ namespace iSpyApplication.Cloud
 
         private static void Upload(object state)
         {
-            try { 
+            try
+            {
                 if (UploadList.Count == 0)
                 {
                     _uploading = false;
@@ -182,18 +183,18 @@ namespace iSpyApplication.Cloud
                     return;
 
                 var video = new Video
-                    {
-                        Snippet =
+                {
+                    Snippet =
                             new VideoSnippet
                             {
                                 Title = "iSpy: " + us.CameraData.name,
                                 Description =
-								    "iSpy surveillance software: " +
+                                    "iSpy surveillance software: " +
                                     us.CameraData.description,
                                 Tags = us.CameraData.settings.youtube.tags.Split(','),
                                 CategoryId = "22"
                             },
-                        Status =
+                    Status =
                             new VideoStatus
                             {
                                 PrivacyStatus =
@@ -201,9 +202,9 @@ namespace iSpyApplication.Cloud
                                         ? "public"
                                         : "private"
                             }
-                    };
+                };
 
-            
+
                 try
                 {
                     using (var fileStream = new FileStream(us.Filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -222,7 +223,7 @@ namespace iSpyApplication.Cloud
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogException(ex,"YouTube");
+                    Logger.LogException(ex, "YouTube");
                 }
                 Upload(null);
             }
@@ -235,7 +236,7 @@ namespace iSpyApplication.Cloud
 
         private static bool _uploaded;
 
-        static void VideosInsertRequestProgressChanged(IUploadProgress progress)
+        private static void VideosInsertRequestProgressChanged(IUploadProgress progress)
         {
             switch (progress.Status)
             {
@@ -249,10 +250,10 @@ namespace iSpyApplication.Cloud
             }
         }
 
-        static void VideosInsertRequestResponseReceived(Video video)
+        private static void VideosInsertRequestResponseReceived(Video video)
         {
-            string msg = "YouTube video uploaded: "+video.Id;
-            msg += " ("+video.Status.PrivacyStatus+")";
+            string msg = "YouTube video uploaded: " + video.Id;
+            msg += " (" + video.Status.PrivacyStatus + ")";
             Logger.LogMessage(msg);
             _uploaded = true;
         }
@@ -273,10 +274,7 @@ namespace iSpyApplication.Cloud
                 Filename = filename;
             }
 
-            internal objectsCamera CameraData
-            {
-				get { return MainForm.Cameras.SingleOrDefault(p => p.id == _objectid); }
-            }
+            internal objectsCamera CameraData => MainForm.Cameras.SingleOrDefault(p => p.id == _objectid);
 
             internal long CurrentPosition { get; set; }
 

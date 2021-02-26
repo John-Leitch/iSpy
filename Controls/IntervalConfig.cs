@@ -9,10 +9,7 @@ namespace iSpyApplication.Controls
         public CameraWindow CW;
         public VolumeLevel VL;
 
-        public IntervalConfig()
-        {
-            InitializeComponent();
-        }
+        public IntervalConfig() => InitializeComponent();
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -29,7 +26,7 @@ namespace iSpyApplication.Controls
 
         private void IntervalConfig_Load(object sender, EventArgs e)
         {
-            
+
         }
 
         public void Init(CameraWindow cw)
@@ -63,14 +60,11 @@ namespace iSpyApplication.Controls
                 di = VL.Micobject.alerts.minimuminterval;
             }
 
-            if (!string.IsNullOrEmpty(gn))
+            if (!string.IsNullOrEmpty(gn) && ri > 0)
             {
-                if (ri > 0)
-                {
-                    t += gn+ " ("+ri+"s "+LocRm.GetString("Reset")+"), ";
-                }
+                t += gn + " (" + ri + "s " + LocRm.GetString("Reset") + "), ";
             }
-            t += di + "s "+LocRm.GetString("Interval");
+            t += di + "s " + LocRm.GetString("Interval");
 
             lblInterval.Text = t;
 

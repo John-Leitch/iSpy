@@ -1,4 +1,5 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
@@ -6,7 +7,6 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Discovery;
 using System.Xml;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.Onvif
 {
@@ -37,7 +37,7 @@ namespace iSpyApplication.Onvif
             }
             catch (Exception ex)
             {
-                Logger.LogException(ex,"Onvif Startup");
+                Logger.LogException(ex, "Onvif Startup");
             }
         }
 
@@ -54,7 +54,7 @@ namespace iSpyApplication.Onvif
             {
                 _announcementSrv = new AnnouncementService();
                 var epAnnouncement = new UdpAnnouncementEndpoint(DiscoveryVersion.WSDiscoveryApril2005);
-                ((CustomBinding) epAnnouncement.Binding).Elements.Insert(0,
+                ((CustomBinding)epAnnouncement.Binding).Elements.Insert(0,
                     new MulticastCapabilitiesBindingElement(true));
 
                 _announcementSrv.OnlineAnnouncementReceived += Announcement_srv_OnlineAnnouncementReceived;
@@ -91,13 +91,13 @@ namespace iSpyApplication.Onvif
                 }
                 DiscoveryClients.Clear();
             }
-            
+
             foreach (var adapter in nics)
             {
                 DiscoverAdapter(adapter);
             }
         }
-        
+
 
         private static void AnnouncementSrvOfflineAnnouncementReceived(object sender, AnnouncementEventArgs args)
         {
@@ -106,15 +106,12 @@ namespace iSpyApplication.Onvif
                 return;
             foreach (var uri in uris)
             {
-                if (uri!=null)
+                if (uri != null)
                     RemoveDevice(uri.ToString());
             }
         }
 
-        private static void Announcement_srv_OnlineAnnouncementReceived(object sender, AnnouncementEventArgs args)
-        {
-            CheckDevice(args.EndpointDiscoveryMetadata);
-        }
+        private static void Announcement_srv_OnlineAnnouncementReceived(object sender, AnnouncementEventArgs args) => CheckDevice(args.EndpointDiscoveryMetadata);
 
         private static void CheckDevice(EndpointDiscoveryMetadata epMeta)
         {
@@ -138,17 +135,17 @@ namespace iSpyApplication.Onvif
             }
             catch (Exception ex)
             {
-                Logger.LogException(ex,"Onvif CheckDevice");
+                Logger.LogException(ex, "Onvif CheckDevice");
             }
         }
 
         private static void AddDevice(Uri uri)
         {
-            lock(Lock) 
+            lock (Lock)
                 if (!DiscoveredDevices.Contains(uri))
                 {
                     DiscoveredDevices.Add(uri);
-                    Logger.LogMessage("Added device: "+uri);
+                    Logger.LogMessage("Added device: " + uri);
                 }
             DeviceFoundEventHandler?.Invoke(null, EventArgs.Empty);
         }
@@ -164,10 +161,7 @@ namespace iSpyApplication.Onvif
 
         private static readonly object Lock = new object();
 
-        private static void DiscoveryClientFindProgressChanged(object sender, FindProgressChangedEventArgs args)
-        {
-            CheckDevice(args.EndpointDiscoveryMetadata);
-        }
+        private static void DiscoveryClientFindProgressChanged(object sender, FindProgressChangedEventArgs args) => CheckDevice(args.EndpointDiscoveryMetadata);
 
         private static void DiscoverAdapter(NetworkInterface adapter)
         {
@@ -189,7 +183,7 @@ namespace iSpyApplication.Onvif
             }
             catch (Exception ex)
             {
-                Logger.LogException(ex,"Onvif Discovery");
+                Logger.LogException(ex, "Onvif Discovery");
             }
         }
 
@@ -214,8 +208,7 @@ namespace iSpyApplication.Onvif
                 return null;
 
             TransportBindingElement transportBindingElement = b.Elements.Find<TransportBindingElement>();
-            var tbe = transportBindingElement as UdpTransportBindingElement;
-            if (tbe != null)
+            if (transportBindingElement is UdpTransportBindingElement tbe)
             {
                 tbe.MulticastInterfaceId = adapterId;
             }

@@ -1,5 +1,5 @@
-﻿using System;
-using AForge.Imaging;
+﻿using AForge.Imaging;
+using System;
 
 namespace iSpyApplication.Controls
 {
@@ -28,10 +28,10 @@ namespace iSpyApplication.Controls
             _mFisheyeCorrect = new double[_mFeLimit];
             for (int i = 0; i < _mFeLimit; i++)
             {
-                double result = Math.Sqrt(1 - 1/Math.Sqrt(1.0 + (double) i*i/1000000.0))*1.4142136;
+                double result = Math.Sqrt(1 - 1 / Math.Sqrt(1.0 + (double)i * i / 1000000.0)) * 1.4142136;
                 _mFisheyeCorrect[i] = result;
             }
-            _map = new int[w*h, 2];
+            _map = new int[w * h, 2];
             //center point
 
             int c = 0;
@@ -44,17 +44,17 @@ namespace iSpyApplication.Controls
                     var xdif = i - offsetx;
                     var ydif = j - offsety;
 
-                    var rusquare = xdif*xdif + ydif*ydif;
+                    var rusquare = xdif * xdif + ydif * ydif;
                     var theta = Math.Atan2(ydif, xdif);
-                    var index = (int) (Math.Sqrt(rusquare)/aFocalLinPixels*1000);
+                    var index = (int)(Math.Sqrt(rusquare) / aFocalLinPixels * 1000);
                     if (index >= _mFeLimit) index = _mFeLimit - 1;
 
-                    var rd = aFocalLinPixels*_mFisheyeCorrect[index]/_mScaleFeSize;
+                    var rd = aFocalLinPixels * _mFisheyeCorrect[index] / _mScaleFeSize;
 
-                    var xdelta = Math.Abs(rd*Math.Cos(theta));
-                    var ydelta = Math.Abs(rd*Math.Sin(theta));
-                    var xd = (int) (offsetx + (xpos ? xdelta : -xdelta));
-                    var yd = (int) (offsety + (ypos ? ydelta : -ydelta));
+                    var xdelta = Math.Abs(rd * Math.Cos(theta));
+                    var ydelta = Math.Abs(rd * Math.Sin(theta));
+                    var xd = (int)(offsetx + (xpos ? xdelta : -xdelta));
+                    var yd = (int)(offsety + (ypos ? ydelta : -ydelta));
                     xd = Math.Max(0, Math.Min(xd, w - 1));
                     yd = Math.Max(0, Math.Min(yd, h - 1));
                     _map[c, 0] = xd;

@@ -13,7 +13,7 @@ namespace iSpyApplication
 
         }
 
-        public Prompt(string label, string prefill="", bool isPassword=false)
+        public Prompt(string label, string prefill = "", bool isPassword = false)
         {
             InitializeComponent();
             Text = label;
@@ -23,16 +23,13 @@ namespace iSpyApplication
         }
 
 
-        public override sealed string Text
+        public sealed override string Text
         {
-            get { return base.Text; }
-            set { base.Text = value; }
+            get => base.Text;
+            set => base.Text = value;
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            Go();
-        }
+        private void button1_Click(object sender, EventArgs e) => Go();
 
         private void Go()
         {

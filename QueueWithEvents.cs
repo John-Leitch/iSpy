@@ -7,10 +7,7 @@ namespace iSpyApplication
     {
         private readonly Queue<T> _queue = new Queue<T>();
         public event EventHandler Changed;
-        protected virtual void OnChanged()
-        {
-            Changed?.Invoke(this, EventArgs.Empty);
-        }
+        protected virtual void OnChanged() => Changed?.Invoke(this, EventArgs.Empty);
 
         public virtual void Enqueue(T item)
         {
@@ -26,9 +23,6 @@ namespace iSpyApplication
             return item;
         }
 
-        public virtual void  Clear()
-        {
-            _queue.Clear();
-        }
+        public virtual void Clear() => _queue.Clear();
     }
 }

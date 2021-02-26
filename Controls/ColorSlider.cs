@@ -1,9 +1,9 @@
-﻿using System;
+﻿using iSpyApplication.Properties;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using iSpyApplication.Properties;
 
 namespace iSpyApplication.Controls
 {
@@ -65,7 +65,7 @@ namespace iSpyApplication.Controls
         [DefaultValue(typeof(Color), "Black")]
         public Color StartColor
         {
-            get { return _startColor; }
+            get => _startColor;
             set
             {
                 _startColor = value;
@@ -83,7 +83,7 @@ namespace iSpyApplication.Controls
         [DefaultValue(typeof(Color), "White")]
         public Color EndColor
         {
-            get { return _endColor; }
+            get => _endColor;
             set
             {
                 _endColor = value;
@@ -101,7 +101,7 @@ namespace iSpyApplication.Controls
         [DefaultValue(typeof(Color), "Black")]
         public Color FillColor
         {
-            get { return _fillColor; }
+            get => _fillColor;
             set
             {
                 _fillColor = value;
@@ -119,7 +119,7 @@ namespace iSpyApplication.Controls
         [DefaultValue(ColorSliderType.Gradient)]
         public ColorSliderType Type
         {
-            get { return _type; }
+            get => _type;
             set
             {
                 _type = value;
@@ -136,7 +136,7 @@ namespace iSpyApplication.Controls
         [DefaultValue(0)]
         public int Min
         {
-            get { return _min; }
+            get => _min;
             set
             {
                 _min = value;
@@ -151,7 +151,7 @@ namespace iSpyApplication.Controls
         [DefaultValue(255)]
         public int Max
         {
-            get { return _max; }
+            get => _max;
             set
             {
                 _max = value;
@@ -177,7 +177,7 @@ namespace iSpyApplication.Controls
         [DefaultValue(true)]
         public bool DoubleArrow
         {
-            get { return _doubleArrow; }
+            get => _doubleArrow;
             set
             {
                 _doubleArrow = value;

@@ -15,8 +15,8 @@ namespace iSpyPRO.DirectShow.Internals
     /// </summary>
     /// 
     [ComImport,
-    Guid( "56A86892-0AD4-11CE-B03A-0020AF0BA770" ),
-    InterfaceType( ComInterfaceType.InterfaceIsIUnknown )]
+    Guid("56A86892-0AD4-11CE-B03A-0020AF0BA770"),
+    InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     internal interface IEnumPins
     {
         /// <summary>
@@ -30,9 +30,9 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int Next( [In] int cPins,
-            [Out, MarshalAs( UnmanagedType.LPArray, SizeParamIndex = 0 )] IPin[] pins,
-            [Out] out int pinsFetched );
+        int Next([In] int cPins,
+            [Out, MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 0)] IPin[] pins,
+            [Out] out int pinsFetched);
 
         /// <summary>
         /// Skips a specified number of pins in the enumeration sequence.
@@ -43,7 +43,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int Skip( [In] int cPins );
+        int Skip([In] int cPins);
 
         /// <summary>
         /// Resets the enumeration sequence to the beginning.
@@ -52,7 +52,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int Reset( );
+        int Reset();
 
         /// <summary>
         /// Makes a copy of the enumerator with the same enumeration state. 
@@ -63,6 +63,6 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int Clone( [Out] out IEnumPins enumPins );
+        int Clone([Out] out IEnumPins enumPins);
     }
 }

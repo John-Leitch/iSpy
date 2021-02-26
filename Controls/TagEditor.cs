@@ -11,10 +11,7 @@ namespace iSpyApplication.Controls
             Text = LocRm.GetString("Tags");
         }
 
-        private void TagEditor_Load(object sender, EventArgs e)
-        {
-            textBox1.Text = MainForm.Conf.Tags;
-        }
+        private void TagEditor_Load(object sender, EventArgs e) => textBox1.Text = MainForm.Conf.Tags;
 
         private void TagEditor_FormClosing(object sender, FormClosingEventArgs e)
         {

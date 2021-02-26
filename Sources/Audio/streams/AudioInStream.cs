@@ -1,14 +1,13 @@
-﻿using System;
-using System.Runtime.Remoting.Messaging;
-using NAudio.Wave;
+﻿using NAudio.Wave;
+using System;
 
 namespace iSpyApplication.Sources.Audio.streams
 {
-    class AudioInStream: IAudioSource
+    internal class AudioInStream : IAudioSource
     {
         public int PacketSize = 882;
         public int Interval = 40;
-        public bool IsAudio => true;
+        public static bool IsAudio => true;
 
         public BufferedWaveProvider WaveOutProvider { get; set; }
 
@@ -60,14 +59,10 @@ namespace iSpyApplication.Sources.Audio.streams
 
         public bool Listening
         {
-            get
-            {
-                return false;
-
-            }
+            get => false;
             set
             {
-                
+
             }
         }
 
@@ -92,7 +87,7 @@ namespace iSpyApplication.Sources.Audio.streams
         /// 
         public void Start()
         {
-            
+
         }
 
         public void AddSamples(byte[] samples)
@@ -100,7 +95,7 @@ namespace iSpyApplication.Sources.Audio.streams
             if (DataAvailable == null) return;
             if (samples.Length > 0)
             {
-                var da = new DataAvailableEventArgs((byte[]) samples.Clone());
+                var da = new DataAvailableEventArgs((byte[])samples.Clone());
                 DataAvailable(this, da);
 
             }

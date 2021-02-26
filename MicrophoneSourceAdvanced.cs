@@ -14,7 +14,7 @@ namespace iSpyApplication
 
         private void MicrophoneSourceAdvanced_Load(object sender, EventArgs e)
         {
-            
+
             txtReconnect.Value = Micobject.settings.reconnectinterval;
             numTimeout.Value = Micobject.settings.timeout;
 
@@ -36,7 +36,7 @@ namespace iSpyApplication
             }
 
             Micobject.settings.reconnectinterval = iReconnect;
-            Micobject.settings.timeout = (int) numTimeout.Value;
+            Micobject.settings.timeout = (int)numTimeout.Value;
             Close();
         }
     }

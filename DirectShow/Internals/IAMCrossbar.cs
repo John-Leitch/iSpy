@@ -15,8 +15,8 @@ namespace iSpyPRO.DirectShow.Internals
     /// The IAMCrossbar interface routes signals from an analog or digital source to a video capture filter.
     /// </summary>
     [ComImport, System.Security.SuppressUnmanagedCodeSecurity,
-    Guid( "C6E13380-30AC-11D0-A18C-00A0C9118956" ),
-    InterfaceType( ComInterfaceType.InterfaceIsIUnknown )]
+    Guid("C6E13380-30AC-11D0-A18C-00A0C9118956"),
+    InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     internal interface IAMCrossbar
     {
         /// <summary>
@@ -29,8 +29,8 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int get_PinCounts( [Out] out int outputPinCount, [Out] out int inputPinCount );
-   
+        int get_PinCounts([Out] out int outputPinCount, [Out] out int inputPinCount);
+
         /// <summary>
         /// Queries whether a specified input pin can be routed to a specified output pin.
         /// </summary>
@@ -41,7 +41,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int CanRoute( [In] int outputPinIndex, [In] int inputPinIndex );
+        int CanRoute([In] int outputPinIndex, [In] int inputPinIndex);
 
         /// <summary>
         /// Routes an input pin to an output pin.
@@ -53,7 +53,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int Route( [In] int outputPinIndex, [In] int inputPinIndex );
+        int Route([In] int outputPinIndex, [In] int inputPinIndex);
 
         /// <summary>
         /// Retrieves the input pin that is currently routed to the specified output pin.
@@ -65,7 +65,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int get_IsRoutedTo( [In] int outputPinIndex, [Out] out int inputPinIndex );
+        int get_IsRoutedTo([In] int outputPinIndex, [Out] out int inputPinIndex);
 
         /// <summary>
         /// Retrieves information about a specified pin.
@@ -80,9 +80,9 @@ namespace iSpyPRO.DirectShow.Internals
         /// 
         [PreserveSig]
         int get_CrossbarPinInfo(
-            [In, MarshalAs( UnmanagedType.Bool )] bool isInputPin,
+            [In, MarshalAs(UnmanagedType.Bool)] bool isInputPin,
             [In] int pinIndex,
             [Out] out int pinIndexRelated,
-            [Out] out PhysicalConnectorType physicalType );
+            [Out] out PhysicalConnectorType physicalType);
     }
 }

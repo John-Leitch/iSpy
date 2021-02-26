@@ -5,15 +5,9 @@ namespace iSpyApplication
 {
     public partial class FindObject : Form
     {
-        public FindObject()
-        {
-            InitializeComponent();
-        }
+        public FindObject() => InitializeComponent();
 
-        private void FindObject_Activated(object sender, EventArgs e)
-        {
-            LoadSources();
-        }
+        private void FindObject_Activated(object sender, EventArgs e) => LoadSources();
 
         private void LoadSources()
         {
@@ -28,10 +22,7 @@ namespace iSpyApplication
             ddlObject.SelectedIndex = 0;
         }
 
-        private void FindObject_Load(object sender, EventArgs e)
-        {
-            Text = LocRm.GetString("Find");
-        }
+        private void FindObject_Load(object sender, EventArgs e) => Text = LocRm.GetString("Find");
 
         private void ddlObject_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -46,7 +37,7 @@ namespace iSpyApplication
                     t.Highlighted = true;
                 }
 
-                
+
                 ddlObject.SelectedIndex = 0;
             }
         }

@@ -1,7 +1,7 @@
-﻿using System;
-using System.Diagnostics;
-using NAudio.Dsp;
+﻿using NAudio.Dsp;
 using NAudio.Wave;
+using System;
+using System.Diagnostics;
 
 namespace iSpyApplication.Sources.Audio
 {
@@ -12,7 +12,8 @@ namespace iSpyApplication.Sources.Audio
         private float _maxValue;
         private float _minValue;
         public int NotificationCount { get; set; }
-        int _count;
+
+        private int _count;
 
         // FFT
         public event EventHandler<FftEventArgs> FftCalculated;
@@ -40,10 +41,7 @@ namespace iSpyApplication.Sources.Audio
             _source = source;
         }
 
-        bool IsPowerOfTwo(int x)
-        {
-            return (x & (x - 1)) == 0;
-        }
+        private bool IsPowerOfTwo(int x) => (x & (x - 1)) == 0;
 
 
         public void Reset()
@@ -100,17 +98,14 @@ namespace iSpyApplication.Sources.Audio
             MaxSample = maxValue;
             MinSample = minValue;
         }
-        public float MaxSample { get; private set; }
-        public float MinSample { get; private set; }
+        public float MaxSample { get; }
+        public float MinSample { get; }
     }
 
     public class FftEventArgs : EventArgs
     {
         [DebuggerStepThrough]
-        public FftEventArgs(Complex[] result)
-        {
-            Result = result;
-        }
-        public Complex[] Result { get; private set; }
+        public FftEventArgs(Complex[] result) => Result = result;
+        public Complex[] Result { get; }
     }
 }

@@ -26,7 +26,7 @@ namespace iSpyApplication
         {
             if (string.IsNullOrEmpty(data) || string.IsNullOrEmpty(password))
                 return "";
-            
+
             byte[] encBytes = EncryptData(Encoding.UTF8.GetBytes(data), password, PaddingMode.ISO10126);
             return Convert.ToBase64String(encBytes);
         }
@@ -67,9 +67,9 @@ namespace iSpyApplication
         public static byte[] EncryptData(byte[] data, string password, PaddingMode paddingMode)
         {
             if (data == null || data.Length == 0)
-                throw new ArgumentNullException("data");
+                throw new ArgumentNullException(nameof(data));
             if (password == null)
-                throw new ArgumentNullException("password");
+                throw new ArgumentNullException(nameof(password));
             var pdb = new PasswordDeriveBytes(password, Encoding.UTF8.GetBytes("Salt"));
             var rm = new RijndaelManaged { Padding = paddingMode };
             ICryptoTransform encryptor = rm.CreateEncryptor(pdb.GetBytes(16), pdb.GetBytes(16));
@@ -98,9 +98,9 @@ namespace iSpyApplication
         public static byte[] DecryptData(byte[] data, string password, PaddingMode paddingMode)
         {
             if (data == null || data.Length == 0)
-                throw new ArgumentNullException("data");
+                throw new ArgumentNullException(nameof(data));
             if (password == null)
-                throw new ArgumentNullException("password");
+                throw new ArgumentNullException(nameof(password));
             var pdb = new PasswordDeriveBytes(password, Encoding.UTF8.GetBytes("Salt"));
             var rm = new RijndaelManaged { Padding = paddingMode };
             ICryptoTransform decryptor = rm.CreateDecryptor(pdb.GetBytes(16), pdb.GetBytes(16));

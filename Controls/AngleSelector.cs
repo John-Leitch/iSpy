@@ -21,10 +21,7 @@ namespace iSpyApplication.Controls
             DoubleBuffered = true;
         }
 
-        private void AngleSelector_Load(object sender, EventArgs e)
-        {
-            setDrawRegion();
-        }
+        private void AngleSelector_Load(object sender, EventArgs e) => setDrawRegion();
 
         private void AngleSelector_SizeChanged(object sender, EventArgs e)
         {
@@ -48,7 +45,7 @@ namespace iSpyApplication.Controls
 
         public int Angle
         {
-            get { return _angle; }
+            get => _angle;
             set
             {
                 _angle = value;
@@ -172,9 +169,7 @@ namespace iSpyApplication.Controls
             if (thisAngle < Minimum)
                 thisAngle = Minimum;
 
-            if (thisAngle != 0)
-                return thisAngle;
-            return -1;
+            return thisAngle != 0 ? thisAngle : -1;
         }
     }
 }

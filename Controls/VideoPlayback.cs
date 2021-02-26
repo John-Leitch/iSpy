@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace iSpyApplication.Controls
 {
-    class VideoPlayback:PictureBox
+    internal class VideoPlayback : PictureBox
     {
         public string Time, Duration;
 
@@ -22,8 +22,8 @@ namespace iSpyApplication.Controls
         public delegate void VolumeEventHandler(object sender, int percent);
         public delegate void PlayPauseEventHandler(object sender);
 
-        readonly SolidBrush _bControl = new SolidBrush(Color.FromArgb(200, 0, 0, 0));
-        readonly SolidBrush _bTimeLine = new SolidBrush(Color.FromArgb(200, 255, 255, 255));
+        private readonly SolidBrush _bControl = new SolidBrush(Color.FromArgb(200, 0, 0, 0));
+        private readonly SolidBrush _bTimeLine = new SolidBrush(Color.FromArgb(200, 255, 255, 255));
 
         private readonly ToolTip _toolTip;
 
@@ -35,7 +35,7 @@ namespace iSpyApplication.Controls
         private Bitmap _lastFrame;
         public Bitmap LastFrame
         {
-            get { return _lastFrame; }
+            get => _lastFrame;
             set
             {
                 lock (this)
@@ -81,14 +81,14 @@ namespace iSpyApplication.Controls
             TmrRefresh.Tick += TmrRefreshTick;
             TmrRefresh.Interval = 100;
             TmrRefresh.Start();
-            Time = Duration="00:00:00";
-            _tbVolume = new TrackBarGdi(80,25,0,0, 50,0);
+            Time = Duration = "00:00:00";
+            _tbVolume = new TrackBarGdi(80, 25, 0, 0, 50, 0);
             //_tbSpeed = new TrackBarGdi(80, 25, 0, 0, 50,10);
 
             _toolTip = new ToolTip { AutomaticDelay = 500, AutoPopDelay = 1500 };
         }
 
-        void TmrRefreshTick(object sender, EventArgs e)
+        private void TmrRefreshTick(object sender, EventArgs e)
         {
             if (RequestFrame)
             {
@@ -98,8 +98,8 @@ namespace iSpyApplication.Controls
         }
 
         private bool _inited;
-        private int _w, _h,_x,_y;
-        int _fw, _fh;
+        private int _w, _h, _x, _y;
+        private int _fw, _fh;
         private const int TimelineHeight = 30, ControlHeight = 30;
 
         protected override void OnSizeChanged(EventArgs e)
@@ -151,8 +151,8 @@ namespace iSpyApplication.Controls
                         // ignored
                     }
                 }
-                
-                if (_lastMove>Helper.Now.AddSeconds(-3))
+
+                if (_lastMove > Helper.Now.AddSeconds(-3))
                 {
                     //draw scrolling graph
                     var pxCursor = ((float)Value / 100) * Width;
@@ -161,26 +161,26 @@ namespace iSpyApplication.Controls
 
                     int w = Width;
                     int xoff = 0;
-                    if (ActivityGraph.Width>w)
+                    if (ActivityGraph.Width > w)
                     {
                         w = ActivityGraph.Width;
-                        double val = ((float)Value / 100d); 
+                        double val = ((float)Value / 100d);
                         if (_navTimeline)
                             val = Convert.ToDouble(pxCursor) / Width;
-                        xoff = 0 - Convert.ToInt32(Convert.ToDouble(ActivityGraph.Width - Width)*val);
+                        xoff = 0 - Convert.ToInt32(Convert.ToDouble(ActivityGraph.Width - Width) * val);
                     }
 
                     gCam.DrawImage(ActivityGraph, xoff, Height - TimelineHeight, w, TimelineHeight);
 
-                    
+
                     Brush bPosition = new SolidBrush(Color.Black);
-                    
+
 
                     int x2 = (int)pxCursor - 4;
-                    int y2 = Height - TimelineHeight/2;
+                    int y2 = Height - TimelineHeight / 2;
                     var navPoints = new[]
                     {
-                        new Point(x2-4,y2-6), 
+                        new Point(x2-4,y2-6),
                         new Point(x2+4,y2),
                         new Point(x2-4,y2+6)
                     };
@@ -188,23 +188,23 @@ namespace iSpyApplication.Controls
                     gCam.FillPolygon(Brushes.White, navPoints);
                     gCam.DrawPolygon(Pens.Black, navPoints);
 
-                        
+
                     bPosition.Dispose();
 
                     gCam.FillRectangle(_bTimeLine, 0, Height - TimelineHeight - ControlHeight, Width, ControlHeight);
                     gCam.DrawString(Time + " / " + Duration, MainForm.DrawfontMed, Brushes.Black, 3, Height - TimelineHeight - ControlHeight + 2);
 
 
-                    
+
                     int x = Width - 30;
                     int y = Height - TimelineHeight - ControlHeight + 2;
                     gCam.FillRectangle(_bControl, x - 5, y, 28, 25);
                     string c = ">";
-                    if (CurrentState==PlaybackState.Playing)
+                    if (CurrentState == PlaybackState.Playing)
                     {
                         c = "||";
                     }
-                    gCam.DrawString(c, MainForm.DrawfontMed, Brushes.White, x, y-2);
+                    gCam.DrawString(c, MainForm.DrawfontMed, Brushes.White, x, y - 2);
 
                     _tbVolume.X = x - 100;
                     _tbVolume.Y = y;
@@ -218,7 +218,7 @@ namespace iSpyApplication.Controls
             }
         }
 
-        
+
 
         private Bitmap _activityGraph;
         private Bitmap ActivityGraph
@@ -227,12 +227,12 @@ namespace iSpyApplication.Controls
             {
                 if (_activityGraph == null)
                 {
-                    if (_datapoints==null)
+                    if (_datapoints == null)
                     {
                         _activityGraph = new Bitmap(320, TimelineHeight);
                     }
                     else
-                    {                   
+                    {
                         _activityGraph = new Bitmap(_datapoints.Length, TimelineHeight);
                         Graphics gGraph = Graphics.FromImage(_activityGraph);
                         gGraph.FillRectangle(_bTimeLine, 0, 0, _activityGraph.Width, _activityGraph.Height);
@@ -251,8 +251,7 @@ namespace iSpyApplication.Controls
 
                             for (int i = 0; i < _datapoints.Length; i++)
                             {
-                                float d;
-                                if (float.TryParse(_datapoints[i], NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out d))
+                                if (float.TryParse(_datapoints[i], NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out float d))
                                 {
                                     if (d >= trigger && d <= triggermax)
                                     {
@@ -262,7 +261,7 @@ namespace iSpyApplication.Controls
                                     else
                                         gGraph.DrawLine(pOk, i, TimelineHeight, i, TimelineHeight - Convert.ToInt32(d * (TimelineHeight / 100d)));
                                 }
-                            
+
                             }
                             gGraph.DrawLine(pOk, 0, TimelineHeight / 2, _activityGraph.Width, TimelineHeight / 2);
                             pOk.Dispose();
@@ -277,7 +276,7 @@ namespace iSpyApplication.Controls
 
         public void ResetActivtyGraph()
         {
-            if (_activityGraph!=null)
+            if (_activityGraph != null)
             {
                 _activityGraph.Dispose();
                 _activityGraph = null;
@@ -291,7 +290,7 @@ namespace iSpyApplication.Controls
             g.DrawLine(p, tb.X, tb.Y, tb.X, tb.Y + tb.H);
             g.DrawLine(p, tb.X + tb.W, tb.Y, tb.X + tb.W, tb.Y + tb.H);
             g.DrawLine(p, tb.X, tb.Y + tb.H / 2, tb.X + tb.W, tb.Y + tb.H / 2);
-            int gx = 1 + Convert.ToInt32((Convert.ToDouble(tb.W -tb.Wgrab - 1) / 100d) * tb.Val);
+            int gx = 1 + Convert.ToInt32((Convert.ToDouble(tb.W - tb.Wgrab - 1) / 100d) * tb.Val);
             g.FillRectangle(b, tb.X + gx, tb.Y + 2, tb.Wgrab, tb.H - 4);
             g.DrawRectangle(p, tb.X + gx, tb.Y + 2, tb.Wgrab, tb.H - 4);
             b.Dispose();
@@ -300,14 +299,14 @@ namespace iSpyApplication.Controls
             tb.Grab.Y = tb.Y + tb.H / 2;
         }
 
-        public enum PlaybackState {Stopped,Playing,Paused}
+        public enum PlaybackState { Stopped, Playing, Paused }
 
 
         private PlaybackState _currentState = PlaybackState.Stopped;
 
         public PlaybackState CurrentState
         {
-            get { return _currentState; }
+            get => _currentState;
             set
             {
                 _currentState = value;
@@ -321,7 +320,7 @@ namespace iSpyApplication.Controls
         private int _mouseX;
         public double Value
         {
-            get { return _value; }
+            get => _value;
             set
             {
                 _value = value;
@@ -331,15 +330,15 @@ namespace iSpyApplication.Controls
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            if (e.Location.Y>Height-TimelineHeight)
+            if (e.Location.Y > Height - TimelineHeight)
                 _navTimeline = true;
 
             //if (distance(e.Location, _tbSpeed.Grab) < 6)
-             //   _tbSpeed.Nav = true;
+            //   _tbSpeed.Nav = true;
             if (distance(e.Location, _tbVolume.Grab) < 6)
                 _tbVolume.Nav = true;
 
-            if (distance(e.Location, new Point(Width - 20, Height - TimelineHeight - 20))<20)
+            if (distance(e.Location, new Point(Width - 20, Height - TimelineHeight - 20)) < 20)
             {
                 PlayPause?.Invoke(this);
             }
@@ -348,15 +347,12 @@ namespace iSpyApplication.Controls
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
-            if (e.Button == MouseButtons.Left)
+            if (e.Button == MouseButtons.Left && _navTimeline)
             {
-                if (_navTimeline)
-                {
-                    _navTimeline = false;
-                    var v = (float) e.Location.X;
-                    var val = (v/Width)*100;
-                    Seek?.Invoke(this, val);
-                }
+                _navTimeline = false;
+                var v = (float)e.Location.X;
+                var val = (v / Width) * 100;
+                Seek?.Invoke(this, val);
                 //if (_tbSpeed.Nav)
                 //{
                 //    if (_tbSpeed.Val>40 && _tbSpeed.Val<60)
@@ -368,21 +364,22 @@ namespace iSpyApplication.Controls
             //_tbSpeed.Nav = false;
             _tbVolume.Nav = false;
         }
-        int _ttind = -1;
-        protected override void  OnMouseMove(MouseEventArgs e)
+
+        private int _ttind = -1;
+        protected override void OnMouseMove(MouseEventArgs e)
         {
- 	        base.OnMouseMove(e);
+            base.OnMouseMove(e);
             _lastMove = Helper.Now;
             Cursor = Cursors.Default;
             string m = "";
             int newttind = -1;
-            if (e.Location.Y>Height-TimelineHeight)
+            if (e.Location.Y > Height - TimelineHeight)
             {
                 Cursor = Cursors.Hand;
                 m = "Seek";
                 newttind = 0;
             }
-                
+
             _mouseX = e.Location.X;
             if (_mouseX < 0)
                 _mouseX = 0;
@@ -407,7 +404,7 @@ namespace iSpyApplication.Controls
                 m = "Play/Pause";
                 newttind = 3;
             }
-            
+
             //if (_tbSpeed.Nav)
             //{
             //    _tbSpeed.CalcVal(e.Location);
@@ -420,13 +417,13 @@ namespace iSpyApplication.Controls
                 _tbVolume.CalcVal(e.Location);
                 VolumeChanged?.Invoke(this, _tbVolume.Val);
             }
-            
+
             if (m != "" && newttind != _ttind)
             {
                 _ttind = newttind;
                 _toolTip.Show(m, this, e.Location, 1000);
             }
-                
+
             RequestFrame = true;
         }
 
@@ -436,17 +433,14 @@ namespace iSpyApplication.Controls
         //    get { return _tbSpeed.Val; }
         //}
 
-        private double distance(Point p1, Point p2)
-        {
-            return Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
-        }
-        
+        private double distance(Point p1, Point p2) => Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
+
         public void Init(FilesFile fileData)
         {
-            _ff = fileData ?? new FilesFile {AlertData = "0"};
+            _ff = fileData ?? new FilesFile { AlertData = "0" };
 
             _datapoints = _ff.AlertData.Split(',');
-            
+
             Invalidate();
         }
     }
@@ -466,7 +460,7 @@ namespace iSpyApplication.Controls
             Y = y;
             Val = val;
             InitVal = val;
-            Grab = new Point(0,0);
+            Grab = new Point(0, 0);
             Nav = false;
             Wgrab = 7;
             SnapRange = snapRange;
@@ -480,13 +474,10 @@ namespace iSpyApplication.Controls
             if (ox > W - Wgrab)
                 ox = W - Wgrab;
             Val = Convert.ToInt32((Convert.ToDouble(ox) / Convert.ToDouble(W - Wgrab)) * 100);
-            if (Val>InitVal-SnapRange && Val<InitVal+SnapRange)
+            if (Val > InitVal - SnapRange && Val < InitVal + SnapRange)
                 Reset();
         }
 
-        private void Reset()
-        {
-            Val = InitVal;
-        }
+        private void Reset() => Val = InitVal;
     }
 }

@@ -18,13 +18,13 @@ namespace iSpyApplication.Controls
         {
             rdoAny.Text = LocRm.GetString("AnyDirection");
             rdoVert.Text = LocRm.GetString("VertOnly");
-            rdoHor.Text = LocRm.GetString("HorOnly"); 
-            label5.Text = LocRm.GetString("homedelay"); 
+            rdoHor.Text = LocRm.GetString("HorOnly");
+            label5.Text = LocRm.GetString("homedelay");
             chkAutoHome.Text = LocRm.GetString("AutoHome");
             label87.Text = LocRm.GetString("TimeToHome");
-            chkTrack.Text = LocRm.GetString("TrackObjects"); 
+            chkTrack.Text = LocRm.GetString("TrackObjects");
             label59.Text = LocRm.GetString("Command");
-            Text = LocRm.GetString("TrackObjects"); 
+            Text = LocRm.GetString("TrackObjects");
         }
 
         private void PTZTracking_Load(object sender, EventArgs e)
@@ -47,7 +47,7 @@ namespace iSpyApplication.Controls
             {
                 PTZSettings2Camera ptz = MainForm.PTZs.Single(p => p.id == CameraControl.Camobject.ptz);
                 CameraControl.PTZ.PTZSettings = ptz;
-                if (ptz.ExtendedCommands != null && ptz.ExtendedCommands.Command != null)
+                if (ptz.ExtendedCommands?.Command != null)
                 {
                     foreach (var extcmd in ptz.ExtendedCommands.Command)
                     {
@@ -82,7 +82,7 @@ namespace iSpyApplication.Controls
                     {
                         ddlHomeCommand.SelectedIndex = ddlHomeCommand.Items.Count - 1;
                     }
-                }        
+                }
             }
 
             if (ddlHomeCommand.SelectedIndex == -1 && ddlHomeCommand.Items.Count > 0)
@@ -92,11 +92,7 @@ namespace iSpyApplication.Controls
             tableLayoutPanel1.Enabled = chkAutoHome.Checked;
         }
 
-        private void chkTrack_CheckedChanged(object sender, EventArgs e)
-        {
-            pnlTrack.Enabled = chkTrack.Checked;
-            
-        }
+        private void chkTrack_CheckedChanged(object sender, EventArgs e) => pnlTrack.Enabled = chkTrack.Checked;
 
         private void btnOK_Click(object sender, EventArgs e)
         {
@@ -131,12 +127,9 @@ namespace iSpyApplication.Controls
 
         private void ddlHomeCommand_SelectedIndexChanged(object sender, EventArgs e)
         {
-            
+
         }
 
-        private void chkAutoHome_CheckedChanged(object sender, EventArgs e)
-        {
-            tableLayoutPanel1.Enabled = chkAutoHome.Checked;
-        }
+        private void chkAutoHome_CheckedChanged(object sender, EventArgs e) => tableLayoutPanel1.Enabled = chkAutoHome.Checked;
     }
 }

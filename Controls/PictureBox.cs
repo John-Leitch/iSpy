@@ -26,13 +26,12 @@ namespace iSpyApplication.Controls
         /// 
         public new Image Image
         {
-            get { return _sourceImage; }
+            get => _sourceImage;
             set
             {
                 // check source image format
-                var bitmap = value as Bitmap;
                 if (
-                    bitmap != null && ((bitmap.PixelFormat == PixelFormat.Format16bppGrayScale) ||
+                    value is Bitmap bitmap && ((bitmap.PixelFormat == PixelFormat.Format16bppGrayScale) ||
                                         (bitmap.PixelFormat == PixelFormat.Format48bppRgb) ||
                                         (bitmap.PixelFormat == PixelFormat.Format64bppArgb)))
                 {

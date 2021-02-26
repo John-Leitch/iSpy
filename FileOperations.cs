@@ -1,12 +1,11 @@
-﻿using System;
-using System.IO;
-using System.Runtime.InteropServices;
-using iSpyApplication.Controls;
+﻿using iSpyApplication.Controls;
 using iSpyApplication.Utilities;
+using System;
+using System.Runtime.InteropServices;
 
 namespace iSpyApplication
 {
-    public class FileOperations
+    public static class FileOperations
     {
         /// <summary>
         /// Possible flags for the SHFileOperation method.
@@ -117,20 +116,13 @@ namespace iSpyApplication
         /// Send file to recycle bin.  Display dialog, display warning if files are too big to fit (FOF_WANTNUKEWARNING)
         /// </summary>
         /// <param name="path">Location of directory or file to recycle</param>
-        public static bool Send(string path)
-        {
-            return Send(path, FileOperationFlags.FOF_NOCONFIRMATION | FileOperationFlags.FOF_WANTNUKEWARNING);
-        }
+        public static bool Send(string path) => Send(path, FileOperationFlags.FOF_NOCONFIRMATION | FileOperationFlags.FOF_WANTNUKEWARNING);
 
         /// <summary>
         /// Send file silently to recycle bin.  Supress dialog, supress errors, delete if too large.
         /// </summary>
         /// <param name="path">Location of directory or file to recycle</param>
-        public static bool MoveToRecycleBin(string path)
-        {
-            return Send(path, FileOperationFlags.FOF_NOCONFIRMATION | FileOperationFlags.FOF_NOERRORUI | FileOperationFlags.FOF_SILENT);
-
-        }
+        public static bool MoveToRecycleBin(string path) => Send(path, FileOperationFlags.FOF_NOCONFIRMATION | FileOperationFlags.FOF_NOERRORUI | FileOperationFlags.FOF_SILENT);
 
         private static bool deleteFile(string path, FileOperationFlags flags)
         {
@@ -151,12 +143,9 @@ namespace iSpyApplication
             }
         }
 
-        public static bool DeleteCompletelySilent(string path)
-        {
-            return deleteFile(path,
+        public static bool DeleteCompletelySilent(string path) => deleteFile(path,
                               FileOperationFlags.FOF_NOCONFIRMATION | FileOperationFlags.FOF_NOERRORUI |
                               FileOperationFlags.FOF_SILENT);
-        }
 
         public static bool Delete(string filePath)
         {
@@ -184,7 +173,7 @@ namespace iSpyApplication
             if (!archive || filePath.EndsWith(".jpg"))
                 return Delete(filePath);
 
-            Helper.ArchiveAndDelete(ctrl,filePath);
+            Helper.ArchiveAndDelete(ctrl, filePath);
 
             return true;
         }

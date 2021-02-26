@@ -6,10 +6,10 @@
 // contacts@aforgenet.com
 //
 
-using System;
-using System.Drawing.Imaging;
 using AForge.Imaging;
 using AForge.Imaging.Filters;
+using System;
+using System.Drawing.Imaging;
 
 namespace iSpyApplication.Vision
 {
@@ -89,7 +89,7 @@ namespace iSpyApplication.Vision
         /// 
         public int DifferenceThreshold
         {
-            get { return _differenceThreshold; }
+            get => _differenceThreshold;
             set
             {
                 //lock ( _sync )
@@ -115,7 +115,7 @@ namespace iSpyApplication.Vision
             {
                 //lock ( _sync )
                 {
-                    return (float) _pixelsChanged/(_width*_height);
+                    return (float)_pixelsChanged / (_width * _height);
                 }
             }
         }
@@ -158,7 +158,7 @@ namespace iSpyApplication.Vision
         /// 
         public bool SuppressNoise
         {
-            get { return _suppressNoise; }
+            get => _suppressNoise;
             set
             {
                 //lock ( _sync )
@@ -195,10 +195,7 @@ namespace iSpyApplication.Vision
         /// 
         /// <param name="suppressNoise">Suppress noise in video frames or not (see <see cref="SuppressNoise"/> property).</param>
         /// 
-        public TwoFramesDifferenceDetector(bool suppressNoise)
-        {
-            _suppressNoise = suppressNoise;
-        }
+        public TwoFramesDifferenceDetector(bool suppressNoise) => _suppressNoise = suppressNoise;
 
         /// <summary>
         /// Process new video frame.
@@ -227,7 +224,7 @@ namespace iSpyApplication.Vision
                     _previousFrame = UnmanagedImage.Create(_width, _height, PixelFormat.Format8bppIndexed);
                     _motionFrame = UnmanagedImage.Create(_width, _height, PixelFormat.Format8bppIndexed);
 
-                    _frameSize = _motionFrame.Stride*_height;
+                    _frameSize = _motionFrame.Stride * _height;
 
                     // temporary buffer
                     if (_suppressNoise)
@@ -249,8 +246,8 @@ namespace iSpyApplication.Vision
                 Tools.ConvertToGrayscale(videoFrame, _motionFrame);
 
                 // pointers to previous and current frames
-                byte* prevFrame = (byte*) _previousFrame.ImageData.ToPointer();
-                byte* currFrame = (byte*) _motionFrame.ImageData.ToPointer();
+                byte* prevFrame = (byte*)_previousFrame.ImageData.ToPointer();
+                byte* currFrame = (byte*)_motionFrame.ImageData.ToPointer();
                 // difference value
 
                 // 1 - get difference between frames
@@ -264,8 +261,8 @@ namespace iSpyApplication.Vision
                     *prevFrame = *currFrame;
                     // treshold
                     *currFrame = ((diff >= _differenceThreshold) || (diff <= _differenceThresholdNeg))
-                        ? (byte) 255
-                        : (byte) 0;
+                        ? (byte)255
+                        : (byte)0;
                 }
 
                 if (_suppressNoise)
@@ -277,7 +274,7 @@ namespace iSpyApplication.Vision
 
                 // calculate amount of motion pixels
                 _pixelsChanged = 0;
-                byte* motion = (byte*) _motionFrame.ImageData.ToPointer();
+                byte* motion = (byte*)_motionFrame.ImageData.ToPointer();
 
                 for (int i = 0; i < _frameSize; i++, motion++)
                 {

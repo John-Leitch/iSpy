@@ -1,10 +1,10 @@
-﻿using System;
+﻿using iSpyApplication.Onvif;
+using iSpyApplication.Server;
+using iSpyApplication.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using iSpyApplication.Onvif;
-using iSpyApplication.Server;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.CameraDiscovery
 {
@@ -39,7 +39,7 @@ namespace iSpyApplication.CameraDiscovery
             _lp = new List<Uri>();
             _quit = false;
             Finished.Reset();
-            
+
             Urlscanner = new Thread(() => ListCameras(l, Model));
             Urlscanner.Start();
         }
@@ -80,13 +80,13 @@ namespace iSpyApplication.CameraDiscovery
                 }
 
                 var onvifurl = httpUri + "onvif/device_service";
-                var dev = new ONVIFDevice(onvifurl, Username, Password,0,8);
+                var dev = new ONVIFDevice(onvifurl, Username, Password, 0, 8);
                 if (dev.Profiles != null)
                 {
                     foreach (var p in dev.Profiles)
                     {
                         var b = p?.VideoEncoderConfiguration?.Resolution;
-                        if (b != null && b.Width > 0)
+                        if (b?.Width > 0)
                         {
                             dev.SelectProfile(i);
                             var co = new ConnectionOption(onvifurl, null, 9, -1, null)
@@ -166,9 +166,6 @@ namespace iSpyApplication.CameraDiscovery
     {
         public ConnectionOption Co;
 
-        public ConnectionOptionEventArgs(ConnectionOption co)
-        {
-            Co = co;
-        }
+        public ConnectionOptionEventArgs(ConnectionOption co) => Co = co;
     }
 }

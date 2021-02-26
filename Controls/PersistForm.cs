@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using Microsoft.Win32;
 
 namespace iSpyApplication.Controls
 {
@@ -43,19 +43,19 @@ namespace iSpyApplication.Controls
                 _mNormalWidth = _mParent.Width;
                 _mNormalHeight = _mParent.Height;
             }
-            get { return _mParent; }
+            get => _mParent;
         }
 
         // registry key should be set in parent form's constructor
         public string RegistryPath
         {
-            set { _mRegPath = value; }
-            get { return _mRegPath; }
+            set => _mRegPath = value;
+            get => _mRegPath;
         }
 
         public bool AllowSaveMinimized
         {
-            set { _mAllowSaveMinimized = value; }
+            set => _mAllowSaveMinimized = value;
         }
 
         public event WindowStateDelegate LoadStateEvent;
@@ -96,15 +96,14 @@ namespace iSpyApplication.Controls
             }
 
             // check if we are allowed to save the state as minimized (not normally)
-            if (!_mAllowSaveMinimized)
+            if (!_mAllowSaveMinimized && _mWindowState == FormWindowState.Minimized)
             {
-                if (_mWindowState == FormWindowState.Minimized)
-                    _mWindowState = FormWindowState.Normal;
+                _mWindowState = FormWindowState.Normal;
             }
 
             if (key != null)
             {
-                key.SetValue("WindowState", (int) _mWindowState);
+                key.SetValue("WindowState", (int)_mWindowState);
 
                 // fire SaveState event
                 SaveStateEvent?.Invoke(this, key);
@@ -117,12 +116,12 @@ namespace iSpyApplication.Controls
             RegistryKey key = Registry.CurrentUser.OpenSubKey(_mRegPath);
             if (key != null)
             {
-                var left = (int) key.GetValue("Left", _mParent.Left);
-                var top = (int) key.GetValue("Top", _mParent.Top);
-                var width = (int) key.GetValue("Width", _mParent.Width);
-                var height = (int) key.GetValue("Height", _mParent.Height);
-                var windowState = (FormWindowState) key.GetValue("WindowState",
-                                                                 (int) _mParent.WindowState);
+                var left = (int)key.GetValue("Left", _mParent.Left);
+                var top = (int)key.GetValue("Top", _mParent.Top);
+                var width = (int)key.GetValue("Width", _mParent.Width);
+                var height = (int)key.GetValue("Height", _mParent.Height);
+                var windowState = (FormWindowState)key.GetValue("WindowState",
+                                                                 (int)_mParent.WindowState);
 
 
                 _mParent.WindowState = windowState;

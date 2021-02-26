@@ -1,7 +1,7 @@
-﻿using System;
-using System.Threading;
-using iSpyApplication.Utilities;
+﻿using iSpyApplication.Utilities;
 using NATUPNPLib;
+using System;
+using System.Threading;
 
 namespace iSpyApplication
 {
@@ -14,7 +14,7 @@ namespace iSpyApplication
         {
             get
             {
-                if (_mappings==null)
+                if (_mappings == null)
                 {
                     //looking at NATEventManager seems to populate the collection... :S
                     try
@@ -27,7 +27,7 @@ namespace iSpyApplication
                         // ignored
                     }
                 }
-                
+
                 return _mappings;
             }
         }

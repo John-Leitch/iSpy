@@ -10,8 +10,9 @@ namespace iSpyApplication.Controls
         public bool SupportDPad;
         public bool Invert
         {
-            get { return _invert; }
-            set { 
+            get => _invert;
+            set
+            {
                 _invert = value;
                 chkInvert.Checked = value;
             }
@@ -20,30 +21,28 @@ namespace iSpyApplication.Controls
         public event EventHandler GetInput;
         public int ID
         {
-            get { return _id; }
-            set { 
+            get => _id;
+            set
+            {
                 _id = value;
                 if (_id > 0)
                 {
-                    lblButton.Text = LocRm.GetString("Axis")+" " + _id;
+                    lblButton.Text = LocRm.GetString("Axis") + " " + _id;
                     _input = false;
                     button1.Text = "...";
                 }
-                if (_id <0)
+                if (_id < 0)
                 {
-                    lblButton.Text = "DPad " + (0-_id);
+                    lblButton.Text = "DPad " + (0 - _id);
                     _input = false;
                     button1.Text = "...";
                 }
-                if (_id==0)
+                if (_id == 0)
                     lblButton.Text = "";
             }
         }
 
-        public jaxis()
-        {
-            InitializeComponent();
-        }
+        public jaxis() => InitializeComponent();
 
         public void Reset()
         {
@@ -62,10 +61,10 @@ namespace iSpyApplication.Controls
                 return;
             }
 
-            if (GetInput!=null)
+            if (GetInput != null)
                 GetInput(this, EventArgs.Empty);
 
-            LocRm.SetString(lblButton,"MoveAnAxis");
+            LocRm.SetString(lblButton, "MoveAnAxis");
             if (SupportDPad)
                 LocRm.SetString(lblButton, "MoveOrPress");
             LocRm.SetString(button1, "Clear");
@@ -73,14 +72,8 @@ namespace iSpyApplication.Controls
 
         }
 
-        private void jaxis_Load(object sender, EventArgs e)
-        {
-            LocRm.SetString(chkInvert, "Invert");
-        }
+        private void jaxis_Load(object sender, EventArgs e) => LocRm.SetString(chkInvert, "Invert");
 
-        private void chkInvert_CheckedChanged(object sender, EventArgs e)
-        {
-            _invert = chkInvert.Checked;
-        }
+        private void chkInvert_CheckedChanged(object sender, EventArgs e) => _invert = chkInvert.Checked;
     }
 }

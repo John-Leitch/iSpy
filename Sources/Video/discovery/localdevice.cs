@@ -1,13 +1,13 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using iSpyPRO.DirectShow;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using iSpyApplication.Utilities;
-using iSpyPRO.DirectShow;
 
 namespace iSpyApplication.Sources.Video.discovery
 {
-    class LocalDevice: IDisposable
+    internal class LocalDevice : IDisposable
     {
         private const string VideoFormatString = "{0} x {1} ({3} bit up to {2} fps)";
         private const string SnapshotFormatString = "{0} x {1} ({2} bit)";
@@ -15,10 +15,10 @@ namespace iSpyApplication.Sources.Video.discovery
         private readonly FilterInfoCollection _videoDevices;
         private VideoCaptureDevice _videoCaptureDevice;
         private VideoInput[] _availableVideoInputs;
-        
+
         public int FrameRate = 0;
 
-        
+
         public LocalDevice()
         {
             try
@@ -27,17 +27,17 @@ namespace iSpyApplication.Sources.Video.discovery
             }
             catch (Exception ex)
             {
-                Logger.LogException(ex,"LocalDevice");
+                Logger.LogException(ex, "LocalDevice");
             }
         }
 
-        
+
         public List<MainForm.ListItem> Devices
         {
             get
             {
                 var l = new List<MainForm.ListItem>();
-                if (_videoDevices!=null)
+                if (_videoDevices != null)
                 {
                     l.AddRange(from FilterInfo dev in _videoDevices select new MainForm.ListItem(dev.Name, dev.MonikerString));
                 }
@@ -45,17 +45,14 @@ namespace iSpyApplication.Sources.Video.discovery
             }
         }
 
-        public void Inspect(string moniker)
-        {
-            _videoCaptureDevice = new VideoCaptureDevice(moniker);
-        }
+        public void Inspect(string moniker) => _videoCaptureDevice = new VideoCaptureDevice(moniker);
 
         public List<MainForm.ListItem> Inputs
         {
             get
             {
                 var ret = new List<MainForm.ListItem>();
-                if (_videoCaptureDevice!=null)
+                if (_videoCaptureDevice != null)
                 {
                     _availableVideoInputs = _videoCaptureDevice.AvailableCrossbarVideoInputs;
                     ret.AddRange(_availableVideoInputs.Select(input => new MainForm.ListItem($"{input.Index}: {input.Type}", input.Index.ToString(CultureInfo.InvariantCulture))));
@@ -81,7 +78,7 @@ namespace iSpyApplication.Sources.Video.discovery
                         string item = string.Format(VideoFormatString, capabilty.FrameSize.Width, Math.Abs(capabilty.FrameSize.Height), capabilty.AverageFrameRate, capabilty.BitCount);
                         if (ret.FirstOrDefault(p => p.ToString() == item) == null)
                         {
-                            ret.Add(new MainForm.ListItem(item,item));
+                            ret.Add(new MainForm.ListItem(item, item));
                         }
                     }
                 }
@@ -112,10 +109,7 @@ namespace iSpyApplication.Sources.Video.discovery
 
         private bool _disposed;
         // Public implementation of Dispose pattern callable by consumers. 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         // Protected implementation of Dispose pattern. 
         protected virtual void Dispose(bool disposing)

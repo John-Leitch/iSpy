@@ -1,14 +1,14 @@
-﻿using System;
+﻿using iSpyApplication.Controls;
+using iSpyApplication.Sources.Audio;
+using iSpyApplication.Utilities;
+using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
+using System;
 using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
-using iSpyApplication.Controls;
-using iSpyApplication.Sources.Audio;
-using iSpyApplication.Utilities;
-using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
 
 namespace iSpyApplication.Sources.Video
 {
@@ -32,7 +32,7 @@ namespace iSpyApplication.Sources.Video
         private IWebProxy _proxy;
         private bool _useSeparateConnectionGroup = true;
         private int _requestTimeout = 10000;
-        private const int BufSize = 1024 * 1024*2;
+        private const int BufSize = 1024 * 1024 * 2;
         private const int ReadSize = 1024;
         private bool _usehttp10;
         private ManualResetEvent _abort;
@@ -62,7 +62,7 @@ namespace iSpyApplication.Sources.Video
 
         public float Gain
         {
-            get { return _gain; }
+            get => _gain;
             set
             {
                 _gain = value;
@@ -75,13 +75,7 @@ namespace iSpyApplication.Sources.Video
 
         public bool Listening
         {
-            get
-            {
-                if (IsRunning && _listening)
-                    return true;
-                return false;
-
-            }
+            get => IsRunning && _listening;
             set
             {
                 if (RecordingFormat == null)
@@ -92,7 +86,7 @@ namespace iSpyApplication.Sources.Video
 
                 if (WaveOutProvider != null)
                 {
-                    if (WaveOutProvider.BufferedBytes>0) WaveOutProvider.ClearBuffer();
+                    if (WaveOutProvider.BufferedBytes > 0) WaveOutProvider.ClearBuffer();
                     WaveOutProvider = null;
                 }
 
@@ -144,8 +138,8 @@ namespace iSpyApplication.Sources.Video
         /// 
         public bool SeparateConnectionGroup
         {
-            get { return _useSeparateConnectionGroup; }
-            set { _useSeparateConnectionGroup = value; }
+            get => _useSeparateConnectionGroup;
+            set => _useSeparateConnectionGroup = value;
         }
 
         /// <summary>
@@ -156,8 +150,8 @@ namespace iSpyApplication.Sources.Video
         /// 
         public bool UseHTTP10
         {
-            get { return _usehttp10; }
-            set { _usehttp10 = value; }
+            get => _usehttp10;
+            set => _usehttp10 = value;
         }
 
 
@@ -169,11 +163,8 @@ namespace iSpyApplication.Sources.Video
         /// 
         public string Source
         {
-            get { return _source.settings.videosourcestring; }
-            set
-            {
-                _source.settings.videosourcestring = value;
-            }
+            get => _source.settings.videosourcestring;
+            set => _source.settings.videosourcestring = value;
         }
 
         /// <summary>
@@ -184,8 +175,8 @@ namespace iSpyApplication.Sources.Video
         /// 
         public string Login
         {
-            get { return _login; }
-            set { _login = value; }
+            get => _login;
+            set => _login = value;
         }
 
         /// <summary>
@@ -196,8 +187,8 @@ namespace iSpyApplication.Sources.Video
         /// 
         public string Password
         {
-            get { return _password; }
-            set { _password = value; }
+            get => _password;
+            set => _password = value;
         }
 
         /// <summary>
@@ -215,8 +206,8 @@ namespace iSpyApplication.Sources.Video
         /// 
         public IWebProxy Proxy
         {
-            get { return _proxy; }
-            set { _proxy = value; }
+            get => _proxy;
+            set => _proxy = value;
         }
 
         /// <summary>
@@ -234,8 +225,8 @@ namespace iSpyApplication.Sources.Video
         /// 
         public string HttpUserAgent
         {
-            get { return _userAgent; }
-            set { _userAgent = value; }
+            get => _userAgent;
+            set => _userAgent = value;
         }
 
         /// <summary>
@@ -247,8 +238,8 @@ namespace iSpyApplication.Sources.Video
         /// 
         public int RequestTimeout
         {
-            get { return _requestTimeout; }
-            set { _requestTimeout = value; }
+            get => _requestTimeout;
+            set => _requestTimeout = value;
         }
 
         /// <summary>
@@ -281,10 +272,7 @@ namespace iSpyApplication.Sources.Video
         /// 
         /// <param name="source">URL, which provides MJPEG stream.</param>
         /// 
-        public KinectNetworkStream(CameraWindow source): base(source)
-        {
-            _source = source.Camobject;
-        }
+        public KinectNetworkStream(CameraWindow source) : base(source) => _source = source.Camobject;
 
         /// <summary>
         /// Start video source.
@@ -307,7 +295,7 @@ namespace iSpyApplication.Sources.Video
                 _res = ReasonToFinishPlaying.DeviceLost;
 
                 // create and start new thread
-                _thread = new Thread(WorkerThread) {Name = _source.settings.videosourcestring, IsBackground = true};
+                _thread = new Thread(WorkerThread) { Name = _source.settings.videosourcestring, IsBackground = true };
                 _thread.Start();
             }
         }
@@ -341,7 +329,7 @@ namespace iSpyApplication.Sources.Video
             _abort?.Set();
         }
 
-       
+
 
         // Worker thread
         private void WorkerThread()
@@ -401,7 +389,7 @@ namespace iSpyApplication.Sources.Video
                     int endPacket = -1;
                     int ttl = 0;
 
-                    bool hasaudio = false;                   
+                    bool hasaudio = false;
 
                     while (!_abort.WaitOne(0) && !MainForm.ShuttingDown)
                     {
@@ -409,10 +397,10 @@ namespace iSpyApplication.Sources.Video
                         int read;
                         if ((read = stream.Read(buffer, ttl, ReadSize)) == 0)
                             throw new ApplicationException();
-                        
+
                         ttl += read;
 
-                        if (startPacket==-1)
+                        if (startPacket == -1)
                         {
                             startPacket = ByteArrayUtils.Find(buffer, boundary, 0, ttl);
                         }
@@ -420,14 +408,14 @@ namespace iSpyApplication.Sources.Video
                         {
                             if (endPacket == -1)
                             {
-                                endPacket = ByteArrayUtils.Find(buffer, boundary, startPacket + boundary.Length, ttl-(startPacket + boundary.Length));
-                            }    
+                                endPacket = ByteArrayUtils.Find(buffer, boundary, startPacket + boundary.Length, ttl - (startPacket + boundary.Length));
+                            }
                         }
 
                         var nf = NewFrame;
-                        
-                        
-                        if (startPacket>-1 && endPacket>startPacket)
+
+
+                        if (startPacket > -1 && endPacket > startPacket)
                         {
                             int br = ByteArrayUtils.Find(buffer, sep, startPacket, 100);
 
@@ -437,10 +425,10 @@ namespace iSpyApplication.Sources.Video
                                 Array.Copy(buffer, startPacket, arr, 0, br - startPacket);
                                 string s = Encoding.ASCII.GetString(arr);
                                 int k = s.IndexOf("Content-type: ", StringComparison.Ordinal);
-                                if (k!=-1)
+                                if (k != -1)
                                 {
-                                    s = s.Substring(k+14);
-                                    s = s.Substring(0,s.IndexOf("\r\n", StringComparison.Ordinal));
+                                    s = s.Substring(k + 14);
+                                    s = s.Substring(0, s.IndexOf("\r\n", StringComparison.Ordinal));
                                     s = s.Trim();
                                 }
                                 switch (s)
@@ -452,7 +440,7 @@ namespace iSpyApplication.Sources.Video
                                             {
                                                 using (var ms = new MemoryStream(buffer, br + 4, endPacket - br - 8))
                                                 {
-                                                    using (var bmp = (Bitmap) Image.FromStream(ms))
+                                                    using (var bmp = (Bitmap)Image.FromStream(ms))
                                                     {
                                                         var dae = new NewFrameEventArgs(bmp);
                                                         nf.Invoke(this, dae);
@@ -463,7 +451,7 @@ namespace iSpyApplication.Sources.Video
                                         catch (Exception ex)
                                         {
                                             //sometimes corrupted packets come through...
-                                            Logger.LogException(ex,"KinectNetwork");
+                                            Logger.LogException(ex, "KinectNetwork");
                                         }
 
 
@@ -478,7 +466,7 @@ namespace iSpyApplication.Sources.Video
                                             _waveProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true, BufferDuration = TimeSpan.FromMilliseconds(500) };
 
                                             _sampleChannel = new SampleChannel(_waveProvider);
-                                            _sampleChannel.PreVolumeMeter +=SampleChannelPreVolumeMeter;
+                                            _sampleChannel.PreVolumeMeter += SampleChannelPreVolumeMeter;
                                             if (HasAudioStream != null)
                                             {
                                                 HasAudioStream(this, EventArgs.Empty);
@@ -492,7 +480,7 @@ namespace iSpyApplication.Sources.Video
                                             int l = endPacket - br - 8;
                                             var data = new byte[l];
                                             int d;
-                                            using (var ms = new MemoryStream(buffer, br+4, l))
+                                            using (var ms = new MemoryStream(buffer, br + 4, l))
                                             {
                                                 d = ms.Read(data, 0, l);
                                             }
@@ -509,7 +497,7 @@ namespace iSpyApplication.Sources.Video
                                                 var sampleBuffer = new float[data.Length];
                                                 int r = _sampleChannel.Read(sampleBuffer, 0, data.Length);
 
-                                                da(this, new DataAvailableEventArgs((byte[]) data.Clone(),r));
+                                                da(this, new DataAvailableEventArgs((byte[])data.Clone(), r));
                                             }
                                         }
 
@@ -556,7 +544,7 @@ namespace iSpyApplication.Sources.Video
                     _abort.WaitOne(250);
                     break;
                     // wait for a while before the next try
-                    
+
                 }
                 finally
                 {
@@ -576,17 +564,11 @@ namespace iSpyApplication.Sources.Video
             _abort.Close();
         }
 
-        void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e)
-        {
-            LevelChanged?.Invoke(this, new LevelChangedEventArgs(e.MaxSampleValues));
-        }
+        private void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e) => LevelChanged?.Invoke(this, new LevelChangedEventArgs(e.MaxSampleValues));
 
         private bool _disposed;
         // Public implementation of Dispose pattern callable by consumers. 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         // Protected implementation of Dispose pattern. 
         protected virtual void Dispose(bool disposing)
@@ -596,7 +578,7 @@ namespace iSpyApplication.Sources.Video
 
             if (disposing)
             {
-                
+
             }
             // Free any unmanaged objects here. 
             //

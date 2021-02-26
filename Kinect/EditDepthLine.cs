@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace iSpyApplication.Kinect
@@ -35,8 +29,8 @@ namespace iSpyApplication.Kinect
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-           TripWireEditor.TripWires.Remove(_dl);
-           Close();
+            TripWireEditor.TripWires.Remove(_dl);
+            Close();
         }
     }
 }

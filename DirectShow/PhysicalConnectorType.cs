@@ -3,6 +3,7 @@
     /// <summary>
     /// Specifies the physical type of pin (audio or video).
     /// </summary>
+    [System.Flags]
     public enum PhysicalConnectorType
     {
         /// <summary>

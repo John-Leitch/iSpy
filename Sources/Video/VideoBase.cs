@@ -1,11 +1,11 @@
-﻿using System;
+﻿using iSpyApplication.Controls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using iSpyApplication.Controls;
 
 namespace iSpyApplication.Sources.Video
 {
-    internal class VideoBase: FFmpegBase
+    internal class VideoBase : FFmpegBase
     {
         internal readonly CameraWindow _cw;
         public string Tokenise(string sourcestring)
@@ -26,10 +26,7 @@ namespace iSpyApplication.Sources.Video
             return sourcestring;
         }
 
-        public VideoBase(CameraWindow cw):base("FFMPEG")
-        {
-            _cw = cw;
-        }
+        public VideoBase(CameraWindow cw) : base("FFMPEG") => _cw = cw;
 
         public double RealFramerate = 0;
         private readonly List<DateTime> _timeStamps = new List<DateTime>();
@@ -43,26 +40,18 @@ namespace iSpyApplication.Sources.Video
             {
                 if (_cw == null)
                     return true;
-                if (_timeStamps.Count > 0)
+                if (_timeStamps.Count > 0 && (DateTime.UtcNow - _timeStamps.Last()).TotalMilliseconds > 2000)
                 {
-                    if ((DateTime.UtcNow - _timeStamps.Last()).TotalMilliseconds > 2000)
-                    {
-                        _timeStamps.Clear();
-                        _emittimeStamps.Clear();
-                        _frameCount = 0;
-                        _refCount = 0;
-                    }
+                    _timeStamps.Clear();
+                    _emittimeStamps.Clear();
+                    _frameCount = 0;
+                    _refCount = 0;
                 }
 
                 _timeStamps.Add(DateTime.UtcNow);
 
                 var avgint = (_timeStamps.Last() - _timeStamps.First()).TotalMilliseconds / _timeStamps.Count;
-                if (avgint > 0)
-                    RealFramerate = 1000d / avgint;
-                else
-                {
-                    RealFramerate = 1;
-                }
+                RealFramerate = avgint > 0 ? 1000d / avgint : 1;
 
                 FilterTimestamps(_timeStamps);
                 if (RealFramerate < TargetFrameRate)
@@ -91,7 +80,7 @@ namespace iSpyApplication.Sources.Video
             }
         }
 
-        private void FilterTimestamps(List<DateTime> timestamps)
+        private static void FilterTimestamps(List<DateTime> timestamps)
         {
             while (timestamps.Count > 1 && (timestamps.Last() - timestamps.First()).TotalMilliseconds > TimeStampSampleDuration)
                 timestamps.RemoveAt(0);

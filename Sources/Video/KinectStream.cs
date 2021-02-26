@@ -1,11 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading;
 using AForge.Imaging.Filters;
 using iSpyApplication.Controls;
 using iSpyApplication.Kinect;
@@ -14,6 +6,14 @@ using iSpyApplication.Utilities;
 using Microsoft.Kinect;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace iSpyApplication.Sources.Video
 {
@@ -24,7 +24,7 @@ namespace iSpyApplication.Sources.Video
         private readonly Brush _trackedJointBrush = new SolidBrush(Color.FromArgb(255, 68, 192, 68));
         private readonly Brush _inferredJointBrush = Brushes.Yellow;
         internal static Pen TripWirePen = new Pen(Color.DarkOrange);
-        private Skeleton[] _skeletons = new Skeleton[0];
+        private Skeleton[] _skeletons = Array.Empty<Skeleton>();
         private const int JointThickness = 3;
         private KinectSensor _sensor;
         private readonly bool _skeleton, _tripwires;
@@ -64,7 +64,7 @@ namespace iSpyApplication.Sources.Video
 
         public float Gain
         {
-            get { return _gain; }
+            get => _gain;
             set
             {
                 _gain = value;
@@ -77,13 +77,7 @@ namespace iSpyApplication.Sources.Video
 
         public bool Listening
         {
-            get
-            {
-                if (IsRunning && _listening)
-                    return true;
-                return false;
-
-            }
+            get => IsRunning && _listening;
             set
             {
                 if (RecordingFormat == null)
@@ -94,7 +88,7 @@ namespace iSpyApplication.Sources.Video
 
                 if (WaveOutProvider != null)
                 {
-                    if (WaveOutProvider.BufferedBytes>0) WaveOutProvider.ClearBuffer();
+                    if (WaveOutProvider.BufferedBytes > 0) WaveOutProvider.ClearBuffer();
                     WaveOutProvider = null;
                 }
 
@@ -111,24 +105,17 @@ namespace iSpyApplication.Sources.Video
 
         #endregion
 
-        public KinectStream(CameraWindow source): base(source)
+        public KinectStream(CameraWindow source) : base(source)
         {
-            _tripwires = Convert.ToBoolean(source.Nv(source.Camobject.settings.namevaluesettings, "TripWires"));
-            _uniqueKinectId = source.Nv(source.Camobject.settings.namevaluesettings, "UniqueKinectId");
-            _skeleton = Convert.ToBoolean(source.Nv(source.Camobject.settings.namevaluesettings, "KinectSkeleton"));
-            StreamMode = Convert.ToInt32(source.Nv(source.Camobject.settings.namevaluesettings, "StreamMode"));
+            _tripwires = Convert.ToBoolean(CameraWindow.Nv(source.Camobject.settings.namevaluesettings, "TripWires"));
+            _uniqueKinectId = CameraWindow.Nv(source.Camobject.settings.namevaluesettings, "UniqueKinectId");
+            _skeleton = Convert.ToBoolean(CameraWindow.Nv(source.Camobject.settings.namevaluesettings, "KinectSkeleton"));
+            StreamMode = Convert.ToInt32(CameraWindow.Nv(source.Camobject.settings.namevaluesettings, "StreamMode"));
         }
 
         public int Tilt
         {
-            get
-            {
-                if (_sensor != null)
-                {
-                    return _sensor.ElevationAngle;
-                }
-                return 0;
-            }
+            get => _sensor != null ? _sensor.ElevationAngle : 0;
             set
             {
                 if (value < _sensor?.MaxElevationAngle && value > _sensor.MinElevationAngle)
@@ -144,8 +131,8 @@ namespace iSpyApplication.Sources.Video
 
         public virtual string Source
         {
-            get { return _uniqueKinectId; }
-            set { _uniqueKinectId = value; }
+            get => _uniqueKinectId;
+            set => _uniqueKinectId = value;
         }
 
 
@@ -182,13 +169,13 @@ namespace iSpyApplication.Sources.Video
                     break;
                 }
             }
-            if (_sensor==null)
+            if (_sensor == null)
             {
-                Logger.LogMessage("Sensor not found: "+_uniqueKinectId,"KinectStream");
+                Logger.LogMessage("Sensor not found: " + _uniqueKinectId, "KinectStream");
                 return;
             }
 
-            
+
             if (_skeleton)
             {
                 _sensor.SkeletonStream.Enable();
@@ -214,7 +201,7 @@ namespace iSpyApplication.Sources.Video
                     _sensor.ColorFrameReady += SensorColorFrameReady;
                     break;
             }
-            
+
 
             // Start the sensor
             try
@@ -239,7 +226,7 @@ namespace iSpyApplication.Sources.Video
                 _res = ReasonToFinishPlaying.DeviceLost;
 
                 // create and start new thread
-                _thread = new Thread(AudioThread) { Name = "kinect audio", IsBackground = true};
+                _thread = new Thread(AudioThread) { Name = "kinect audio", IsBackground = true };
                 _thread.Start();
             }
             catch (Exception ex)//IOException)
@@ -251,10 +238,7 @@ namespace iSpyApplication.Sources.Video
 
         private Thread _thread;
 
-        void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e)
-        {
-            LevelChanged?.Invoke(this, new LevelChangedEventArgs(e.MaxSampleValues));
-        }
+        private void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e) => LevelChanged?.Invoke(this, new LevelChangedEventArgs(e.MaxSampleValues));
 
         private void AudioThread()
         {
@@ -275,7 +259,7 @@ namespace iSpyApplication.Sources.Video
                     var sampleBuffer = new float[dataLength];
                     int read = _sampleChannel.Read(sampleBuffer, 0, dataLength);
 
-                    DataAvailable?.Invoke(this, new DataAvailableEventArgs((byte[])_audioBuffer.Clone(),read));
+                    DataAvailable?.Invoke(this, new DataAvailableEventArgs((byte[])_audioBuffer.Clone(), read));
                 }
             }
 
@@ -301,10 +285,10 @@ namespace iSpyApplication.Sources.Video
                 // ignored
             }
 
-            if (_sampleChannel!=null)
+            if (_sampleChannel != null)
                 _sampleChannel.PreVolumeMeter -= SampleChannelPreVolumeMeter;
 
-            if (_waveProvider != null && _waveProvider.BufferedBytes > 0)
+            if (_waveProvider?.BufferedBytes > 0)
                 _waveProvider.ClearBuffer();
 
             Listening = false;
@@ -313,88 +297,85 @@ namespace iSpyApplication.Sources.Video
             _abort.Close();
         }
 
-        void SensorDepthFrameReady(object sender, DepthImageFrameReadyEventArgs e)
+        private void SensorDepthFrameReady(object sender, DepthImageFrameReadyEventArgs e)
         {
 
             using (DepthImageFrame depthFrame = e.OpenDepthImageFrame())
             {
-                if (depthFrame != null)
+                if (depthFrame != null && ShouldEmitFrame)
                 {
-                    if (ShouldEmitFrame)
+                    // Copy the pixel data from the image to a temporary array
+                    depthFrame.CopyPixelDataTo(_depthPixels);
+
+                    // Convert the depth to RGB
+                    int colorPixelIndex = 0;
+                    foreach (short t in _depthPixels)
                     {
-                        // Copy the pixel data from the image to a temporary array
-                        depthFrame.CopyPixelDataTo(_depthPixels);
+                        // discard the portion of the depth that contains only the player index
+                        short depth = (short)(t >> DepthImageFrame.PlayerIndexBitmaskWidth);
 
-                        // Convert the depth to RGB
-                        int colorPixelIndex = 0;
-                        foreach (short t in _depthPixels)
-                        {
-                            // discard the portion of the depth that contains only the player index
-                            short depth = (short) (t >> DepthImageFrame.PlayerIndexBitmaskWidth);
+                        // to convert to a byte we're looking at only the lower 8 bits
+                        // by discarding the most significant rather than least significant data
+                        // we're preserving detail, although the intensity will "wrap"
+                        // add 1 so that too far/unknown is mapped to black
+                        byte intensity = (byte)((depth + 1) & byte.MaxValue);
 
-                            // to convert to a byte we're looking at only the lower 8 bits
-                            // by discarding the most significant rather than least significant data
-                            // we're preserving detail, although the intensity will "wrap"
-                            // add 1 so that too far/unknown is mapped to black
-                            byte intensity = (byte) ((depth + 1) & byte.MaxValue);
+                        // Write out blue byte
+                        _colorPixels[colorPixelIndex++] = intensity;
 
-                            // Write out blue byte
-                            _colorPixels[colorPixelIndex++] = intensity;
+                        // Write out green byte
+                        _colorPixels[colorPixelIndex++] = intensity;
 
-                            // Write out green byte
-                            _colorPixels[colorPixelIndex++] = intensity;
+                        // Write out red byte                        
+                        _colorPixels[colorPixelIndex++] = intensity;
 
-                            // Write out red byte                        
-                            _colorPixels[colorPixelIndex++] = intensity;
-
-                            // We're outputting BGR, the last byte in the 32 bits is unused so skip it
-                            // If we were outputting BGRA, we would write alpha here.
-                            ++colorPixelIndex;
-                        }
-
-                        // Write the pixel data into our bitmap
-
-                        var bmap = new Bitmap(
-                            depthFrame.Width,depthFrame.Height,PixelFormat.Format32bppRgb);
-
-                        BitmapData bmapdata = bmap.LockBits(
-                            new Rectangle(0, 0,depthFrame.Width, depthFrame.Height),
-                            ImageLockMode.WriteOnly,
-                            bmap.PixelFormat);
-
-                        var ptr = bmapdata.Scan0;
-
-                        Marshal.Copy(_colorPixels, 0, ptr,_colorPixels.Length);
-
-                        bmap.UnlockBits(bmapdata);
-                        
-                        using (Graphics g = Graphics.FromImage(bmap))
-                        {
-                            lock (_skeletons)
-                            {
-                                foreach (Skeleton skel in _skeletons)
-                                {
-                                    DrawBonesAndJoints(skel, g);
-                                }
-                            }
-                            if (_tripwires)
-                            {
-                                foreach (var dl in TripWires)
-                                {
-                                    g.DrawLine(TripWirePen, dl.StartPoint, dl.EndPoint);
-                                }
-                            }
-                        }
-                        // notify client
-                        NewFrame?.Invoke(this, new NewFrameEventArgs(bmap));
-                        // release the image
-                        bmap.Dispose();
+                        // We're outputting BGR, the last byte in the 32 bits is unused so skip it
+                        // If we were outputting BGRA, we would write alpha here.
+                        ++colorPixelIndex;
                     }
+
+                    // Write the pixel data into our bitmap
+
+                    var bmap = new Bitmap(
+                        depthFrame.Width, depthFrame.Height, PixelFormat.Format32bppRgb);
+
+                    BitmapData bmapdata = bmap.LockBits(
+                        new Rectangle(0, 0, depthFrame.Width, depthFrame.Height),
+                        ImageLockMode.WriteOnly,
+                        bmap.PixelFormat);
+
+                    var ptr = bmapdata.Scan0;
+
+                    Marshal.Copy(_colorPixels, 0, ptr, _colorPixels.Length);
+
+                    bmap.UnlockBits(bmapdata);
+
+                    using (Graphics g = Graphics.FromImage(bmap))
+                    {
+                        lock (_skeletons)
+                        {
+                            foreach (Skeleton skel in _skeletons)
+                            {
+                                DrawBonesAndJoints(skel, g);
+                            }
+                        }
+                        if (_tripwires)
+                        {
+                            foreach (var dl in TripWires)
+                            {
+                                g.DrawLine(TripWirePen, dl.StartPoint, dl.EndPoint);
+                            }
+                        }
+                    }
+                    // notify client
+                    NewFrame?.Invoke(this, new NewFrameEventArgs(bmap));
+                    // release the image
+                    bmap.Dispose();
                 }
             }
         }
 
-        void SensorSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
+        private void SensorSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
         {
             lock (_skeletons)
             {
@@ -409,7 +390,7 @@ namespace iSpyApplication.Sources.Video
             }
         }
 
-        void SensorColorFrameReady(object sender, ColorImageFrameReadyEventArgs e)
+        private void SensorColorFrameReady(object sender, ColorImageFrameReadyEventArgs e)
         {
             if (ShouldEmitFrame)
             {
@@ -458,7 +439,7 @@ namespace iSpyApplication.Sources.Video
 
         }
 
-        void DrawBonesAndJoints(Skeleton skeleton, Graphics g)
+        private void DrawBonesAndJoints(Skeleton skeleton, Graphics g)
         {
             // Render Torso
             DrawBone(skeleton, g, JointType.Head, JointType.ShoulderCenter);
@@ -549,15 +530,12 @@ namespace iSpyApplication.Sources.Video
             }
 
 
-            if (_tripwires && TripWire != null)
+            if (_tripwires && TripWire != null && (from t in TripWires let dl = t where joint1.Position.Z * 1000 >= dl.DepthMin && joint1.Position.Z * 1000 <= dl.DepthMax select t).Any(t => ProcessIntersection(p1, p2, t)))
             {
-                if ((from t in TripWires let dl = t where joint1.Position.Z * 1000 >= dl.DepthMin && joint1.Position.Z * 1000 <= dl.DepthMax select t).Any(t => ProcessIntersection(p1, p2, t)))
+                if ((DateTime.UtcNow - _lastWarnedTripWire).TotalSeconds > 5)
                 {
-                    if ((DateTime.UtcNow - _lastWarnedTripWire).TotalSeconds > 5)
-                    {
-                        TripWire(this, EventArgs.Empty);
-                        _lastWarnedTripWire = DateTime.UtcNow;
-                    }
+                    TripWire(this, EventArgs.Empty);
+                    _lastWarnedTripWire = DateTime.UtcNow;
                 }
             }
         }
@@ -636,7 +614,7 @@ namespace iSpyApplication.Sources.Video
             return new Point(depthPoint.X, depthPoint.Y);
         }
 
-        static Bitmap ColorImageToBitmap(
+        private static Bitmap ColorImageToBitmap(
                      ColorImageFrame image)
         {
             try
@@ -645,7 +623,7 @@ namespace iSpyApplication.Sources.Video
                 {
                     var pixeldata =
                         new byte[image.PixelDataLength];
-                    
+
                     image.CopyPixelDataTo(pixeldata);
 
                     var bitmapFrame = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppRgb);
@@ -659,7 +637,7 @@ namespace iSpyApplication.Sources.Video
                     Marshal.Copy(pixeldata, 0, ptr,
                                  image.PixelDataLength);
                     bitmapFrame.UnlockBits(bmapdata);
-                    
+
                     return bitmapFrame;
                 }
             }
@@ -670,7 +648,7 @@ namespace iSpyApplication.Sources.Video
             return null;
         }
 
-         static Bitmap GrayScaleImageToBitmap(ColorImageFrame image)
+        private static Bitmap GrayScaleImageToBitmap(ColorImageFrame image)
         {
             try
             {
@@ -678,7 +656,7 @@ namespace iSpyApplication.Sources.Video
                 {
                     var pixeldata =
                         new byte[image.PixelDataLength];
-                    
+
                     image.CopyPixelDataTo(pixeldata);
 
                     var bitmapFrame = new Bitmap(image.Width, image.Height, PixelFormat.Format16bppGrayScale);
@@ -692,8 +670,8 @@ namespace iSpyApplication.Sources.Video
                     Marshal.Copy(pixeldata, 0, ptr,
                                  image.PixelDataLength);
                     bitmapFrame.UnlockBits(bmapdata);
-                    
-                    var  filter = new GrayscaleToRGB();
+
+                    var filter = new GrayscaleToRGB();
                     return filter.Apply(AForge.Imaging.Image.Convert16bppTo8bpp(bitmapFrame));
                 }
             }
@@ -743,10 +721,7 @@ namespace iSpyApplication.Sources.Video
 
         private bool _disposed;
         // Public implementation of Dispose pattern callable by consumers. 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         // Protected implementation of Dispose pattern. 
         protected virtual void Dispose(bool disposing)

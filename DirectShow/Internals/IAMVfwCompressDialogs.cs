@@ -11,6 +11,7 @@ namespace iSpyPRO.DirectShow.Internals
     using System.Runtime.InteropServices;
 
     // ---------------------------------------------------------------------------------------
+    [Flags]
     public enum VfwCompressDialogs
     {
         Config = 0x01,
@@ -31,8 +32,8 @@ namespace iSpyPRO.DirectShow.Internals
         [PreserveSig]
         // Bring up a dialog for this codec
         int ShowDialog(
-            [In]  VfwCompressDialogs iDialog,
-            [In]  IntPtr hwnd);
+            [In] VfwCompressDialogs iDialog,
+            [In] IntPtr hwnd);
 
         // Calls ICGetState and gives you the result
         int GetState(

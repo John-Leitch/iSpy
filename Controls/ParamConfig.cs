@@ -11,7 +11,7 @@ namespace iSpyApplication.Controls
         public string TypeName;
         public string Param1, Param2, Param3, Param4;
         public string Param1Value, Param2Value, Param3Value, Param4Value;
-        int _iPanel;
+        private int _iPanel;
 
         public ParamConfig()
         {
@@ -32,10 +32,10 @@ namespace iSpyApplication.Controls
         private void button1_Click(object sender, EventArgs e)
         {
             int pi = 0;
-            foreach(Panel p in flpParams.Controls)
+            foreach (Panel p in flpParams.Controls)
             {
                 string val = "";
-                foreach(Control c in p.Controls)
+                foreach (Control c in p.Controls)
                 {
                     if (c is TextBox)
                     {
@@ -43,21 +43,18 @@ namespace iSpyApplication.Controls
                         break;
                         //...   
                     }
-                    var numericUpDown = c as NumericUpDown;
-                    if (numericUpDown != null)
+                    if (c is NumericUpDown numericUpDown)
                     {
                         val = numericUpDown.Value.ToString(CultureInfo.InvariantCulture);
                         break;
                     }
-                    var comboBox = c as ComboBox;
-                    if (comboBox != null)
+                    if (c is ComboBox comboBox)
                     {
                         val = ((ListItem)comboBox.SelectedItem).Value;
                         break;
                     }
 
-                    var checkbox = c as CheckBox;
-                    if (checkbox != null)
+                    if (c is CheckBox checkbox)
                     {
                         val = checkbox.Checked.ToString();
                         break;
@@ -97,16 +94,16 @@ namespace iSpyApplication.Controls
             const int elewidth = 120;
             const int elewidthlong = 160;
             string optval = "";
-            if (cfg.Length==2)
+            if (cfg.Length == 2)
             {
                 string[] typcfg = cfg[1].Split(':');
                 typ = typcfg[0];
                 if (typcfg.Length > 1)
                     optval = typcfg[1];
             }
-            var p = new Panel {Dock = DockStyle.Top, Height = 31, Tag = _iPanel, Width = 300};
+            var p = new Panel { Dock = DockStyle.Top, Height = 31, Tag = _iPanel, Width = 300 };
             _iPanel++;
-            var l = new Label {Text = lbl, Margin = new Padding(0), Padding = new Padding(4), AutoSize = true};
+            var l = new Label { Text = lbl, Margin = new Padding(0), Padding = new Padding(4), AutoSize = true };
             p.Controls.Add(l);
             l.Location = new Point(3, 3);
             switch (typ)
@@ -121,11 +118,11 @@ namespace iSpyApplication.Controls
                     {
                         var tb = new TextBox { Text = paramValue, Width = elewidth, Tag = optval, Location = new Point(coloffset, 3) };
 
-                        var btn = new Button { Text = "...", Location = new Point(elewidth+coloffset+10, 3), Width = 40 };
+                        var btn = new Button { Text = "...", Location = new Point(elewidth + coloffset + 10, 3), Width = 40 };
 
                         btn.Click += btn_Click;
                         btn.Tag = tb;
-                        
+
                         p.Controls.Add(tb);
                         p.Controls.Add(btn);
                     }
@@ -135,12 +132,12 @@ namespace iSpyApplication.Controls
                         //optval="TCP,UDP"
                         var cb = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = elewidthlong, Location = new Point(coloffset, 3) };
                         string[] opts = optval.Split(',');
-                        foreach(string opt in opts)
+                        foreach (string opt in opts)
                         {
                             cb.Items.Add(new ListItem(opt, opt));
                         }
-                        
-                        for(int i=0;i<cb.Items.Count;i++)
+
+                        for (int i = 0; i < cb.Items.Count; i++)
                         {
                             if (((ListItem)cb.Items[i]).Value == paramValue)
                             {
@@ -180,7 +177,7 @@ namespace iSpyApplication.Controls
                     {
                         var n = new NumericUpDown { Width = elewidth, Location = new Point(coloffset, 3) };
                         string[] opts = optval.Split(',');
-                        if (opts.Length==2)
+                        if (opts.Length == 2)
                         {
                             n.Minimum = Convert.ToDecimal(opts[0]);
                             n.Maximum = Convert.ToDecimal(opts[1]);
@@ -191,7 +188,7 @@ namespace iSpyApplication.Controls
                         }
                         catch
                         {
-                            
+
                         }
                         p.Controls.Add(n);
                     }
@@ -237,28 +234,18 @@ namespace iSpyApplication.Controls
                 Value = value;
             }
 
-            public override string ToString()
-            {
-                return _name;
-            }
+            public override string ToString() => _name;
         }
 
+        private void ll_Click(object sender, EventArgs e) => MainForm.OpenUrl(MainForm.Website + "/countrycodes.aspx");
 
-        void ll_Click(object sender, EventArgs e)
+        private void ll_Click2(object sender, EventArgs e) => MainForm.OpenUrl(((LinkLabel)sender).Tag.ToString());
+
+        private void btn_Click(object sender, EventArgs e)
         {
-            MainForm.OpenUrl(MainForm.Website + "/countrycodes.aspx");
-        }
+            var ofdDetect = new OpenFileDialog { FileName = "", Filter = "" };
 
-        void ll_Click2(object sender, EventArgs e)
-        {
-            MainForm.OpenUrl(((LinkLabel)sender).Tag.ToString());
-        }
-
-        void btn_Click(object sender, EventArgs e)
-        {
-            var ofdDetect = new OpenFileDialog {FileName = "", Filter = ""};
-
-            var o = (TextBox)(((Button) sender).Tag);
+            var o = (TextBox)(((Button)sender).Tag);
 
             string initpath = "";
             string path = o.Text.Trim();
@@ -269,7 +256,7 @@ namespace iSpyApplication.Controls
                     var fi = new FileInfo(path);
                     initpath = fi.DirectoryName;
                 }
-                catch {}
+                catch { }
             }
             else
             {
@@ -283,7 +270,7 @@ namespace iSpyApplication.Controls
             ofdDetect.ShowDialog(this);
             if (ofdDetect.FileName != "")
             {
-                ((TextBox) ((Button) sender).Tag).Text = ofdDetect.FileName;
+                ((TextBox)((Button)sender).Tag).Text = ofdDetect.FileName;
             }
         }
     }

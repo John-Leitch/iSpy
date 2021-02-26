@@ -16,8 +16,8 @@ namespace iSpyPRO.DirectShow.Internals
     /// </summary>
     /// 
     [ComImport,
-    Guid( "C6E13340-30AC-11d0-A18C-00A0C9118956" ),
-    InterfaceType( ComInterfaceType.InterfaceIsIUnknown )]
+    Guid("C6E13340-30AC-11d0-A18C-00A0C9118956"),
+    InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     internal interface IAMStreamConfig
     {
         /// <summary>
@@ -29,7 +29,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int SetFormat( [In, MarshalAs( UnmanagedType.LPStruct )] AMMediaType mediaType );
+        int SetFormat([In, MarshalAs(UnmanagedType.LPStruct)] AMMediaType mediaType);
 
         /// <summary>
         /// Retrieves the audio or video stream's format.
@@ -40,7 +40,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int GetFormat( [Out, MarshalAs( UnmanagedType.LPStruct )] out AMMediaType mediaType );
+        int GetFormat([Out, MarshalAs(UnmanagedType.LPStruct)] out AMMediaType mediaType);
 
         /// <summary>
         /// Retrieve the number of format capabilities that this pin supports.
@@ -52,7 +52,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int GetNumberOfCapabilities( out int count, out int size );
+        int GetNumberOfCapabilities(out int count, out int size);
 
         /// <summary>
         /// Retrieve a set of format capabilities.
@@ -67,8 +67,8 @@ namespace iSpyPRO.DirectShow.Internals
         [PreserveSig]
         int GetStreamCaps(
             [In] int index,
-            [Out, MarshalAs( UnmanagedType.LPStruct )] out AMMediaType mediaType,
-            [In, MarshalAs( UnmanagedType.LPStruct )] VideoStreamConfigCaps streamConfigCaps
+            [Out, MarshalAs(UnmanagedType.LPStruct)] out AMMediaType mediaType,
+            [In, MarshalAs(UnmanagedType.LPStruct)] VideoStreamConfigCaps streamConfigCaps
             );
     }
 }

@@ -1,3 +1,9 @@
+using iSpyApplication.Controls;
+using iSpyApplication.Joystick;
+using iSpyApplication.Server;
+using iSpyApplication.Utilities;
+using Microsoft.Win32;
+using NAudio.Wave;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -5,22 +11,14 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
-using iSpyApplication.Cloud;
-using iSpyApplication.Server;
-using Microsoft.Win32;
-using NAudio.Wave;
-using iSpyApplication.Controls;
-using iSpyApplication.Joystick;
-using iSpyApplication.Utilities;
 using Encoder = System.Drawing.Imaging.Encoder;
 
 namespace iSpyApplication
 {
     public partial class Settings : Form
     {
-        public static readonly object[] StartupModes = 
+        public static readonly object[] StartupModes =
             {
                 "Normal","Minimised","Maximised","FullScreen"
             };
@@ -29,7 +27,7 @@ namespace iSpyApplication
         {
             "Website", "iSpy", "Default"
         };
-        public static readonly object[] CloudProviders = 
+        public static readonly object[] CloudProviders =
             {
                 "Drive","Dropbox","Flickr","OneDrive","Box"
             };
@@ -42,7 +40,7 @@ namespace iSpyApplication
         private JoystickDevice _jst;
         public int InitialTab;
         public bool ReloadResources;
-        readonly string _noDevices = LocRm.GetString("NoAudioDevices");
+        private readonly string _noDevices = LocRm.GetString("NoAudioDevices");
         private RegistryKey _rkApp;
         private string[] _sticks;
         private static readonly object Jslock = new object();
@@ -53,7 +51,7 @@ namespace iSpyApplication
         public Settings()
         {
             InitializeComponent();
-            RenderResources();            
+            RenderResources();
         }
 
         private void Button1Click(object sender, EventArgs e)
@@ -64,11 +62,11 @@ namespace iSpyApplication
             {
                 if (!Directory.Exists(s.Entry))
                 {
-                    err += LocRm.GetString("Validate_MediaDirectory") + " ("+s.Entry+")\n";
+                    err += LocRm.GetString("Validate_MediaDirectory") + " (" + s.Entry + ")\n";
                     break;
                 }
             }
-            
+
             if (err != "")
             {
                 MessageBox.Show(err, LocRm.GetString("Error"));
@@ -77,7 +75,7 @@ namespace iSpyApplication
 
             if (numJPEGQuality.Value != MainForm.Conf.JPEGQuality)
             {
-                MainForm.EncoderParams.Param[0] = new EncoderParameter(Encoder.Quality, (int) numJPEGQuality.Value);
+                MainForm.EncoderParams.Param[0] = new EncoderParameter(Encoder.Quality, (int)numJPEGQuality.Value);
             }
             MainForm.Conf.Enable_Error_Reporting = chkErrorReporting.Checked;
             MainForm.Conf.Enable_Update_Check = chkCheckForUpdates.Checked;
@@ -135,23 +133,21 @@ namespace iSpyApplication
             SaveSMTPSettings();
 
             MainForm.Conf.ArchiveNew = txtArchive.Text.Trim();
-            if (!string.IsNullOrEmpty(MainForm.Conf.ArchiveNew))
+            if (!string.IsNullOrEmpty(MainForm.Conf.ArchiveNew) && !MainForm.Conf.ArchiveNew.EndsWith(@"\"))
             {
-                if (!MainForm.Conf.ArchiveNew.EndsWith(@"\"))
-                    MainForm.Conf.ArchiveNew += @"\";
+                MainForm.Conf.ArchiveNew += @"\";
             }
 
             MainForm.Iconfont = new Font(FontFamily.GenericSansSerif, MainForm.Conf.BigButtons ? 22 : 15, FontStyle.Bold, GraphicsUnit.Pixel);
-            
+
             MainForm.Conf.TalkMic = "";
-            if (ddlTalkMic.Enabled)
+            if (ddlTalkMic.Enabled && ddlTalkMic.SelectedIndex > 0)
             {
-                if (ddlTalkMic.SelectedIndex>0)
-                    MainForm.Conf.TalkMic = ddlTalkMic.SelectedItem.ToString();
+                MainForm.Conf.TalkMic = ddlTalkMic.SelectedItem.ToString();
             }
 
             MainForm.Conf.MinimiseOnClose = chkMinimise.Checked;
-            MainForm.Conf.JPEGQuality = (int) numJPEGQuality.Value;
+            MainForm.Conf.JPEGQuality = (int)numJPEGQuality.Value;
             MainForm.Conf.IPv6Disabled = !chkEnableIPv6.Checked;
 
             MainForm.SetPriority();
@@ -166,10 +162,10 @@ namespace iSpyApplication
             MainForm.Conf.Referers = t2.Trim(',');
             LocalServer.ReloadAllowedReferrers();
 
-            
+
             MainForm.Conf.ShowOverlayControls = chkOverlay.Checked;
 
-            string lang = ((ListItem) ddlLanguage.SelectedItem).Value[0];
+            string lang = ((ListItem)ddlLanguage.SelectedItem).Value[0];
             if (lang != MainForm.Conf.Language)
             {
                 ReloadResources = true;
@@ -238,7 +234,7 @@ namespace iSpyApplication
             MainForm.Conf.Logging.Enabled = chkEnableLogging.Checked;
             MainForm.Conf.Logging.FileSize = (int)numMaxLogSize.Value;
             MainForm.Conf.Logging.KeepDays = (int)numKeepLogs.Value;
-          
+
             DialogResult = DialogResult.OK;
             Close();
         }
@@ -246,7 +242,7 @@ namespace iSpyApplication
         private jbutton _curButton;
         private jaxis _curAxis;
 
-        void JbuttonGetInput(object sender, EventArgs e)
+        private void JbuttonGetInput(object sender, EventArgs e)
         {
             jbutton1.Reset();
             jbutton2.Reset();
@@ -258,34 +254,21 @@ namespace iSpyApplication
             jbutton8.Reset();
             jbutton9.Reset();
 
-            if (sender!=null)
-                _curButton = (jbutton) sender;
-            else
-            {
-                _curButton = null;
-            }
+            _curButton = sender != null ? (jbutton)sender : null;
         }
 
-        void JaxisGetInput(object sender, EventArgs e)
+        private void JaxisGetInput(object sender, EventArgs e)
         {
             jaxis1.Reset();
             jaxis2.Reset();
             jaxis3.Reset();
 
-            if (sender!=null)
-                _curAxis = (jaxis)sender;
-            else
-            {
-                _curAxis = null;
-            }
+            _curAxis = sender != null ? (jaxis)sender : null;
         }
 
-        
 
-        private void Button2Click(object sender, EventArgs e)
-        {
-            Close();
-        }
+
+        private void Button2Click(object sender, EventArgs e) => Close();
 
         private void SettingsLoad(object sender, EventArgs e)
         {
@@ -308,12 +291,12 @@ namespace iSpyApplication
             tcTabs.SelectedIndex = InitialTab;
             chkErrorReporting.Checked = MainForm.Conf.Enable_Error_Reporting;
             chkCheckForUpdates.Checked = MainForm.Conf.Enable_Update_Check;
-            
+
             chkShowGettingStarted.Checked = MainForm.Conf.Enabled_ShowGettingStarted;
             _rkApp = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", false);
-            chkStartup.Checked = (_rkApp != null && _rkApp.GetValue("iSpy") != null);
+            chkStartup.Checked = (_rkApp?.GetValue("iSpy") != null);
 
-            mediaDirectoryEditor1.Init(MainForm.Conf.MediaDirectories);           
+            mediaDirectoryEditor1.Init(MainForm.Conf.MediaDirectories);
 
             btnDetectColor.BackColor = MainForm.Conf.ActivityColor.ToColor();
             btnNoDetectColor.BackColor = MainForm.Conf.NoActivityColor.ToColor();
@@ -353,7 +336,7 @@ namespace iSpyApplication
             int i = 0, selind = 0;
             foreach (TranslationsTranslationSet set in LocRm.TranslationSets.OrderBy(p => p.Name))
             {
-                ddlLanguage.Items.Add(new ListItem(set.Name, new[] {set.CultureCode}));
+                ddlLanguage.Items.Add(new ListItem(set.Name, new[] { set.CultureCode }));
                 if (set.CultureCode == MainForm.Conf.Language)
                     selind = i;
                 i++;
@@ -370,7 +353,7 @@ namespace iSpyApplication
             txtAlertOnReconnect.Text = MainForm.Conf.AlertOnReconnect;
             txtArchive.Text = MainForm.Conf.ArchiveNew;
             SetSSLText();
-            
+
 
             txtAlertSubject.Text = MainForm.Conf.MailAlertSubject;
             txtAlertBody.Text = MainForm.Conf.MailAlertBody;
@@ -387,7 +370,7 @@ namespace iSpyApplication
             }
             ddlStartupMode.SelectedIndex = MainForm.Conf.StartupMode;
 
-            foreach(var grid in MainForm.Conf.GridViews)
+            foreach (var grid in MainForm.Conf.GridViews)
             {
                 ddlStartUpForm.Items.Add(grid.name);
             }
@@ -395,15 +378,15 @@ namespace iSpyApplication
             ddlPriority.SelectedIndex = MainForm.Conf.Priority - 1;
 
             ddlStartUpForm.SelectedItem = MainForm.Conf.StartupForm;
-            if (ddlStartUpForm.SelectedItem==null)
+            if (ddlStartUpForm.SelectedItem == null)
                 ddlStartUpForm.SelectedIndex = 0;
 
             ddlPlayback.Items.AddRange(PlaybackModes);
-            
+
             if (MainForm.Conf.PlaybackMode < 0)
                 MainForm.Conf.PlaybackMode = 0;
 
-            if (MainForm.Conf.PlaybackMode<ddlPlayback.Items.Count)
+            if (MainForm.Conf.PlaybackMode < ddlPlayback.Items.Count)
                 ddlPlayback.SelectedIndex = MainForm.Conf.PlaybackMode;
             try
             {
@@ -411,7 +394,7 @@ namespace iSpyApplication
             }
             catch (Exception)
             {
-                
+
             }
             chkBigButtons.Checked = MainForm.Conf.BigButtons;
 
@@ -455,9 +438,9 @@ namespace iSpyApplication
 
             _jst = new JoystickDevice();
             var ij = 0;
-            _sticks = _jst.FindJoysticks();
+            _sticks = JoystickDevice.FindJoysticks();
             i = 1;
-            foreach(string js in _sticks)
+            foreach (string js in _sticks)
             {
                 var nameid = js.Split('|');
                 ddlJoystick.Items.Add(nameid[0]);
@@ -530,7 +513,7 @@ namespace iSpyApplication
             chkEnableLogging.Checked = MainForm.Conf.Logging.Enabled;
             numMaxLogSize.Value = MainForm.Conf.Logging.FileSize;
             numKeepLogs.Value = MainForm.Conf.Logging.KeepDays;
-            
+
             _loaded = true;
         }
 
@@ -563,7 +546,7 @@ namespace iSpyApplication
             chkStartup.Text = LocRm.GetString("RunOnStartupthisUserOnly");
             chkAutoSchedule.Text = LocRm.GetString("AutoApplySchedule");
             chkPasswordProtectOnStart.Text = LocRm.GetString("PasswordProtectOnStart");
-            
+
             label14.Text = LocRm.GetString("IspyServerName");
             label16.Text = LocRm.GetString("ispyOpacitymayNotW");
             label2.Text = LocRm.GetString("ServerReceiveTimeout");
@@ -608,12 +591,12 @@ namespace iSpyApplication
             LocRm.SetString(chkBigButtons, "BigButtons");
             LocRm.SetString(chkMinimise, "MinimiseOnClose");
             LocRm.SetString(chkRecycle, "DeleteToRecycle");
-            LocRm.SetString(chkEnableIPv6,"EnableIPv6");
+            LocRm.SetString(chkEnableIPv6, "EnableIPv6");
             LocRm.SetString(label15, "MaxCPUTarget");
             LocRm.SetString(label22, "MaxRedrawRate");
             LocRm.SetString(btnBorderDefault, "BorderDefault");
-            LocRm.SetString(label25,"YouCanUseRegularExpressions");
-            LocRm.SetString(tabPage5,"Talk");
+            LocRm.SetString(label25, "YouCanUseRegularExpressions");
+            LocRm.SetString(tabPage5, "Talk");
             LocRm.SetString(tabPage8, "Joystick");
             LocRm.SetString(label26, "Joystick");
             LocRm.SetString(tabPage9, "Messaging");
@@ -655,7 +638,7 @@ namespace iSpyApplication
             LocRm.SetString(chkSMTPUseSSL, "UseSSL");
             LocRm.SetString(btnTestSMTP, "Test");
             LocRm.SetString(label43, "WhenDisconnectedFromWebServices");
-            LocRm.SetString(label45,"Execute");
+            LocRm.SetString(label45, "Execute");
             LocRm.SetString(label46, "Execute");
             LocRm.SetString(label44, "WhenReconnectedToWebServices");
             LocRm.SetString(label10, "Plugins");
@@ -697,11 +680,8 @@ namespace iSpyApplication
             btnBorderDefault.ForeColor = InverseColor(btnBorderDefault.BackColor);
         }
 
-        private static Color InverseColor(Color colorIn)
-        {
-            return Color.FromArgb(Rgbmax - colorIn.R,
+        private static Color InverseColor(Color colorIn) => Color.FromArgb(Rgbmax - colorIn.R,
                                   Rgbmax - colorIn.G, Rgbmax - colorIn.B);
-        }
 
         private void chkStartup_CheckedChanged(object sender, EventArgs e)
         {
@@ -710,7 +690,7 @@ namespace iSpyApplication
 
         private void BtnBrowseVideoClick(object sender, EventArgs e)
         {
-            
+
         }
 
         private void Button3Click(object sender, EventArgs e)
@@ -799,10 +779,7 @@ namespace iSpyApplication
             }
         }
 
-        private void TbOpacityScroll(object sender, EventArgs e)
-        {
-            MainClass.Opacity = Convert.ToDouble(tbOpacity.Value) / 100;
-        }
+        private void TbOpacityScroll(object sender, EventArgs e) => MainClass.Opacity = Convert.ToDouble(tbOpacity.Value) / 100;
 
         private void chkErrorReporting_CheckedChanged(object sender, EventArgs e)
         {
@@ -812,10 +789,7 @@ namespace iSpyApplication
         {
         }
 
-        private void Settings_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            _jst?.ReleaseJoystick();
-        }
+        private void Settings_FormClosing(object sender, FormClosingEventArgs e) => _jst?.ReleaseJoystick();
 
         private void ddlLanguage_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -826,7 +800,7 @@ namespace iSpyApplication
         }
 
         private void ReloadLanguages()
-        {           
+        {
             ddlLanguage.Items.Clear();
             RenderResources();
             int i = 0, selind = 0;
@@ -845,10 +819,7 @@ namespace iSpyApplication
         {
             private static ISynchronizeInvoke _sync;
 
-            public static void Init(ISynchronizeInvoke sync)
-            {
-                _sync = sync;
-            }
+            public static void Init(ISynchronizeInvoke sync) => _sync = sync;
 
             public static void Execute(Action action)
             {
@@ -871,18 +842,12 @@ namespace iSpyApplication
                 Value = value;
             }
 
-            public override string ToString()
-            {
-                return _name;
-            }
+            public override string ToString() => _name;
         }
 
         #endregion
 
-        private void llblHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            MainForm.OpenUrl( MainForm.Website+"/userguide-settings.aspx");
-        }
+        private void llblHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => MainForm.OpenUrl(MainForm.Website + "/userguide-settings.aspx");
 
 
         private void chkMonitor_CheckedChanged(object sender, EventArgs e)
@@ -929,7 +894,7 @@ namespace iSpyApplication
             _curButton = null;
 
 
-            if (tblJoystick.Enabled && _jst!=null)
+            if (tblJoystick.Enabled && _jst != null)
             {
                 string nameid = _sticks[ddlJoystick.SelectedIndex - 1];
                 Guid g = Guid.Parse(nameid.Split('|')[1]);
@@ -947,8 +912,8 @@ namespace iSpyApplication
                     jaxis1.ID = MainForm.Conf.Joystick.XAxis;
                     jaxis2.ID = MainForm.Conf.Joystick.YAxis;
                     jaxis3.ID = MainForm.Conf.Joystick.ZAxis;
-                    
-                    
+
+
                     jbutton1.ID = MainForm.Conf.Joystick.Record;
                     jbutton2.ID = MainForm.Conf.Joystick.Snapshot;
                     jbutton3.ID = MainForm.Conf.Joystick.Talk;
@@ -972,8 +937,8 @@ namespace iSpyApplication
 
             }
 
-            
-            
+
+
         }
 
         private int[] _axisLast;
@@ -982,19 +947,16 @@ namespace iSpyApplication
 
         private void tmrJSUpdate_Tick(object sender, EventArgs e)
         {
-            if (_jst != null && _axisLast!=null)
+            if (_jst != null && _axisLast != null)
             {
                 lock (Jslock)
                 {
                     _jst.UpdateStatus();
                     for (int i = 0; i < _jst.Axis.Length; i++)
                     {
-                        if (_jst.Axis[i] != _axisLast[i])
+                        if (_jst.Axis[i] != _axisLast[i] && _curAxis != null)
                         {
-                            if (_curAxis != null)
-                            {
-                                _curAxis.ID = (i + 1);
-                            }
+                            _curAxis.ID = (i + 1);
                         }
                         _axisLast[i] = _jst.Axis[i];
 
@@ -1002,13 +964,10 @@ namespace iSpyApplication
 
                     for (int i = 0; i < _jst.Buttons.Length; i++)
                     {
-                         
-                        if (_jst.Buttons[i] != _buttonsLast[i])
+
+                        if (_jst.Buttons[i] != _buttonsLast[i] && _curButton != null)
                         {
-                            if (_curButton!=null)
-                            {
-                                _curButton.ID = (i + 1);
-                            }
+                            _curButton.ID = (i + 1);
                         }
 
                         _buttonsLast[i] = _jst.Buttons[i];
@@ -1017,17 +976,14 @@ namespace iSpyApplication
 
                     for (int i = 0; i < _jst.Dpads.Length; i++)
                     {
-                        if (_jst.Dpads[i] != _dPadsLast[i])
+                        if (_jst.Dpads[i] != _dPadsLast[i] && _curAxis != null && _curAxis == jaxis1)
                         {
-                            if (_curAxis!=null && _curAxis == jaxis1)
-                            {
-                                //dpads do x-y plane
-                                jaxis2.ID = _curAxis.ID = 0 - (i + 1);
-                            }
+                            //dpads do x-y plane
+                            jaxis2.ID = _curAxis.ID = 0 - (i + 1);
                         }
 
                         _dPadsLast[i] = _jst.Dpads[i];
-                        
+
                     }
                 }
 
@@ -1056,7 +1012,7 @@ namespace iSpyApplication
         {
             if (MainForm.Group != "Admin")
             {
-                var ap = EncDec.DecryptData(MainForm.Conf.Permissions.First(q => q.name == "Admin").password,MainForm.Conf.EncryptCode);
+                var ap = EncDec.DecryptData(MainForm.Conf.Permissions.First(q => q.name == "Admin").password, MainForm.Conf.EncryptCode);
 
                 var p = new Prompt(LocRm.GetString("AdminPassword"), "", true);
                 p.ShowDialog(this);
@@ -1067,8 +1023,8 @@ namespace iSpyApplication
                     MessageBox.Show(this, LocRm.GetString("PasswordIncorrect"));
                     return;
                 }
-                
-               
+
+
             }
             var f = new Features();
             f.ShowDialog(this);
@@ -1159,10 +1115,7 @@ namespace iSpyApplication
             }
         }
 
-        private void linkLabel3_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            MainForm.OpenUrl(MainForm.Website + "/plugins.aspx");
-        }
+        private void linkLabel3_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => MainForm.OpenUrl(MainForm.Website + "/plugins.aspx");
 
         private void linkLabel4_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
@@ -1173,7 +1126,7 @@ namespace iSpyApplication
         private void ListPlugins()
         {
             lbPlugins.Items.Clear();
-            
+
             foreach (String plugin in MainForm.Plugins)
             {
                 string name = plugin.Substring(plugin.LastIndexOf("\\", StringComparison.Ordinal) + 1);
@@ -1222,19 +1175,16 @@ namespace iSpyApplication
             txtAlertBody.Text = txtSMSBody.Text = "[EVENT] at [DATE] [TIME]: [SERVER] [OBJECTNAME] [RECORDED] [PLUGIN]";
 
             txtAlertSubject.Text = "[EVENT]: [SERVER] [OBJECTNAME]";
-            txtAlertBody.Text = txtSMSBody.Text = "[EVENT] at [DATE] [TIME]: [SERVER] [OBJECTNAME] [RECORDED] [PLUGIN]";            
+            txtAlertBody.Text = txtSMSBody.Text = "[EVENT] at [DATE] [TIME]: [SERVER] [OBJECTNAME] [RECORDED] [PLUGIN]";
             txtAppendLinkText.Text = "<br/>ispyconnect.com";
         }
 
-        private void chkUseiSpy_CheckedChanged(object sender, EventArgs e)
-        {
-            tlpSMTP.Enabled = !chkUseiSpy.Checked;
-        }
+        private void chkUseiSpy_CheckedChanged(object sender, EventArgs e) => tlpSMTP.Enabled = !chkUseiSpy.Checked;
 
         private void btnTestSMTP_Click(object sender, EventArgs e)
         {
             SaveSMTPSettings();
-             var p = new Prompt(LocRm.GetString("TestMailTo"), MainForm.Conf.SMTPFromAddress);
+            var p = new Prompt(LocRm.GetString("TestMailTo"), MainForm.Conf.SMTPFromAddress);
             if (p.ShowDialog(this) == DialogResult.OK)
             {
                 MessageBox.Show(this, Mailer.Send(p.Val, LocRm.GetString("test"),
@@ -1254,12 +1204,12 @@ namespace iSpyApplication
             MainForm.Conf.SMTPSSL = chkSMTPUseSSL.Checked;
             MainForm.Conf.SMTPPort = (int)numSMTPPort.Value;
 
-            
+
         }
 
         private void chkPasswordProtectSettings_CheckedChanged(object sender, EventArgs e)
         {
-            
+
 
         }
 
@@ -1275,7 +1225,7 @@ namespace iSpyApplication
                 MainClass.ConnectServices(false);
 
             }
-            
+
         }
 
         private void SetSSLText()
@@ -1298,10 +1248,7 @@ namespace iSpyApplication
 
         }
 
-        private void button3_Click(object sender, EventArgs e)
-        {
-            MainForm.InstanceReference.RunStorageManagement(true);
-        }
+        private void button3_Click(object sender, EventArgs e) => MainForm.InstanceReference.RunStorageManagement(true);
 
         private void ddlStartupMode_SelectedIndexChanged(object sender, EventArgs e)
         {

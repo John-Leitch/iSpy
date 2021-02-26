@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Windows.Forms;
-using AForge.Imaging.Filters;
-using System.Linq;
+﻿using AForge.Imaging.Filters;
 using iSpyApplication.Controls;
 using iSpyApplication.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace iSpyApplication
 {
@@ -18,7 +18,7 @@ namespace iSpyApplication
         private objectsFloorplanObjectsEntry _radialObject;
 
         public MainForm MainClass;
-        
+
         private Bitmap _floorPlanImage;
         private Controls.PictureBox _pnlPlan;
 
@@ -45,9 +45,9 @@ namespace iSpyApplication
             }
 
             lbObjects.AllowDrop = true;
-            _pnlPlan = new Controls.PictureBox {Location = new Point(64, 0), Size = new Size(533, 400), AllowDrop = true};
+            _pnlPlan = new Controls.PictureBox { Location = new Point(64, 0), Size = new Size(533, 400), AllowDrop = true };
             pnlFloorPlan.Controls.Add(_pnlPlan);
-            
+
             _floorPlanEntries = new List<objectsFloorplanObjectsEntry>();
 
             foreach (objectsFloorplanObjectsEntry fpobj in Fpc.Fpobject.objects.@object)
@@ -73,7 +73,7 @@ namespace iSpyApplication
                 Text = LocRm.GetString("EditFloorPlan");
         }
 
-        void PnlPlanPaint(object sender, PaintEventArgs pe)
+        private void PnlPlanPaint(object sender, PaintEventArgs pe)
         {
             // lock
             Graphics gPlan = pe.Graphics;
@@ -87,7 +87,7 @@ namespace iSpyApplication
                 var alertBrushScanner = new SolidBrush(Color.FromArgb(50, 255, 0, 0));
                 var noalertBrushScanner = new SolidBrush(Color.FromArgb(50, 75, 172, 21));
 
-                if (_floorPlanImage!=null)
+                if (_floorPlanImage != null)
                     gPlan.DrawImage(_floorPlanImage, 0, 0, 533, 400);
 
                 foreach (objectsFloorplanObjectsEntry fpoe in _floorPlanEntries)
@@ -107,13 +107,13 @@ namespace iSpyApplication
                                         };
                                 gPlan.FillPolygon(noalertBrush, points);
 
-                                int offset = (fpoe.radius/2) - 11;
+                                int offset = (fpoe.radius / 2) - 11;
                                 gPlan.FillPie(noalertBrushScanner, p.X - offset, p.Y - offset, fpoe.radius, fpoe.radius, (float)(fpoe.angle - 180 - (fpoe.fov / 2)), fpoe.fov);
                             }
                             break;
                         case "microphone":
                             {
-                               gPlan.FillEllipse(noalertBrush, p.X-15 , p.Y-15 , 30, 30);
+                                gPlan.FillEllipse(noalertBrush, p.X - 15, p.Y - 15, 30, 30);
                             }
                             break;
                     }
@@ -139,7 +139,7 @@ namespace iSpyApplication
             label6.Text = LocRm.GetString("FloorPlanControlInstructions");
             llblHelp.Text = linkLabel14.Text = LocRm.GetString("help");
             lblAccessGroups.Text = LocRm.GetString("AccessGroups");
-            LocRm.SetString(chkOriginalSize,"OriginalSize");
+            LocRm.SetString(chkOriginalSize, "OriginalSize");
         }
 
 
@@ -149,7 +149,7 @@ namespace iSpyApplication
             foreach (objectsCamera oc in MainForm.Cameras)
             {
                 objectsCamera oc1 = oc;
-                if (_floorPlanEntries.SingleOrDefault(p=>p.id==oc1.id && p.type=="camera")==null)
+                if (_floorPlanEntries.SingleOrDefault(p => p.id == oc1.id && p.type == "camera") == null)
                     lbObjects.Items.Add(new ListItem(oc.name, oc.id, "camera"));
             }
 
@@ -163,7 +163,7 @@ namespace iSpyApplication
 
         private void BtnFinishClick(object sender, EventArgs e)
         {
-            if (txtName.Text.Trim()=="")
+            if (txtName.Text.Trim()?.Length == 0)
             {
                 MessageBox.Show(LocRm.GetString("ValidateName"));
                 return;
@@ -180,19 +180,19 @@ namespace iSpyApplication
         private void BtnChooseFileClick(object sender, EventArgs e)
         {
             var ofd = new OpenFileDialog
-                          {
-                              InitialDirectory = Program.AppPath + @"backgrounds\",
-                              Filter = "Image Files|*.jpg;*.gif;*.bmp;*.png;*.jpeg",
-                              FilterIndex = 1
-                          };
+            {
+                InitialDirectory = Program.AppPath + @"backgrounds\",
+                Filter = "Image Files|*.jpg;*.gif;*.bmp;*.png;*.jpeg",
+                FilterIndex = 1
+            };
             if (ofd.ShowDialog(this) == DialogResult.OK)
             {
                 string fileName = ofd.FileName;
                 Fpc.Fpobject.image = fileName;
                 Image img = Image.FromFile(fileName);
                 try
-                {                   
-                    Fpc.ImgPlan = (Bitmap) img.Clone();// 
+                {
+                    Fpc.ImgPlan = (Bitmap)img.Clone();// 
                     var rf = new ResizeBilinear(533, 400);
                     _floorPlanImage = rf.Apply((Bitmap)img);
                 }
@@ -202,24 +202,24 @@ namespace iSpyApplication
                 }
                 Fpc.NeedSizeUpdate = true;
                 Fpc.NeedsRefresh = true;
-                if (txtName.Text.Trim() == "")
+                if (txtName.Text.Trim()?.Length == 0)
                     txtName.Text = "Plan " + MainForm.NextFloorPlanId;
                 _pnlPlan.Invalidate();
             }
             ofd.Dispose();
         }
-        
+
         private void PnlPlanDragDrop(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(typeof (ListItem)))
+            if (e.Data.GetDataPresent(typeof(ListItem)))
             {
                 Point local = _pnlPlan.PointToClient(new Point(e.X, e.Y));
 
                 int x = local.X - 16;
                 int y = local.Y - 16;
 
-                var li = ((ListItem) e.Data.GetData(typeof (ListItem)));
-                var fpobj = new objectsFloorplanObjectsEntry {type = li.Type, id = li.Id, x = x, y = y, angle = 135, fov = 120, radius=80};
+                var li = ((ListItem)e.Data.GetData(typeof(ListItem)));
+                var fpobj = new objectsFloorplanObjectsEntry { type = li.Type, id = li.Id, x = x, y = y, angle = 135, fov = 120, radius = 80 };
 
                 _floorPlanEntries.Add(fpobj);
                 Fpc.Fpobject.objects.@object = _floorPlanEntries.ToArray();
@@ -241,8 +241,8 @@ namespace iSpyApplication
                 bool invalidate = false;
                 if (_anglingObject != null && ((ModifierKeys & Keys.Shift) == Keys.Shift))
                 {
-                    double angle = Math.Atan2(_anglingObject.y + 11 - e.Y, _anglingObject.x+11- e.X);
-                    _anglingObject.angle = Convert.ToInt32(angle*(180/Math.PI));
+                    double angle = Math.Atan2(_anglingObject.y + 11 - e.Y, _anglingObject.x + 11 - e.X);
+                    _anglingObject.angle = Convert.ToInt32(angle * (180 / Math.PI));
                     invalidate = true;
                 }
                 if (_fovingObject != null && ((ModifierKeys & Keys.Alt) == Keys.Alt))
@@ -254,7 +254,7 @@ namespace iSpyApplication
                 if (_radialObject != null && ((ModifierKeys & Keys.Control) == Keys.Control))
                 {
                     double distance =
-                        Math.Sqrt(Math.Pow((_radialObject.x + 11 - e.X), 2) + Math.Pow((_radialObject.y + 11 - e.Y), 2))*
+                        Math.Sqrt(Math.Pow((_radialObject.x + 11 - e.X), 2) + Math.Pow((_radialObject.y + 11 - e.Y), 2)) *
                         2;
                     _radialObject.radius = Convert.ToInt32(distance);
                     if (_radialObject.radius < 10)
@@ -274,7 +274,7 @@ namespace iSpyApplication
                         _movingObject.y = e.Y;
                     }
                     invalidate = true;
-                }         
+                }
                 if (invalidate)
                     _pnlPlan.Invalidate();
             }
@@ -282,8 +282,8 @@ namespace iSpyApplication
 
         private objectsFloorplanObjectsEntry _anglingObject;
 
-        private  void PMouseDown(object sender, MouseEventArgs e)
-        { 
+        private void PMouseDown(object sender, MouseEventArgs e)
+        {
             switch (e.Button)
             {
                 case MouseButtons.Left:
@@ -343,20 +343,20 @@ namespace iSpyApplication
                             }
                         }
                     }
-                    
+
                     break;
             }
-            
+
 
         }
-        private  void PMouseUp(object sender, MouseEventArgs e)
+        private void PMouseUp(object sender, MouseEventArgs e)
         {
             switch (e.Button)
             {
                 case MouseButtons.Left:
-                    if (_movingObject!=null)
+                    if (_movingObject != null)
                     {
-                        if (_movingObject.x<0 || _movingObject.x>_pnlPlan.Width || _movingObject.y<0 || _movingObject.y>_pnlPlan.Height)
+                        if (_movingObject.x < 0 || _movingObject.x > _pnlPlan.Width || _movingObject.y < 0 || _movingObject.y > _pnlPlan.Height)
                         {
                             _floorPlanEntries.RemoveAll(p => p.id == _movingObject.id && p.type == _movingObject.type);
                             Fpc.Fpobject.objects.@object = _floorPlanEntries.ToArray();
@@ -379,15 +379,15 @@ namespace iSpyApplication
             int indexOfItem = lbObjects.IndexFromPoint(e.X, e.Y);
             if (indexOfItem >= 0 && indexOfItem < lbObjects.Items.Count) // check we clicked down on a string
             {
-                var li = (ListItem) lbObjects.Items[indexOfItem];
+                var li = (ListItem)lbObjects.Items[indexOfItem];
                 lbObjects.DoDragDrop(li, DragDropEffects.Move);
             }
         }
 
         private void PnlPlanDragEnter(object sender, DragEventArgs e)
         {
-            if ((e.Data.GetDataPresent(typeof (ListItem)) ||
-                 e.Data.GetDataPresent(typeof (objectsFloorplanObjectsEntry))) &&
+            if ((e.Data.GetDataPresent(typeof(ListItem)) ||
+                 e.Data.GetDataPresent(typeof(objectsFloorplanObjectsEntry))) &&
                 (e.AllowedEffect == DragDropEffects.Move))
                 e.Effect = DragDropEffects.Move;
         }
@@ -400,10 +400,7 @@ namespace iSpyApplication
         {
         }
 
-        private void TxtNameKeyUp(object sender, KeyEventArgs e)
-        {
-            Fpc.Fpobject.name = txtName.Text;
-        }
+        private void TxtNameKeyUp(object sender, KeyEventArgs e) => Fpc.Fpobject.name = txtName.Text;
 
         #region Nested type: ListItem
 
@@ -420,30 +417,16 @@ namespace iSpyApplication
                 Type = type;
             }
 
-            public override string ToString()
-            {
-                if (Name != "")
-                    return Type + ": " + Name;
-                return Type + ": " + LocRm.GetString("NoName");
-            }
+            public override string ToString() => Name != "" ? Type + ": " + Name : Type + ": " + LocRm.GetString("NoName");
         }
 
         #endregion
 
-        private void AddFloorPlan_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            _pnlPlan.Dispose();
-        }
+        private void AddFloorPlan_FormClosing(object sender, FormClosingEventArgs e) => _pnlPlan.Dispose();
 
-        private void llblHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            MainForm.OpenUrl( MainForm.Website+"/userguide-floorplans.aspx");
-        }
+        private void llblHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => MainForm.OpenUrl(MainForm.Website + "/userguide-floorplans.aspx");
 
-        private void linkLabel14_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            MainForm.OpenUrl(MainForm.Website + "/userguide-grant-access.aspx");
-        }
+        private void linkLabel14_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => MainForm.OpenUrl(MainForm.Website + "/userguide-grant-access.aspx");
 
         private void chkOriginalSize_CheckedChanged(object sender, EventArgs e)
         {
@@ -457,7 +440,7 @@ namespace iSpyApplication
 
         //private void pnlPlan_MouseMove(object sender, MouseEventArgs e)
         //{
-            
+
         //}
 
         //private void pnlPlan_MouseUp(object sender, MouseEventArgs e)

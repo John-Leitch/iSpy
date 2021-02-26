@@ -1,9 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Security.Principal;
 using System.Windows.Forms;
-using iSpyApplication.Server;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication
 {
@@ -76,7 +73,7 @@ namespace iSpyApplication
                     if (fileName.Trim() != "")
                     {
                         string res = X509.LoadCertificate(fileName);
-                        if (res=="OK")
+                        if (res == "OK")
                             txtSSLCertificate.Text = fileName;
                         else
                         {
@@ -87,10 +84,7 @@ namespace iSpyApplication
             }
         }
 
-        private void chkEnableSSL_CheckedChanged(object sender, EventArgs e)
-        {
-            tlpSSL.Enabled = chkEnableSSL.Checked;
-        }
+        private void chkEnableSSL_CheckedChanged(object sender, EventArgs e) => tlpSSL.Enabled = chkEnableSSL.Checked;
 
         //private void button1_Click_1(object sender, EventArgs e)
         //{

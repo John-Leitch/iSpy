@@ -1,3 +1,10 @@
+using AForge;
+using AForge.Imaging;
+using AForge.Imaging.Filters;
+using iSpyApplication.Sources;
+using iSpyApplication.Sources.Video;
+using iSpyApplication.Utilities;
+using iSpyApplication.Vision;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -8,13 +15,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
-using AForge;
-using AForge.Imaging;
-using AForge.Imaging.Filters;
-using iSpyApplication.Sources;
-using iSpyApplication.Sources.Video;
-using iSpyApplication.Utilities;
-using iSpyApplication.Vision;
 using Image = System.Drawing.Image;
 using Point = System.Drawing.Point;
 
@@ -68,7 +68,7 @@ namespace iSpyApplication.Controls
 
         public Point ZPoint
         {
-            get { return _zPoint; }
+            get => _zPoint;
             set
             {
                 if (value.X < 0)
@@ -89,7 +89,7 @@ namespace iSpyApplication.Controls
         {
             get
             {
-                if (CW!=null && CW.Camobject.detector.colourprocessingenabled)
+                if (CW?.Camobject.detector.colourprocessingenabled == true)
                 {
                     if (_filter != null)
                         return _filter;
@@ -97,21 +97,21 @@ namespace iSpyApplication.Controls
                     {
                         string[] config = CW.Camobject.detector.colourprocessing.Split(CW.Camobject.detector.colourprocessing.IndexOf("|", StringComparison.Ordinal) != -1 ? '|' : ',');
                         _filter = new HSLFiltering
-                                      {
-                                          FillColor =
+                        {
+                            FillColor =
                                               new HSL(Convert.ToInt32(config[2]), float.Parse(config[5], CultureInfo.InvariantCulture),
                                                       float.Parse(config[8], CultureInfo.InvariantCulture)),
-                                          FillOutsideRange = Convert.ToInt32(config[9])==0,
-                                          Hue = new IntRange(Convert.ToInt32(config[0]), Convert.ToInt32(config[1])),
-                                          Saturation = new Range(float.Parse(config[3], CultureInfo.InvariantCulture), float.Parse(config[4], CultureInfo.InvariantCulture)),
-                                          Luminance = new Range(float.Parse(config[6], CultureInfo.InvariantCulture), float.Parse(config[7], CultureInfo.InvariantCulture)),
-                                          UpdateHue = Convert.ToBoolean(config[10], CultureInfo.InvariantCulture),
-                                          UpdateSaturation = Convert.ToBoolean(config[11], CultureInfo.InvariantCulture),
-                                          UpdateLuminance = Convert.ToBoolean(config[12], CultureInfo.InvariantCulture)
+                            FillOutsideRange = Convert.ToInt32(config[9]) == 0,
+                            Hue = new IntRange(Convert.ToInt32(config[0]), Convert.ToInt32(config[1])),
+                            Saturation = new Range(float.Parse(config[3], CultureInfo.InvariantCulture), float.Parse(config[4], CultureInfo.InvariantCulture)),
+                            Luminance = new Range(float.Parse(config[6], CultureInfo.InvariantCulture), float.Parse(config[7], CultureInfo.InvariantCulture)),
+                            UpdateHue = Convert.ToBoolean(config[10], CultureInfo.InvariantCulture),
+                            UpdateSaturation = Convert.ToBoolean(config[11], CultureInfo.InvariantCulture),
+                            UpdateLuminance = Convert.ToBoolean(config[12], CultureInfo.InvariantCulture)
 
                         };
                     }
-                    
+
                 }
 
                 return null;
@@ -174,13 +174,10 @@ namespace iSpyApplication.Controls
                                 try
                                 {
                                     o = _plugin.GetType();
-                                    if (o.GetProperty("WorkingDirectory") != null)
-                                        o.GetProperty("WorkingDirectory").SetValue(_plugin, Program.AppDataPath, null);
-                                    if (o.GetProperty("VideoSource") != null)
-                                        o.GetProperty("VideoSource")
+                                    o.GetProperty("WorkingDirectory")?.SetValue(_plugin, Program.AppDataPath, null);
+                                    o.GetProperty("VideoSource")?
                                             .SetValue(_plugin, CW.Camobject.settings.videosourcestring, null);
-                                    if (o.GetProperty("Configuration") != null)
-                                        o.GetProperty("Configuration")
+                                    o.GetProperty("Configuration")?
                                             .SetValue(_plugin, CW.Camobject.alerts.pluginconfig, null);
                                     if (o.GetProperty("Groups") != null)
                                     {
@@ -189,12 +186,10 @@ namespace iSpyApplication.Controls
                                                 (current, g) => current + (g.name + ",")).Trim(',');
                                         o.GetProperty("Groups").SetValue(_plugin, groups, null);
                                     }
-                                    if (o.GetProperty("Group") != null)
-                                        o.GetProperty("Group").SetValue(_plugin, MainForm.Group, null);
+                                    o.GetProperty("Group")?.SetValue(_plugin, MainForm.Group, null);
 
 
-                                    if (o.GetMethod("LoadConfiguration") != null)
-                                        o.GetMethod("LoadConfiguration").Invoke(_plugin, null);
+                                    o.GetMethod("LoadConfiguration")?.Invoke(_plugin, null);
 
                                     if (o.GetProperty("DeviceList") != null)
                                     {
@@ -224,11 +219,10 @@ namespace iSpyApplication.Controls
                                             o.GetProperty("DeviceList").SetValue(_plugin, dl, null);
                                     }
 
-                                    if (o.GetProperty("CameraName") != null)
-                                        o.GetProperty("CameraName").SetValue(_plugin, CW.Camobject.name, null);
+                                    o.GetProperty("CameraName")?.SetValue(_plugin, CW.Camobject.name, null);
 
                                     var l = o.GetMethod("LogExternal");
-                                    l?.Invoke(_plugin, new object[] {"Plugin Initialised"});
+                                    l?.Invoke(_plugin, new object[] { "Plugin Initialised" });
                                 }
                                 catch (Exception ex)
                                 {
@@ -261,7 +255,7 @@ namespace iSpyApplication.Controls
             {
                 if (_plugin != null)
                 {
-                    try {_plugin.GetType().GetMethod("Dispose")?.Invoke(_plugin, null);}
+                    try { _plugin.GetType().GetMethod("Dispose")?.Invoke(_plugin, null); }
                     catch
                     {
                         // ignored
@@ -279,7 +273,7 @@ namespace iSpyApplication.Controls
             }
 
         }
-        
+
         public Camera() : this(null, null)
         {
         }
@@ -305,14 +299,11 @@ namespace iSpyApplication.Controls
             get
             {
                 var v = VideoSource;
-                return (v!= null) && v.IsRunning;
+                return (v?.IsRunning == true);
             }
         }
 
-        public void Restart()
-        {
-            VideoSource?.Restart();
-        }
+        public void Restart() => VideoSource?.Restart();
 
         //
 
@@ -326,21 +317,21 @@ namespace iSpyApplication.Controls
         // AlarmLevel property
         public double AlarmLevel
         {
-            get { return _alarmLevel; }
-            set { _alarmLevel = value; }
+            get => _alarmLevel;
+            set => _alarmLevel = value;
         }
 
         // AlarmLevel property
         public double AlarmLevelMax
         {
-            get { return _alarmLevelMax; }
-            set { _alarmLevelMax = value; }
+            get => _alarmLevelMax;
+            set => _alarmLevelMax = value;
         }
 
         // motionDetector property
         public MotionDetector MotionDetector
         {
-            get { return _motionDetector; }
+            get => _motionDetector;
             set
             {
                 _motionDetector = value;
@@ -361,9 +352,9 @@ namespace iSpyApplication.Controls
 
             if (_width > -1)
             {
-                double wmulti = Convert.ToDouble(_width)/Convert.ToDouble(100);
-                double hmulti = Convert.ToDouble(_height)/Convert.ToDouble(100);
-                MotionZoneRectangles = zones.Select(r => new Rectangle(Convert.ToInt32(r.left*wmulti), Convert.ToInt32(r.top*hmulti), Convert.ToInt32(r.width*wmulti), Convert.ToInt32(r.height*hmulti))).ToArray();
+                double wmulti = Convert.ToDouble(_width) / Convert.ToDouble(100);
+                double hmulti = Convert.ToDouble(_height) / Convert.ToDouble(100);
+                MotionZoneRectangles = zones.Select(r => new Rectangle(Convert.ToInt32(r.left * wmulti), Convert.ToInt32(r.top * hmulti), Convert.ToInt32(r.width * wmulti), Convert.ToInt32(r.height * hmulti))).ToArray();
                 if (_motionDetector != null)
                     _motionDetector.MotionZones = MotionZoneRectangles;
                 return true;
@@ -374,7 +365,7 @@ namespace iSpyApplication.Controls
         public void ClearMotionZones()
         {
             MotionZoneRectangles = null;
-            if (_motionDetector != null && _motionDetector.MotionZones!=null)
+            if (_motionDetector?.MotionZones != null)
                 _motionDetector.MotionZones = null;
         }
 
@@ -398,7 +389,7 @@ namespace iSpyApplication.Controls
                     VideoSource.PlayingFinished -= VideoSourcePlayingFinished;
                     VideoSource.PlayingFinished += VideoSourcePlayingFinished;
                     VideoSource.Start();
-                    
+
                 }
             }
         }
@@ -414,7 +405,7 @@ namespace iSpyApplication.Controls
 
 
         internal RotateFlipType RotateFlipType = RotateFlipType.RotateNoneFlipNone;
-        
+
         public void DisconnectNewFrameEvent()
         {
             if (VideoSource != null)
@@ -422,10 +413,7 @@ namespace iSpyApplication.Controls
         }
 
         private bool _updateResources = true;
-        public void UpdateResources()
-        {
-            _updateResources = true;
-        }
+        public void UpdateResources() => _updateResources = true;
 
         private void SetMaskImage()
         {
@@ -473,14 +461,14 @@ namespace iSpyApplication.Controls
             var nf = NewFrame;
             var f = e.Frame;
 
-            if (nf==null || f==null)
+            if (nf == null || f == null)
                 return;
 
             if (LastFrameEvent > DateTime.MinValue)
             {
                 CalculateFramerates();
             }
-            
+
             LastFrameEvent = Helper.Now;
 
             if (_updateResources)
@@ -493,38 +481,30 @@ namespace iSpyApplication.Controls
                 BackBrush.Dispose();
                 BackBrush = null;
                 SetMaskImage();
-                RotateFlipType rft;
-                if (Enum.TryParse(CW.Camobject.rotateMode, out rft))
-                {
-                    RotateFlipType = rft;
-                }
-                else
-                {
-                    RotateFlipType = RotateFlipType.RotateNoneFlipNone;
-                }
+                RotateFlipType = Enum.TryParse(CW.Camobject.rotateMode, out RotateFlipType rft) ? rft : RotateFlipType.RotateNoneFlipNone;
             }
-            
+
 
             Bitmap bmOrig = null;
             bool bMotion = false;
             lock (_sync)
-            {            
+            {
                 try
                 {
                     bmOrig = ResizeBmOrig(f);
 
                     if (RotateFlipType != RotateFlipType.RotateNoneFlipNone)
                     {
-                        bmOrig.RotateFlip(RotateFlipType);                           
+                        bmOrig.RotateFlip(RotateFlipType);
                     }
-                         
+
                     _width = bmOrig.Width;
                     _height = bmOrig.Height;
-                        
+
                     if (ZPoint == Point.Empty)
                     {
                         ZPoint = new Point(bmOrig.Width / 2, bmOrig.Height / 2);
-                    } 
+                    }
 
                     if (CW.NeedMotionZones)
                         CW.NeedMotionZones = !SetMotionZones(CW.Camobject.detector.motionzones);
@@ -577,11 +557,11 @@ namespace iSpyApplication.Controls
                             }
                         }
 
-                            
+
                     }
                     bmOrig.UnlockBits(bmd);
                     PiP(bmOrig);
-                    AddTimestamp(bmOrig);                       
+                    AddTimestamp(bmOrig);
                 }
                 catch (UnsupportedImageFormatException ex)
                 {
@@ -645,14 +625,14 @@ namespace iSpyApplication.Controls
 
                         foreach (var pip in _piPEntries)
                         {
-                            if (pip.CW != null && !pip.CW.VideoSourceErrorState)
+                            if (pip.CW?.VideoSourceErrorState == false)
                             {
                                 var bmppip = pip.CW.LastFrame;
                                 if (bmppip != null)
                                 {
-                                    var r = new Rectangle(Convert.ToInt32(pip.R.X*wmulti),
-                                        Convert.ToInt32(pip.R.Y*hmulti), Convert.ToInt32(pip.R.Width*wmulti),
-                                        Convert.ToInt32(pip.R.Height*hmulti));
+                                    var r = new Rectangle(Convert.ToInt32(pip.R.X * wmulti),
+                                        Convert.ToInt32(pip.R.Y * hmulti), Convert.ToInt32(pip.R.Width * wmulti),
+                                        Convert.ToInt32(pip.R.Height * hmulti));
 
                                     g.DrawImage(bmppip, r);
                                 }
@@ -672,7 +652,7 @@ namespace iSpyApplication.Controls
 
         public string PiPConfig
         {
-            get { return _piPConfig; }
+            get => _piPConfig;
             set
             {
                 lock (_sync)
@@ -684,18 +664,14 @@ namespace iSpyApplication.Controls
                         if (s != "")
                         {
                             var t = s.Split(',');
-                            if (t.Length == 5)
+                            if (t.Length == 5 && int.TryParse(t[0], out int cid) && int.TryParse(t[1], out int x) &&
+                                    int.TryParse(t[2], out int y) && int.TryParse(t[3], out int w) &&
+                                    int.TryParse(t[4], out int h))
                             {
-                                int cid, x, y, w, h;
-                                if (int.TryParse(t[0], out cid) && int.TryParse(t[1], out x) &&
-                                    int.TryParse(t[2], out y) && int.TryParse(t[3], out w) &&
-                                    int.TryParse(t[4], out h))
+                                var cw = CW.MainClass.GetCameraWindow(cid);
+                                if (cw != null)
                                 {
-                                    var cw = CW.MainClass.GetCameraWindow(cid);
-                                    if (cw != null)
-                                    {
-                                        _piPEntries.Add(new PiPEntry {CW = cw, R = new Rectangle(x, y, w, h)});
-                                    }
+                                    _piPEntries.Add(new PiPEntry { CW = cw, R = new Rectangle(x, y, w, h) });
                                 }
                             }
                         }
@@ -712,19 +688,19 @@ namespace iSpyApplication.Controls
             public Rectangle R;
         }
 
-        private Dictionary<string, string> _tags; 
+        private Dictionary<string, string> _tags;
         internal Dictionary<string, string> Tags
         {
             get
             {
                 if (_tags == null)
                 {
-                    _tags = Helper.GetDictionary(this.CW.Camobject.settings.tagsnv,';');
+                    _tags = Helper.GetDictionary(this.CW.Camobject.settings.tagsnv, ';');
 
                 }
                 return _tags;
             }
-            set { _tags = value; }
+            set => _tags = value;
         }
 
         private void AddTimestamp(Bitmap bmp)
@@ -747,7 +723,7 @@ namespace iSpyApplication.Controls
                         var l = MainForm.Tags.ToList();
                         foreach (var t in l)
                         {
-                            string sval="";
+                            string sval = "";
                             if (Tags.ContainsKey(t))
                                 sval = Tags[t];
                             ts = ts.Replace(t, sval);
@@ -772,7 +748,7 @@ namespace iSpyApplication.Controls
                     switch (CW.Camobject.settings.timestamplocation)
                     {
                         case 2:
-                            p.X = _width/2 - (rs.Width/2);
+                            p.X = _width / 2 - (rs.Width / 2);
                             break;
                         case 3:
                             p.X = _width - rs.Width;
@@ -782,7 +758,7 @@ namespace iSpyApplication.Controls
                             break;
                         case 5:
                             p.Y = _height - rs.Height;
-                            p.X = _width/2 - (rs.Width/2);
+                            p.X = _width / 2 - (rs.Width / 2);
                             break;
                         case 6:
                             p.Y = _height - rs.Height;
@@ -802,16 +778,16 @@ namespace iSpyApplication.Controls
         private void ProcessAutoTracking()
         {
             var blobcounter =
-                (BlobCountingObjectsProcessing) MotionDetector.MotionProcessingAlgorithm;
+                (BlobCountingObjectsProcessing)MotionDetector.MotionProcessingAlgorithm;
 
             //tracking
 
             if (blobcounter.ObjectsCount > 0 && blobcounter.ObjectsCount < 4 && !CW.Ptzneedsstop)
             {
-                var pCenter = new Point(Width/2, Height/2);
-                Rectangle rec = blobcounter.ObjectRectangles.OrderByDescending(p => p.Width*p.Height).First();
+                var pCenter = new Point(Width / 2, Height / 2);
+                Rectangle rec = blobcounter.ObjectRectangles.OrderByDescending(p => p.Width * p.Height).First();
                 //get center point
-                var prec = new Point(rec.X + rec.Width/2, rec.Y + rec.Height/2);
+                var prec = new Point(rec.X + rec.Width / 2, rec.Y + rec.Height / 2);
 
                 double dratiomin = 0.6;
                 prec.X = prec.X - pCenter.X;
@@ -834,12 +810,12 @@ namespace iSpyApplication.Controls
                 {
                     angle = angle - Math.PI;
                     if (angle < 0 - Math.PI)
-                        angle += 2*Math.PI;
+                        angle += 2 * Math.PI;
                 }
                 double dist = Math.Sqrt(Math.Pow(prec.X, 2.0d) + Math.Pow(prec.Y, 2.0d));
 
-                double maxdist = Math.Sqrt(Math.Pow(Width/2d, 2.0d) + Math.Pow(Height/2d, 2.0d));
-                double dratio = dist/maxdist;
+                double maxdist = Math.Sqrt(Math.Pow(Width / 2d, 2.0d) + Math.Pow(Height / 2d, 2.0d));
+                double dratio = dist / maxdist;
 
                 if (dratio > dratiomin)
                 {
@@ -851,29 +827,29 @@ namespace iSpyApplication.Controls
         }
 
         private DateTime _lastProcessed = DateTime.MinValue;
-        [HandleProcessCorruptedStateExceptions] 
+        [HandleProcessCorruptedStateExceptions]
         private bool ApplyMotionDetector(UnmanagedImage lfu)
         {
-            if (Detect != null && lfu!=null)
+            if (Detect != null && lfu != null)
             {
                 if ((DateTime.UtcNow - _lastProcessed).TotalMilliseconds > CW.Camobject.detector.processframeinterval || CW.Calibrating)
                 {
                     _lastProcessed = DateTime.UtcNow;
-                    
+
                     try
                     {
                         MotionLevel = _motionDetector.ProcessFrame(Filter != null ? Filter.Apply(lfu) : lfu);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
-                        throw new Exception("Error processing motion: "+ex.Message);
+                        throw new Exception("Error processing motion: " + ex.Message);
                     }
-                    
+
                     MotionLevel = MotionLevel * CW.Camobject.detector.gain;
 
                     if (MotionLevel >= _alarmLevel)
                     {
-                        if (Math.Min(MotionLevel,0.99) <= _alarmLevelMax)
+                        if (Math.Min(MotionLevel, 0.99) <= _alarmLevelMax)
                         {
                             return true;
                         }
@@ -897,23 +873,20 @@ namespace iSpyApplication.Controls
             _motionlastdetected = Helper.Now;
             _motionRecentlyDetected = true;
             var al = Detect;
-            al?.BeginInvoke(sender, new EventArgs(),null,null);
+            al?.BeginInvoke(sender, new EventArgs(), null, null);
         }
 
-        internal void TriggerPlugin()
-        {
-            _pluginTrigger = true;
-        }
+        internal void TriggerPlugin() => _pluginTrigger = true;
 
-        
+
         private Bitmap ResizeBmOrig(Bitmap f)
         {
             var sz = Helper.CalcResizeSize(CW.Camobject.settings.resize, f.Size,
                 new Size(CW.Camobject.settings.resizeWidth, CW.Camobject.settings.resizeHeight));
-            if (CW.Camobject.settings.resize && f.Size!=sz)
+            if (CW.Camobject.settings.resize && f.Size != sz)
             {
 
-                var result = new Bitmap(sz.Width,sz.Height, PixelFormat.Format24bppRgb);
+                var result = new Bitmap(sz.Width, sz.Height, PixelFormat.Format24bppRgb);
                 try
                 {
                     using (Graphics g2 = Graphics.FromImage(result))
@@ -931,17 +904,15 @@ namespace iSpyApplication.Controls
                 {
                     result.Dispose();
                 }
-                
+
             }
-            if (CW.HasClones)
-                return new Bitmap(f);
-            return (Bitmap)f.Clone();                    
+            return CW.HasClones ? new Bitmap(f) : (Bitmap)f.Clone();
         }
 
         private void CalculateFramerates()
         {
             TimeSpan tsFr = Helper.Now - LastFrameEvent;
-            _framerates.Enqueue(1000d/tsFr.TotalMilliseconds);
+            _framerates.Enqueue(1000d / tsFr.TotalMilliseconds);
             if (_framerates.Count >= 30)
                 _framerates.Dequeue();
             Framerate = _framerates.Average();
@@ -979,7 +950,7 @@ namespace iSpyApplication.Controls
                     _pluginTrigger = false;
                     break;
             }
-            
+
             if (runplugin)
             {
                 PluginRunning = true;
@@ -988,7 +959,7 @@ namespace iSpyApplication.Controls
                 try
                 {
                     //pass and retrieve the latest bitmap from the plugin
-                    bmOrig = (Bitmap) o.GetMethod("ProcessFrame").Invoke(Plugin, new object[] {bmOrig});
+                    bmOrig = (Bitmap)o.GetMethod("ProcessFrame").Invoke(Plugin, new object[] { bmOrig });
                 }
                 catch (Exception ex)
                 {
@@ -996,42 +967,41 @@ namespace iSpyApplication.Controls
                 }
 
                 //check the plugin alert flag and alarm if it is set
-                var pluginAlert = (string) o.GetField("Alert").GetValue(Plugin);
+                var pluginAlert = (string)o.GetField("Alert").GetValue(Plugin);
                 if (pluginAlert != "")
                     Alert?.Invoke(pluginAlert, EventArgs.Empty);
-                
+
                 //reset the plugin alert flag if it supports that
-                if (o.GetMethod("ResetAlert") != null)
-                    o.GetMethod("ResetAlert").Invoke(_plugin, null);
+                o.GetMethod("ResetAlert")?.Invoke(_plugin, null);
 
                 PluginRunning = false;
             }
             return bmOrig;
         }
 
-        
+
         public Font DrawFont
         {
             get
             {
-                if (_drawfont!=null)
+                if (_drawfont != null)
                     return _drawfont;
                 _drawfont = FontXmlConverter.ConvertToFont(CW.Camobject.settings.timestampfont);
                 return _drawfont;
             }
-            set { _drawfont = value; }
+            set => _drawfont = value;
         }
         public Brush ForeBrush
         {
             get
             {
-                if (_foreBrush!=null)
+                if (_foreBrush != null)
                     return _foreBrush;
                 Color c = CW.Camobject.settings.timestampforecolor.ToColor();
-                _foreBrush = new SolidBrush(Color.FromArgb(255,c.R,c.G,c.B));
+                _foreBrush = new SolidBrush(Color.FromArgb(255, c.R, c.G, c.B));
                 return _foreBrush;
             }
-            set { _foreBrush = value; }
+            set => _foreBrush = value;
         }
         public Brush BackBrush
         {
@@ -1043,22 +1013,19 @@ namespace iSpyApplication.Controls
                 _backBrush = new SolidBrush(Color.FromArgb(128, c.R, c.G, c.B));
                 return _backBrush;
             }
-            set { _backBrush = value; }
+            set => _backBrush = value;
         }
 
         private bool _disposed;
         // Public implementation of Dispose pattern callable by consumers. 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
         protected virtual void Dispose(bool disposing)
         {
             if (_disposed)
                 return;
 
 
-            
+
             ClearMotionZones();
             Detect = null;
             NewFrame = null;
@@ -1069,14 +1036,14 @@ namespace iSpyApplication.Controls
             BackBrush?.Dispose();
             DrawFont?.Dispose();
             _framerates?.Clear();
-                
+
             Mask?.Dispose();
             Mask = null;
-                
+
             VideoSource?.Dispose();
             VideoSource = null;
 
-            
+
             try
             {
                 MotionDetector?.Reset();
@@ -1090,9 +1057,6 @@ namespace iSpyApplication.Controls
             _disposed = true;
         }
 
-        void VideoSourcePlayingFinished(object sender, PlayingFinishedEventArgs e)
-        {
-            PlayingFinished?.Invoke(sender, e);
-        }
+        private void VideoSourcePlayingFinished(object sender, PlayingFinishedEventArgs e) => PlayingFinished?.Invoke(sender, e);
     }
 }

@@ -5,10 +5,7 @@ namespace iSpyApplication
 {
     public class NewDataAvailableArgs : EventArgs
     {
-        public NewDataAvailableArgs(byte[] decodedData)
-        {
-            DecodedData = decodedData;
-        }
+        public NewDataAvailableArgs(byte[] decodedData) => DecodedData = decodedData;
 
         public byte[] DecodedData { get; }
     }
@@ -17,10 +14,7 @@ namespace iSpyApplication
     {
         public int NewLevel;
 
-        public VolumeChangedEventArgs(int newLevel)
-        {
-            NewLevel = newLevel;
-        }
+        public VolumeChangedEventArgs(int newLevel) => NewLevel = newLevel;
     }
     public class NotificationType : EventArgs
     {
@@ -48,7 +42,7 @@ namespace iSpyApplication
             RecordFrame = recordFrame;
         }
 
-        public Bitmap DisplayFrame { get; private set; }
-        public Bitmap RecordFrame { get; private set; }
+        public Bitmap DisplayFrame { get; }
+        public Bitmap RecordFrame { get; }
     }
 }

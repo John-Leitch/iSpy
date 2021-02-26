@@ -1,10 +1,10 @@
-﻿using System;
+﻿using iSpyApplication.Sources.Audio.codecs;
+using iSpyApplication.Utilities;
+using NAudio.Wave;
+using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
-using iSpyApplication.Sources.Audio.codecs;
-using iSpyApplication.Utilities;
-using NAudio.Wave;
 
 namespace iSpyApplication.Sources.Audio.talk
 {
@@ -47,10 +47,7 @@ namespace iSpyApplication.Sources.Audio.talk
             }
         }
 
-        public void Stop()
-        {
-            StopTalk();
-        }
+        public void Stop() => StopTalk();
 
         public event TalkStoppedEventHandler TalkStopped;
         private TcpClient _client;
@@ -203,10 +200,7 @@ namespace iSpyApplication.Sources.Audio.talk
 
         private bool _disposed;
         // Public implementation of Dispose pattern callable by consumers. 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         // Protected implementation of Dispose pattern. 
         protected virtual void Dispose(bool disposing)

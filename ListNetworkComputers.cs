@@ -108,7 +108,7 @@ namespace iSpyApplication
         /// <returns>Arraylist that represents
         /// all the SV_TYPE_WORKSTATION and SV_TYPE_SERVER
         /// PC's in the Domain</returns>
-        public ArrayList GetNetworkComputers()
+        public static ArrayList GetNetworkComputers()
         {
             //local fields
             var networkComputers = new ArrayList();
@@ -126,15 +126,12 @@ namespace iSpyApplication
                 //see http://msdn.microsoft.com/library/
                 //default.asp?url=/library/en-us/netmgmt/netmgmt/netserverenum.asp
                 //for full details of method signature
-                int totalEntries;
-                int entriesRead;
-                int resHandle;
                 var ret = NetServerEnum(null, 100, ref buffer,
                     maxPreferredLength,
-                    out entriesRead,
-                    out totalEntries, svTypeWorkstation |
-                    svTypeServer, null, out 
-                    resHandle);
+                    out int entriesRead,
+                    out int totalEntries, svTypeWorkstation |
+                    svTypeServer, null, out
+int resHandle);
                 //if the returned with a NERR_Success 
                 //(C++ term), =0 for C#
                 if (ret == 0)

@@ -1,10 +1,10 @@
 namespace iSpyPRO.DirectShow
 {
+    using Internals;
     using System;
     using System.Collections;
     using System.Runtime.InteropServices;
     using System.Runtime.InteropServices.ComTypes;
-    using Internals;
 
     /// <summary>
     /// Collection of filters' information objects.
@@ -36,10 +36,7 @@ namespace iSpyPRO.DirectShow
         /// <remarks>Build collection of filters' information objects for the
         /// specified filter category.</remarks>
         /// 
-        public FilterInfoCollection( Guid category )
-		{
-			CollectFilters( category );
-		}
+        public FilterInfoCollection(Guid category) => CollectFilters(category);
 
         /// <summary>
         /// Get filter information object.
@@ -49,76 +46,76 @@ namespace iSpyPRO.DirectShow
         /// 
         /// <returns>Filter information object.</returns>
         /// 
-        public FilterInfo this[int index] => ( (FilterInfo) InnerList[index] );
+        public FilterInfo this[int index] => ((FilterInfo)InnerList[index]);
 
         // Collect filters of specified category
-		private void CollectFilters( Guid category )
-		{
-			object			comObj = null;
-			ICreateDevEnum	enumDev;
-			IEnumMoniker	enumMon = null;
-			var		devMon = new IMoniker[1];
+        private void CollectFilters(Guid category)
+        {
+            object comObj = null;
+            ICreateDevEnum enumDev;
+            IEnumMoniker enumMon = null;
+            var devMon = new IMoniker[1];
 
-		    try
+            try
             {
                 // Get the system device enumerator
-                Type srvType = Type.GetTypeFromCLSID( Clsid.SystemDeviceEnum );
-                if ( srvType == null )
-                    throw new ApplicationException( "Failed creating device enumerator" );
+                Type srvType = Type.GetTypeFromCLSID(Clsid.SystemDeviceEnum);
+                if (srvType == null)
+                    throw new ApplicationException("Failed creating device enumerator");
 
                 // create device enumerator
-                comObj = Activator.CreateInstance( srvType );
-                enumDev = (ICreateDevEnum) comObj;
+                comObj = Activator.CreateInstance(srvType);
+                enumDev = (ICreateDevEnum)comObj;
 
                 // Create an enumerator to find filters of specified category
-                int				hr = enumDev.CreateClassEnumerator( ref category, out enumMon, 0 );
-                if ( hr != 0 )
-                    throw new ApplicationException( "No devices of the category" );
+                int hr = enumDev.CreateClassEnumerator(ref category, out enumMon, 0);
+                if (hr != 0)
+                    throw new ApplicationException("No devices of the category");
 
                 // Collect all filters
                 IntPtr n = IntPtr.Zero;
-                while ( true )
+                while (true)
                 {
                     // Get next filter
-                    hr = enumMon.Next( 1, devMon, n );
-                    if ( ( hr != 0 ) || ( devMon[0] == null ) )
+                    hr = enumMon.Next(1, devMon, n);
+                    if ((hr != 0) || (devMon[0] == null))
                         break;
 
                     // Add the filter
-                    var filter = new FilterInfo( devMon[0] );
-                    InnerList.Add( filter );
+                    var filter = new FilterInfo(devMon[0]);
+                    InnerList.Add(filter);
 
                     // Release COM object
-                    Marshal.ReleaseComObject( devMon[0] );
+                    Marshal.ReleaseComObject(devMon[0]);
                     devMon[0] = null;
                 }
 
                 // Sort the collection
-                InnerList.Sort( );
+                InnerList.Sort();
             }
             catch
             {
             }
-			finally
-			{
-				// release all COM objects
-				enumDev = null;
-				if ( comObj != null )
-				{
-					Marshal.ReleaseComObject( comObj );
-					comObj = null;
-				}
-				if ( enumMon != null )
-				{
-					Marshal.ReleaseComObject( enumMon );
-					enumMon = null;
-				}
-				if ( devMon[0] != null )
-				{
-					Marshal.ReleaseComObject( devMon[0] );
-					devMon[0] = null;
-				}
-			}
-		}
+            finally
+            {
+                // release all COM objects
+                enumDev = null;
+                if (comObj != null)
+                {
+                    Marshal.ReleaseComObject(comObj);
+                    comObj = null;
+                }
+                if (enumMon != null)
+                {
+                    Marshal.ReleaseComObject(enumMon);
+                    enumMon = null;
+                }
+                if (devMon[0] != null)
+                {
+                    Marshal.ReleaseComObject(devMon[0]);
+                    devMon[0] = null;
+                }
+            }
+        }
     }
 }

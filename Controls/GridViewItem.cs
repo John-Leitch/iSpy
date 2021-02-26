@@ -1,9 +1,4 @@
-﻿using System.Deployment.Internal;
-using System.Drawing;
-using System.Windows.Forms;
-using iSpyApplication.Sources;
-
-namespace iSpyApplication.Controls
+﻿namespace iSpyApplication.Controls
 {
     public class GridViewItem
     {
@@ -18,9 +13,6 @@ namespace iSpyApplication.Controls
             TypeID = typeid;
         }
 
-        public override string ToString()
-        {
-            return _name;
-        }
+        public override string ToString() => _name;
     }
 }

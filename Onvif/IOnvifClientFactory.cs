@@ -1,8 +1,8 @@
-﻿using System;
+﻿using iSpyApplication.Onvif.Security;
+using System;
 using System.Net;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
-using iSpyApplication.Onvif.Security;
 
 namespace iSpyApplication.Onvif
 {

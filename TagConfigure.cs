@@ -1,7 +1,6 @@
-﻿using System;
-
+﻿using iSpyApplication.Controls;
+using System;
 using System.Windows.Forms;
-using iSpyApplication.Controls;
 
 namespace iSpyApplication
 {
@@ -24,13 +23,13 @@ namespace iSpyApplication
                 if (d.ContainsKey(t))
                     v = d[t];
                 var tc = new TagEntry
-                            {
-                                TagName = t,
-                                TagValue = v
-                            };
+                {
+                    TagName = t,
+                    TagValue = v
+                };
                 flowLayoutPanel1.Controls.Add(tc);
             }
-            
+
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -39,7 +38,7 @@ namespace iSpyApplication
             foreach (TagEntry te in flowLayoutPanel1.Controls)
             {
                 te.Commit();
-                c += te.TagName + "=" + te.TagValue+";";
+                c += te.TagName + "=" + te.TagValue + ";";
             }
             TagsNV = c;
             DialogResult = DialogResult.OK;

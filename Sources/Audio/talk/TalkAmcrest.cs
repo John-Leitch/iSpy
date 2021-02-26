@@ -1,7 +1,7 @@
-﻿using System;
-using System.Net.Sockets;
-using iSpyApplication.Utilities;
+﻿using iSpyApplication.Utilities;
 using NAudio.Wave;
+using System;
+using System.Net.Sockets;
 
 namespace iSpyApplication.Sources.Audio.talk
 {
@@ -38,16 +38,13 @@ namespace iSpyApplication.Sources.Audio.talk
             }
             catch (Exception ex)
             {
-                Logger.LogException(ex,"Talk (Amcrest)");
+                Logger.LogException(ex, "Talk (Amcrest)");
                 TalkStopped?.Invoke(this, EventArgs.Empty);
             }
         }
 
 
-        public void Stop()
-        {
-            StopTalk();
-        }
+        public void Stop() => StopTalk();
 
         public bool Connected => (_avstream != null);
 
@@ -59,7 +56,7 @@ namespace iSpyApplication.Sources.Audio.talk
             {
                 StopTalk();
             }
-            
+
             _bTalking = true;
             _audioSource.DataAvailable += AudioSourceDataAvailable;
         }
@@ -87,7 +84,7 @@ namespace iSpyApplication.Sources.Audio.talk
                 }
             }
         }
-        
+
         private void AudioSourceDataAvailable(object sender, DataAvailableEventArgs e)
         {
             try
@@ -99,11 +96,11 @@ namespace iSpyApplication.Sources.Audio.talk
                         byte[] bSrc = e.RawData;
                         int totBytes = bSrc.Length;
                         int j = -1;
-                        
+
                         if (!_audioSource.RecordingFormat.Equals(_waveFormat))
                         {
                             var ws = new TalkHelperStream(bSrc, totBytes, _audioSource.RecordingFormat);
-                            
+
                             var bDst = new byte[44100];
                             totBytes = 0;
                             using (var helpStm = new WaveFormatConversionStream(_waveFormat, ws))
@@ -115,12 +112,12 @@ namespace iSpyApplication.Sources.Audio.talk
                                 }
                             }
                             bSrc = bDst;
-                            
+
                         }
-                        
+
                         var enc = new byte[totBytes / 2];
                         ALawEncoder.ALawEncode(bSrc, totBytes, enc);
-                        
+
                         try
                         {
                             _avstream.Write(enc, 0, enc.Length);
@@ -134,10 +131,9 @@ namespace iSpyApplication.Sources.Audio.talk
             }
             catch (Exception ex)
             {
-                Logger.LogException(ex,"Talk (Amcrest)");
+                Logger.LogException(ex, "Talk (Amcrest)");
                 StopTalk();
             }
         }
     }
 }
- 

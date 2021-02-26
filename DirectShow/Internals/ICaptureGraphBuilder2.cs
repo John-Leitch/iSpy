@@ -15,8 +15,8 @@ namespace iSpyPRO.DirectShow.Internals
     /// </summary>
     /// 
     [ComImport,
-    Guid( "93E5A4E0-2D50-11d2-ABFA-00A0C9C6E38D" ),
-    InterfaceType( ComInterfaceType.InterfaceIsIUnknown )]
+    Guid("93E5A4E0-2D50-11d2-ABFA-00A0C9C6E38D"),
+    InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     internal interface ICaptureGraphBuilder2
     {
         /// <summary>
@@ -28,7 +28,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int SetFiltergraph( [In] IGraphBuilder graphBuilder );
+        int SetFiltergraph([In] IGraphBuilder graphBuilder);
 
         /// <summary>
         /// Retrieve the filter graph that the builder is using.
@@ -39,7 +39,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int GetFiltergraph( [Out] out IGraphBuilder graphBuilder );
+        int GetFiltergraph([Out] out IGraphBuilder graphBuilder);
 
         /// <summary>
         /// Create file writing section of the filter graph.
@@ -55,8 +55,8 @@ namespace iSpyPRO.DirectShow.Internals
         /// 
         [PreserveSig]
         int SetOutputFileName(
-            [In, MarshalAs( UnmanagedType.LPStruct )] Guid type,
-            [In, MarshalAs( UnmanagedType.LPWStr )] string fileName,
+            [In, MarshalAs(UnmanagedType.LPStruct)] Guid type,
+            [In, MarshalAs(UnmanagedType.LPWStr)] string fileName,
             [Out] out IBaseFilter baseFilter,
             [Out] out IntPtr fileSinkFilter
             );
@@ -75,11 +75,11 @@ namespace iSpyPRO.DirectShow.Internals
         /// 
         [PreserveSig]
         int FindInterface(
-            [In, MarshalAs( UnmanagedType.LPStruct )] Guid category,
-            [In, MarshalAs( UnmanagedType.LPStruct )] Guid type,
+            [In, MarshalAs(UnmanagedType.LPStruct)] Guid category,
+            [In, MarshalAs(UnmanagedType.LPStruct)] Guid type,
             [In] IBaseFilter baseFilter,
-            [In, MarshalAs( UnmanagedType.LPStruct )] Guid interfaceID ,
-            [Out, MarshalAs( UnmanagedType.IUnknown )] out object retInterface
+            [In, MarshalAs(UnmanagedType.LPStruct)] Guid interfaceID,
+            [Out, MarshalAs(UnmanagedType.IUnknown)] out object retInterface
             );
 
         /// <summary>
@@ -96,9 +96,9 @@ namespace iSpyPRO.DirectShow.Internals
         /// 
         [PreserveSig]
         int RenderStream(
-            [In, MarshalAs( UnmanagedType.LPStruct )] Guid category,
-            [In, MarshalAs( UnmanagedType.LPStruct )] Guid mediaType,
-            [In, MarshalAs( UnmanagedType.IUnknown )] object source,
+            [In, MarshalAs(UnmanagedType.LPStruct)] Guid category,
+            [In, MarshalAs(UnmanagedType.LPStruct)] Guid mediaType,
+            [In, MarshalAs(UnmanagedType.IUnknown)] object source,
             [In] IBaseFilter compressor,
             [In] IBaseFilter renderer
             );
@@ -121,9 +121,9 @@ namespace iSpyPRO.DirectShow.Internals
         /// 
         [PreserveSig]
         int ControlStream(
-            [In, MarshalAs( UnmanagedType.LPStruct )] Guid category,
-            [In, MarshalAs( UnmanagedType.LPStruct )] Guid mediaType,
-            [In, MarshalAs( UnmanagedType.Interface )] IBaseFilter filter,
+            [In, MarshalAs(UnmanagedType.LPStruct)] Guid category,
+            [In, MarshalAs(UnmanagedType.LPStruct)] Guid mediaType,
+            [In, MarshalAs(UnmanagedType.Interface)] IBaseFilter filter,
             [In] long start,
             [In] long stop,
             [In] short startCookie,
@@ -141,7 +141,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// 
         [PreserveSig]
         int AllocCapFile(
-            [In, MarshalAs( UnmanagedType.LPWStr )] string fileName,
+            [In, MarshalAs(UnmanagedType.LPWStr)] string fileName,
             [In] long size
             );
 
@@ -158,9 +158,9 @@ namespace iSpyPRO.DirectShow.Internals
         /// 
         [PreserveSig]
         int CopyCaptureFile(
-            [In, MarshalAs( UnmanagedType.LPWStr )] string oldFileName,
-            [In, MarshalAs( UnmanagedType.LPWStr )] string newFileName,
-            [In, MarshalAs( UnmanagedType.Bool )] bool allowEscAbort,
+            [In, MarshalAs(UnmanagedType.LPWStr)] string oldFileName,
+            [In, MarshalAs(UnmanagedType.LPWStr)] string newFileName,
+            [In, MarshalAs(UnmanagedType.Bool)] bool allowEscAbort,
             [In] IntPtr callback
             );
 
@@ -180,13 +180,13 @@ namespace iSpyPRO.DirectShow.Internals
         /// 
         [PreserveSig]
         int FindPin(
-            [In, MarshalAs( UnmanagedType.IUnknown )] object source,
+            [In, MarshalAs(UnmanagedType.IUnknown)] object source,
             [In] PinDirection pinDirection,
-            [In, MarshalAs( UnmanagedType.LPStruct )] Guid category,
-            [In, MarshalAs( UnmanagedType.LPStruct )] Guid mediaType,
-            [In, MarshalAs( UnmanagedType.Bool )] bool unconnected,
+            [In, MarshalAs(UnmanagedType.LPStruct)] Guid category,
+            [In, MarshalAs(UnmanagedType.LPStruct)] Guid mediaType,
+            [In, MarshalAs(UnmanagedType.Bool)] bool unconnected,
             [In] int index,
-            [Out, MarshalAs( UnmanagedType.Interface )] out IPin pin
+            [Out, MarshalAs(UnmanagedType.Interface)] out IPin pin
             );
     }
 }

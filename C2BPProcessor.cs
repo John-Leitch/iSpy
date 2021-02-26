@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
-using System.Collections;
 
 namespace iSpyApplication
 {
-    class C2BpProcessor
+    internal class C2BpProcessor
     {
         // First position rectangles more than half as wide as the bin.
         // Then position the remaining rectangles in two columns.
@@ -123,7 +123,7 @@ namespace iSpyApplication
         }
 
         // Fill in by rows in a single column.
-        public void SubAlgFillOneColumn(int binWidth, Rectangle[] rects)
+        public static void SubAlgFillOneColumn(int binWidth, Rectangle[] rects)
         {
             // Make lists of positioned and not positioned rectangles.
             List<Rectangle> notPositioned = new List<Rectangle>();
@@ -422,7 +422,7 @@ namespace iSpyApplication
         }
 
         // Find the largest Y coordinate in the solution.
-        private int MaxY(Rectangle[] rects, bool[] isPositioned)
+        private static int MaxY(Rectangle[] rects, bool[] isPositioned)
         {
             int maxY = 0;
             for (int i = 0; i <= rects.Length - 1; i++)
@@ -432,7 +432,7 @@ namespace iSpyApplication
 
 
         // Find the density of the rectangles in the given areas for this solution.
-        private double SolutionDensity(
+        private static double SolutionDensity(
             int xmin1, int xmax1, int ymin1, int ymax1,
             int xmin2, int xmax2, int ymin2, int ymax2,
             Rectangle[] rects, bool[] isPositioned)
@@ -451,9 +451,7 @@ namespace iSpyApplication
             }
 
             double denom = rect1.Width * rect1.Height + rect2.Width * rect2.Height;
-            if (System.Math.Abs(denom) < 0.001) return 0;
-
-            return areaCovered / denom;
+            return System.Math.Abs(denom) < 0.001 ? 0 : areaCovered / denom;
         }
 
         // Start the recursion.

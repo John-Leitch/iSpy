@@ -6,10 +6,10 @@
 // contacts@aforgenet.com
 //
 
+using AForge.Imaging;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using AForge.Imaging;
 
 namespace iSpyApplication.Vision
 {
@@ -79,8 +79,8 @@ namespace iSpyApplication.Vision
         /// 
         public Color HighlightColor
         {
-            get { return _highlightColor; }
-            set { _highlightColor = value; }
+            get => _highlightColor;
+            set => _highlightColor = value;
         }
 
         /// <summary>
@@ -98,8 +98,8 @@ namespace iSpyApplication.Vision
         /// 
         public bool HighlightMotionGrid
         {
-            get { return _highlightMotionGrid; }
-            set { _highlightMotionGrid = value; }
+            get => _highlightMotionGrid;
+            set => _highlightMotionGrid = value;
         }
 
         /// <summary>
@@ -115,10 +115,10 @@ namespace iSpyApplication.Vision
         /// 
         public float MotionAmountToHighlight
         {
-            get { return _motionAmountToHighlight; }
-            set { _motionAmountToHighlight = value; }
+            get => _motionAmountToHighlight;
+            set => _motionAmountToHighlight = value;
         }
-        
+
         /// <summary>
         /// Motion levels of each grid's cell.
         /// </summary>
@@ -142,10 +142,10 @@ namespace iSpyApplication.Vision
         /// 
         public int GridWidth
         {
-            get { return _gridWidth; }
+            get => _gridWidth;
             set
             {
-                _gridWidth = Math.Min( 64, Math.Max( 2, value ) );
+                _gridWidth = Math.Min(64, Math.Max(2, value));
                 _motionGrid = new float[_gridHeight, _gridWidth];
             }
         }
@@ -161,10 +161,10 @@ namespace iSpyApplication.Vision
         /// 
         public int GridHeight
         {
-            get { return _gridHeight; }
+            get => _gridHeight;
             set
             {
-                _gridHeight = Math.Min( 64, Math.Max( 2, value ) );
+                _gridHeight = Math.Min(64, Math.Max(2, value));
                 _motionGrid = new float[_gridHeight, _gridWidth];
             }
         }
@@ -173,7 +173,7 @@ namespace iSpyApplication.Vision
         /// Initializes a new instance of the <see cref="GridMotionAreaProcessing"/> class.
         /// </summary>
         /// 
-        public GridMotionAreaProcessing( ) : this( 16, 16 ) { }
+        public GridMotionAreaProcessing() : this(16, 16) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GridMotionAreaProcessing"/> class.
@@ -192,8 +192,8 @@ namespace iSpyApplication.Vision
         /// <param name="gridHeight">Height of motion grid (see <see cref="GridHeight"/> property).</param>
         /// <param name="highlightMotionGrid">Highlight motion regions or not (see <see cref="HighlightMotionGrid"/> property).</param>
         ///
-        public GridMotionAreaProcessing( int gridWidth, int gridHeight, bool highlightMotionGrid )
-            : this( gridWidth, gridHeight, highlightMotionGrid, 0.15f ) { }
+        public GridMotionAreaProcessing(int gridWidth, int gridHeight, bool highlightMotionGrid)
+            : this(gridWidth, gridHeight, highlightMotionGrid, 0.15f) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GridMotionAreaProcessing"/> class.
@@ -204,10 +204,10 @@ namespace iSpyApplication.Vision
         /// <param name="highlightMotionGrid">Highlight motion regions or not (see <see cref="HighlightMotionGrid"/> property).</param>
         /// <param name="motionAmountToHighlight">Motion amount to highlight cell (see <see cref="MotionAmountToHighlight"/> property).</param>
         ///
-        public GridMotionAreaProcessing( int gridWidth, int gridHeight, bool highlightMotionGrid, float motionAmountToHighlight )
+        public GridMotionAreaProcessing(int gridWidth, int gridHeight, bool highlightMotionGrid, float motionAmountToHighlight)
         {
-            _gridWidth  = Math.Min( 64, Math.Max( 2, gridWidth ) );
-            _gridHeight = Math.Min( 64, Math.Max( 2, gridHeight ) );
+            _gridWidth = Math.Min(64, Math.Max(2, gridWidth));
+            _gridHeight = Math.Min(64, Math.Max(2, gridHeight));
 
             _motionGrid = new float[gridHeight, gridWidth];
 
@@ -232,29 +232,29 @@ namespace iSpyApplication.Vision
         /// <exception cref="InvalidImagePropertiesException">Motion frame is not 8 bpp image, but it must be so.</exception>
         /// <exception cref="UnsupportedImageFormatException">Video frame must be 8 bpp grayscale image or 24/32 bpp color image.</exception>
         ///
-        public unsafe void ProcessFrame( UnmanagedImage videoFrame, UnmanagedImage motionFrame )
+        public unsafe void ProcessFrame(UnmanagedImage videoFrame, UnmanagedImage motionFrame)
         {
-            if ( motionFrame.PixelFormat != PixelFormat.Format8bppIndexed )
+            if (motionFrame.PixelFormat != PixelFormat.Format8bppIndexed)
             {
-                throw new InvalidImagePropertiesException( "Motion frame must be 8 bpp image." );
+                throw new InvalidImagePropertiesException("Motion frame must be 8 bpp image.");
             }
 
-            if ( ( videoFrame.PixelFormat != PixelFormat.Format8bppIndexed ) &&
-                 ( videoFrame.PixelFormat != PixelFormat.Format24bppRgb ) &&
-                 ( videoFrame.PixelFormat != PixelFormat.Format32bppRgb ) &&
-                 ( videoFrame.PixelFormat != PixelFormat.Format32bppArgb ) )
+            if ((videoFrame.PixelFormat != PixelFormat.Format8bppIndexed) &&
+                 (videoFrame.PixelFormat != PixelFormat.Format24bppRgb) &&
+                 (videoFrame.PixelFormat != PixelFormat.Format32bppRgb) &&
+                 (videoFrame.PixelFormat != PixelFormat.Format32bppArgb))
             {
-                throw new UnsupportedImageFormatException( "Video frame must be 8 bpp grayscale image or 24/32 bpp color image." );
-            } 
-            
-            int width  = videoFrame.Width;
-            int height = videoFrame.Height;
-            int pixelSize = System.Drawing.Image.GetPixelFormatSize( videoFrame.PixelFormat ) / 8; 
+                throw new UnsupportedImageFormatException("Video frame must be 8 bpp grayscale image or 24/32 bpp color image.");
+            }
 
-            if ( ( motionFrame.Width != width ) || ( motionFrame.Height != height ) )
+            int width = videoFrame.Width;
+            int height = videoFrame.Height;
+            int pixelSize = System.Drawing.Image.GetPixelFormatSize(videoFrame.PixelFormat) / 8;
+
+            if ((motionFrame.Width != width) || (motionFrame.Height != height))
                 return;
 
-            int cellWidth  = width  / _gridWidth;
+            int cellWidth = width / _gridWidth;
             int cellHeight = height / _gridHeight;
 
             // temporary variables
@@ -262,25 +262,25 @@ namespace iSpyApplication.Vision
 
             // process motion frame calculating amount of changed pixels
             // in each grid's cell
-            byte* motion = (byte*) motionFrame.ImageData.ToPointer( );
+            byte* motion = (byte*)motionFrame.ImageData.ToPointer();
             int motionOffset = motionFrame.Stride - width;
 
-            for ( int y = 0; y < height; y++ )
+            for (int y = 0; y < height; y++)
             {
                 // get current grid's row
                 yCell = y / cellHeight;
                 // correct row number if image was not divided by grid equally
-                if ( yCell >= _gridHeight )
+                if (yCell >= _gridHeight)
                     yCell = _gridHeight - 1;
 
-                for ( int x = 0; x < width; x++, motion++ )
+                for (int x = 0; x < width; x++, motion++)
                 {
-                    if ( *motion != 0 )
+                    if (*motion != 0)
                     {
                         // get current grid's collumn
                         xCell = x / cellWidth;
                         // correct column number if image was not divided by grid equally
-                        if ( xCell >= _gridWidth )
+                        if (xCell >= _gridWidth)
                             xCell = _gridWidth - 1;
 
                         _motionGrid[yCell, xCell]++;
@@ -292,50 +292,50 @@ namespace iSpyApplication.Vision
             // update motion grid converting absolute number of changed
             // pixel to relative for each cell
             int gridHeightM1 = _gridHeight - 1;
-            int gridWidthM1  = _gridWidth  - 1;
+            int gridWidthM1 = _gridWidth - 1;
 
-            int lastRowHeight   = height - cellHeight * gridHeightM1;
-            int lastColumnWidth = width - cellWidth   * gridWidthM1;
+            int lastRowHeight = height - cellHeight * gridHeightM1;
+            int lastColumnWidth = width - cellWidth * gridWidthM1;
 
-            for ( int y = 0; y < _gridHeight; y++ )
+            for (int y = 0; y < _gridHeight; y++)
             {
-                int ch = ( y != gridHeightM1 ) ? cellHeight : lastRowHeight;
+                int ch = (y != gridHeightM1) ? cellHeight : lastRowHeight;
 
-                for ( int x = 0; x < _gridWidth; x++ )
+                for (int x = 0; x < _gridWidth; x++)
                 {
-                    int cw = ( x != gridWidthM1 ) ? cellWidth : lastColumnWidth;
+                    int cw = (x != gridWidthM1) ? cellWidth : lastColumnWidth;
 
-                    _motionGrid[y, x] /= ( cw * ch );
+                    _motionGrid[y, x] /= (cw * ch);
                 }
             }
 
-            if ( _highlightMotionGrid )
+            if (_highlightMotionGrid)
             {
                 // highlight motion grid - cells, which have enough motion
 
-                byte* src = (byte*) videoFrame.ImageData.ToPointer( );
+                byte* src = (byte*)videoFrame.ImageData.ToPointer();
                 int srcOffset = videoFrame.Stride - width * pixelSize;
 
-                if ( pixelSize == 1 )
+                if (pixelSize == 1)
                 {
                     // grayscale case
-                    byte fillG = (byte) ( 0.2125 * _highlightColor.R +
+                    byte fillG = (byte)(0.2125 * _highlightColor.R +
                                           0.7154 * _highlightColor.G +
-                                          0.0721 * _highlightColor.B );
+                                          0.0721 * _highlightColor.B);
 
-                    for ( int y = 0; y < height; y++ )
+                    for (int y = 0; y < height; y++)
                     {
                         yCell = y / cellHeight;
-                        if ( yCell >= _gridHeight )
+                        if (yCell >= _gridHeight)
                             yCell = _gridHeight - 1;
 
-                        for ( int x = 0; x < width; x++, src++ )
+                        for (int x = 0; x < width; x++, src++)
                         {
                             xCell = x / cellWidth;
-                            if ( xCell >= _gridWidth )
+                            if (xCell >= _gridWidth)
                                 xCell = _gridWidth - 1;
 
-                            if ( ( _motionGrid[yCell, xCell] > _motionAmountToHighlight ) && ( ( ( x + y ) & 1 ) == 0 ) )
+                            if ((_motionGrid[yCell, xCell] > _motionAmountToHighlight) && (((x + y) & 1) == 0))
                             {
                                 *src = fillG;
                             }
@@ -350,19 +350,19 @@ namespace iSpyApplication.Vision
                     byte fillG = _highlightColor.G;
                     byte fillB = _highlightColor.B;
 
-                    for ( int y = 0; y < height; y++ )
+                    for (int y = 0; y < height; y++)
                     {
                         yCell = y / cellHeight;
-                        if ( yCell >= _gridHeight )
+                        if (yCell >= _gridHeight)
                             yCell = _gridHeight - 1;
 
-                        for ( int x = 0; x < width; x++, src += pixelSize )
+                        for (int x = 0; x < width; x++, src += pixelSize)
                         {
                             xCell = x / cellWidth;
-                            if ( xCell >= _gridWidth )
+                            if (xCell >= _gridWidth)
                                 xCell = _gridWidth - 1;
 
-                            if ( ( _motionGrid[yCell, xCell] > _motionAmountToHighlight ) && ( ( ( x + y ) & 1 ) == 0 ) )
+                            if ((_motionGrid[yCell, xCell] > _motionAmountToHighlight) && (((x + y) & 1) == 0))
                             {
                                 src[RGB.R] = fillR;
                                 src[RGB.G] = fillG;
@@ -383,7 +383,7 @@ namespace iSpyApplication.Vision
         /// algorithm and prepare it for processing of next video stream or to restart
         /// the algorithm.</para></remarks>
         ///
-        public void Reset( )
+        public void Reset()
         {
         }
     }

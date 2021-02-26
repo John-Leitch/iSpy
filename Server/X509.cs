@@ -1,10 +1,10 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using System;
 using System.Security.Cryptography.X509Certificates;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.Server
 {
-    class X509
+    internal class X509
     {
         private static X509Certificate _sslCertificate;
 
@@ -17,12 +17,12 @@ namespace iSpyApplication.Server
             try
             {
                 _sslCertificate = X509Certificate.CreateFromCertFile(fileName);
-                Logger.LogMessage("Loaded SSL Certificate: " + _sslCertificate.ToString(false),"X509");
+                Logger.LogMessage("Loaded SSL Certificate: " + _sslCertificate.ToString(false), "X509");
                 return "OK";
             }
             catch (Exception ex)
             {
-                Logger.LogException(ex,"X509");
+                Logger.LogException(ex, "X509");
                 return ex.Message;
             }
         }

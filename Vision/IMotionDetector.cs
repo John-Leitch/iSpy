@@ -58,7 +58,7 @@ namespace iSpyApplication.Vision
         /// 
         /// <remarks><para>Processes new frame from video source and detects motion in it.</para></remarks>
         /// 
-        void ProcessFrame( UnmanagedImage videoFrame );
+        void ProcessFrame(UnmanagedImage videoFrame);
 
         /// <summary>
         /// Reset motion detector to initial state.
@@ -69,6 +69,6 @@ namespace iSpyApplication.Vision
         /// may be also done at any time to restart motion detection algorithm.</para>
         /// </remarks>
         /// 
-        void Reset( );
+        void Reset();
     }
 }

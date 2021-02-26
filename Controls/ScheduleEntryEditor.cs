@@ -112,18 +112,15 @@ namespace iSpyApplication.Controls
                 Text = text;
             }
 
-            public override string ToString()
-            {
-                return Text;
-            }
+            public override string ToString() => Text;
         }
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            
+
             DateTime dt = Convert.ToDateTime(dtWhen.Value);
             ose.time = Convert.ToInt32(dt.TimeOfDay.TotalMinutes);
-            
+
             string days = "";
             if (chkMon.Checked)
             {
@@ -157,16 +154,13 @@ namespace iSpyApplication.Controls
             ose.daysofweek = days.Trim(',');
             var sa = ((Helper.ScheduleAction)ddlAction.SelectedItem);
             ose.typeid = sa.ID;
-            
-            if (ddlAlertAction.Visible)
+
+            if (ddlAlertAction.Visible && sa.ParameterName == "Action")
             {
-                if (sa.ParameterName == "Action")
+                if (ddlAlertAction.SelectedIndex > -1)
                 {
-                    if (ddlAlertAction.SelectedIndex > -1)
-                    {
-                        var aa = (ParamDisplay)ddlAlertAction.SelectedItem;
-                        ose.parameter = aa.Ident;
-                    }
+                    var aa = (ParamDisplay)ddlAlertAction.SelectedItem;
+                    ose.parameter = aa.Ident;
                 }
             }
 
@@ -177,14 +171,10 @@ namespace iSpyApplication.Controls
         private void ddlAction_SelectedIndexChanged(object sender, EventArgs e)
         {
             ddlAlertAction.Hide();
-            if (ddlAction.SelectedIndex > -1)
+            if (ddlAction.SelectedIndex > -1 && ddlAction.SelectedItem is Helper.ScheduleAction a)
             {
-                var a = ddlAction.SelectedItem as Helper.ScheduleAction;
-                if (a != null)
-                {
-                    if (a.ParameterName == "Action")
-                        ddlAlertAction.Show();
-                }
+                if (a.ParameterName == "Action")
+                    ddlAlertAction.Show();
             }
         }
     }

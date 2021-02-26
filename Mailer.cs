@@ -1,8 +1,8 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Mail;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication
 {
@@ -25,10 +25,7 @@ namespace iSpyApplication
         }
 
 
-        public static bool Send(string to, string subject, string body)
-        {
-            return Send(to, subject, body, null);
-        }
+        public static bool Send(string to, string subject, string body) => Send(to, subject, body, null);
 
         public static bool Send(string to, string subject, string body, byte[] attach)
         {
@@ -58,24 +55,24 @@ namespace iSpyApplication
                 }
 
                 MemoryStream stream = null;
-                if (attach != null && attach.Length>0)
+                if (attach?.Length > 0)
                 {
-                    stream = new MemoryStream(attach) {Position = 0};
+                    stream = new MemoryStream(attach) { Position = 0 };
 
                     var attachFile = new Attachment(stream, "Screenshot.jpg",
                         System.Net.Mime.MediaTypeNames.Image.Jpeg);
 
                     myMessage.Attachments.Add(attachFile);
-                    
+
                 }
 
                 var emailClient = new SmtpClient(MainForm.Conf.SMTPServer, MainForm.Conf.SMTPPort)
-                                  {
-                                      UseDefaultCredentials = false,
-                                      Credentials =
+                {
+                    UseDefaultCredentials = false,
+                    Credentials =
                                           new NetworkCredential(MainForm.Conf.SMTPUsername, MainForm.Conf.SMTPPassword),
-                                      EnableSsl = MainForm.Conf.SMTPSSL
-                                  };
+                    EnableSsl = MainForm.Conf.SMTPSSL
+                };
 
                 emailClient.Send(myMessage);
 

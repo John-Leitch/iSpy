@@ -1,16 +1,12 @@
-﻿using System;
+﻿using iSpyApplication.Onvif.Security;
+using iSpyApplication.OnvifServices;
+using iSpyApplication.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Runtime.InteropServices;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
-using iSpyApplication.Onvif.Security;
-using iSpyApplication.OnvifServices;
-using iSpyApplication.Utilities;
 using DateTime = System.DateTime;
 
 namespace iSpyApplication.Onvif
@@ -34,7 +30,7 @@ namespace iSpyApplication.Onvif
         private MediaEndpoint[] _mediaEndpoints;
         private Profile[] _profiles;
         public bool Initialized;
-        private int _timeout;
+        private readonly int _timeout;
 
         public Profile Profile;
         public MediaEndpoint StreamEndpoint;
@@ -44,8 +40,7 @@ namespace iSpyApplication.Onvif
 
         public ONVIFDevice(string serviceUrl, string username, string password, int rtspPort, int timeout)
         {
-            Uri uri;
-            if (!Uri.TryCreate(serviceUrl, UriKind.Absolute, out uri))
+            if (!Uri.TryCreate(serviceUrl, UriKind.Absolute, out Uri uri))
                 throw new ApplicationException("Uri: " + serviceUrl + " not recognised.");
 
             _credential = new NetworkCredential(username, password);
@@ -65,7 +60,7 @@ namespace iSpyApplication.Onvif
         {
             get
             {
-                if (_mediaEndpoints != null && _mediaEndpoints.Length > 0)
+                if (_mediaEndpoints?.Length > 0)
                     return _mediaEndpoints;
 
                 Connect();
@@ -92,10 +87,7 @@ namespace iSpyApplication.Onvif
                 Height = config.Bounds.height;
             }
 
-            public override string ToString()
-            {
-                return Width + "x" + Height + ": " + Uri.Uri;
-            }
+            public override string ToString() => Width + "x" + Height + ": " + Uri.Uri;
         }
 
         public void SelectProfile(int profileIndex)
@@ -196,16 +188,16 @@ namespace iSpyApplication.Onvif
                 _profiles = profiles.ToArray();
 
                 DefaultPTSpeed = new Space2DDescription
-                                 {
-                                     XRange = new FloatRange { Max = 1, Min = -1 },
-                                     YRange = new FloatRange { Max = 1, Min = -1 },
-                                     URI = null
-                                 };
+                {
+                    XRange = new FloatRange { Max = 1, Min = -1 },
+                    YRange = new FloatRange { Max = 1, Min = -1 },
+                    URI = null
+                };
                 DefaultZSpeed = new Space1DDescription
-                                {
-                                    XRange = new FloatRange { Max = 1, Min = -1 },
-                                    URI = null
-                                };
+                {
+                    XRange = new FloatRange { Max = 1, Min = -1 },
+                    URI = null
+                };
                 try
                 {
                     if (_deviceCapabilities.PTZ != null)
@@ -238,8 +230,8 @@ namespace iSpyApplication.Onvif
             }
             catch (Exception ex)
             {
-                _profiles = new Profile[] { };
-                _mediaEndpoints = new MediaEndpoint[] { };
+                _profiles = Array.Empty<Profile>();
+                _mediaEndpoints = Array.Empty<MediaEndpoint>();
                 Logger.LogException(ex, "ONVIF Device");
             }
         }
@@ -248,20 +240,13 @@ namespace iSpyApplication.Onvif
         {
             Device deviceClient = CreateDeviceClient();
             SystemDateTime deviceSystemDateTime = deviceClient.GetSystemDateAndTime();
-
-            DateTime deviceTime;
-            if (deviceSystemDateTime.UTCDateTime == null)
-                deviceTime = DateTime.UtcNow;
-            else
-            {
-                deviceTime = new DateTime(deviceSystemDateTime.UTCDateTime.Date.Year,
+            return deviceSystemDateTime.UTCDateTime == null
+                ? DateTime.UtcNow
+                : new DateTime(deviceSystemDateTime.UTCDateTime.Date.Year,
                     deviceSystemDateTime.UTCDateTime.Date.Month,
                     deviceSystemDateTime.UTCDateTime.Date.Day, deviceSystemDateTime.UTCDateTime.Time.Hour,
                     deviceSystemDateTime.UTCDateTime.Time.Minute, deviceSystemDateTime.UTCDateTime.Time.Second, 0,
                     DateTimeKind.Utc);
-            }
-
-            return deviceTime;
         }
         private Capabilities12 GetDeviceCapabilities()
         {
@@ -274,7 +259,7 @@ namespace iSpyApplication.Onvif
 
         //public void UnsubscribeEvents()
         //{
-            //_cancellationTokenSource?.Cancel();
+        //_cancellationTokenSource?.Cancel();
         //}
         //public bool SubscribeToEvents()
         //{
@@ -350,16 +335,13 @@ namespace iSpyApplication.Onvif
         //    Stopped?.Invoke(this, EventArgs.Empty);
         //}
 
-        protected virtual void OnStateChanged(ConnectionStateInfo e)
-        {
-            ConnectionStateChanged?.Invoke(this, e);
-        }
+        protected virtual void OnStateChanged(ConnectionStateInfo e) => ConnectionStateChanged?.Invoke(this, e);
 
         public Profile[] Profiles
         {
             get
             {
-                if (_profiles != null && _profiles.Length > 0)
+                if (_profiles?.Length > 0)
                     return _profiles;
 
                 Connect();
@@ -378,9 +360,6 @@ namespace iSpyApplication.Onvif
             return deviceClient;
         }
 
-        private Uri GetServiceUri(string serviceRelativePath)
-        {
-            return new Uri(_connectionParameters.ConnectionUri, serviceRelativePath);
-        }
+        private Uri GetServiceUri(string serviceRelativePath) => new Uri(_connectionParameters.ConnectionUri, serviceRelativePath);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -6,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Serialization;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication
 {
@@ -24,11 +24,11 @@ namespace iSpyApplication
             {
                 if (_translationsList != null)
                     return _translationsList;
-                var s = new XmlSerializer(typeof (Translations));
+                var s = new XmlSerializer(typeof(Translations));
                 string p = Program.AppDataPath + @"\XML\Translations.xml";
-//#if DEBUG
-//                p = Program.AppPath+ @"\XML\Translations.xml";
-//#endif
+                //#if DEBUG
+                //                p = Program.AppPath+ @"\XML\Translations.xml";
+                //#endif
                 using (var fs = new FileStream(p, FileMode.Open))
                 {
                     fs.Position = 0;
@@ -49,10 +49,7 @@ namespace iSpyApplication
             _inited = false;
         }
 
-        public static string GetString(string identifier)
-        {
-            return GetString(identifier, MainForm.Conf.Language);
-        }
+        public static string GetString(string identifier) => GetString(identifier, MainForm.Conf.Language);
 
         public static string GetString(string identifier, string languageCode)
         {
@@ -63,14 +60,14 @@ namespace iSpyApplication
             identifier = identifier.ToLower();
             try
             {
-                return Res[languageCode+"."+identifier.ToLower()].ToString();
+                return Res[languageCode + "." + identifier.ToLower()].ToString();
             }
             catch (NullReferenceException)
             {
                 Logger.LogError("No Translation for token " + identifier);
                 if (MainForm.Conf.Language != "en")
                 {
-                    Res.Add(languageCode+"."+identifier, identifier);
+                    Res.Add(languageCode + "." + identifier, identifier);
                     return identifier;
                 }
 
@@ -84,24 +81,12 @@ namespace iSpyApplication
 
 
 
-        public static void SetString(Control ctrl, string identifier)
-        {
-            ctrl.Text = GetString(identifier);
-        }
+        public static void SetString(Control ctrl, string identifier) => ctrl.Text = GetString(identifier);
 
-        public static void SetString(MenuItem ctrl, string identifier)
-        {
-            ctrl.Text = GetString(identifier);
-        }
-        public static void SetString(ToolStripMenuItem ctrl, string identifier)
-        {
-            ctrl.Text = GetString(identifier);
-        }
+        public static void SetString(MenuItem ctrl, string identifier) => ctrl.Text = GetString(identifier);
+        public static void SetString(ToolStripMenuItem ctrl, string identifier) => ctrl.Text = GetString(identifier);
 
-        public static void SetString(ToolStripStatusLabel ctrl, string identifier)
-        {
-            ctrl.Text = GetString(identifier);
-        }
+        public static void SetString(ToolStripStatusLabel ctrl, string identifier) => ctrl.Text = GetString(identifier);
 
 
         private static void Init()
@@ -126,7 +111,7 @@ namespace iSpyApplication
                     {
                         Res.Add((ls.CultureCode + "." + t.Token.ToLower()), t.Value);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         //ignore duplicates
                     }

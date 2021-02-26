@@ -1,9 +1,9 @@
-using System;
 using NetFwTypeLib;
+using System;
 
 namespace iSpyApplication
 {
-    class FireWall
+    internal class FireWall
     {
         public enum FwErrorCode
         {
@@ -37,7 +37,7 @@ namespace iSpyApplication
             FwErrUnknown,                     // Unknown Error or Exception occured
         };
 
-        INetFwProfile _mFirewallProfile;
+        private INetFwProfile _mFirewallProfile;
 
         public FwErrorCode Initialize()
         {
@@ -87,8 +87,7 @@ namespace iSpyApplication
                 return FwErrorCode.FwErrInitialized;
 
             // Check whether the firewall is off
-            bool bFwOn;
-            FwErrorCode ret = IsWindowsFirewallOn(out bFwOn);
+            FwErrorCode ret = IsWindowsFirewallOn(out bool bFwOn);
             if (ret != FwErrorCode.FwNoerror)
                 return ret;
 
@@ -105,8 +104,7 @@ namespace iSpyApplication
                 return FwErrorCode.FwErrInitialized;
 
             // Check whether the firewall is off
-            bool bFwOn;
-            FwErrorCode ret = IsWindowsFirewallOn(out bFwOn);
+            FwErrorCode ret = IsWindowsFirewallOn(out bool bFwOn);
 
             if (ret != FwErrorCode.FwNoerror)
                 return ret;
@@ -241,7 +239,7 @@ namespace iSpyApplication
             try
             {
                 INetFwOpenPort fwOpenPort = fwOpenPorts.Item(nPortNumber, ipProtocol);
-                bEnable = fwOpenPort != null && fwOpenPort.Enabled;
+                bEnable = fwOpenPort?.Enabled == true;
             }
             catch (System.IO.FileNotFoundException)
             {

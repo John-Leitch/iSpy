@@ -1,18 +1,14 @@
-﻿using System;
-using System.ServiceModel.Channels;
+﻿using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 
 namespace iSpyApplication.Onvif.Behaviour
 {
-    class CustomEndpointBehavior : IEndpointBehavior
+    internal class CustomEndpointBehavior : IEndpointBehavior
     {
         private readonly IClientMessageInspector _clientInspector;
 
-        public CustomEndpointBehavior(IClientMessageInspector clientInspector)
-        {
-            _clientInspector = clientInspector;
-        }
+        public CustomEndpointBehavior(IClientMessageInspector clientInspector) => _clientInspector = clientInspector;
 
         public void Validate(ServiceEndpoint endpoint)
         {
@@ -26,9 +22,6 @@ namespace iSpyApplication.Onvif.Behaviour
         {
         }
 
-        public void ApplyClientBehavior(ServiceEndpoint endpoint, ClientRuntime clientRuntime)
-        {
-            clientRuntime.MessageInspectors.Add(_clientInspector);
-        }
+        public void ApplyClientBehavior(ServiceEndpoint endpoint, ClientRuntime clientRuntime) => clientRuntime.MessageInspectors.Add(_clientInspector);
     }
 }

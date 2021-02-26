@@ -1,11 +1,11 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using Renci.SshNet;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using iSpyApplication.Utilities;
-using Renci.SshNet;
 
 namespace iSpyApplication
 {
@@ -26,8 +26,10 @@ namespace iSpyApplication
             }
             try
             {
-                var urib = new UriBuilder(server);
-                urib.Port = port;
+                var urib = new UriBuilder(server)
+                {
+                    Port = port
+                };
 
                 var target = urib.ToString();
                 int i = 0;
@@ -142,7 +144,7 @@ namespace iSpyApplication
             return !failed;
         }
 
-        private bool Sftp(string server, int port, string username, string password, string filename, int counter, byte[] contents, out string error, bool rename)
+        private static bool Sftp(string server, int port, string username, string password, string filename, int counter, byte[] contents, out string error, bool rename)
         {
             bool failed = false;
             error = "";
@@ -222,14 +224,11 @@ namespace iSpyApplication
         public void FTP(object taskObject)
         {
             var task = (FTPTask)taskObject;
-            int i = 0;
-            while (task.FileName.IndexOf("{", StringComparison.Ordinal) != -1 && i < 20)
+            for (int i = 0; task.FileName.IndexOf("{", StringComparison.Ordinal) != -1 && i < 20; i++)
             {
                 task.FileName = String.Format(CultureInfo.InvariantCulture, task.FileName, Helper.Now);
-                i++;
             }
-            string error;
-            FTP(task.Server, task.Port, task.UsePassive, task.Username, task.Password, task.FileName, task.Counter, task.Path, out error, task.Rename, task.UseSftp, task.Content);
+            FTP(task.Server, task.Port, task.UsePassive, task.Username, task.Password, task.FileName, task.Counter, task.Path, out string error, task.Rename, task.UseSftp, task.Content);
 
             if (error != "")
             {

@@ -9,7 +9,7 @@ using System.Xml;
 
 namespace iSpyApplication.Onvif.Security
 {
-    class DigestSecurityHeader : MessageHeader
+    internal class DigestSecurityHeader : MessageHeader
     {
         private readonly NetworkCredential _credential;
         private readonly SecurityToken _token;

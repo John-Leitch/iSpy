@@ -1,10 +1,10 @@
-﻿using System;
+﻿using iSpyApplication.Properties;
+using iSpyApplication.Utilities;
+using System;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
-using iSpyApplication.Properties;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.Controls
 {
@@ -20,7 +20,7 @@ namespace iSpyApplication.Controls
         private void RenderResources()
         {
             Text = LocRm.GetString("FTPEditor");
-            LocRm.SetString(label64,"Name");
+            LocRm.SetString(label64, "Name");
             LocRm.SetString(label62, "Server");
             LocRm.SetString(label66, "Port");
             LocRm.SetString(label63, "Username");
@@ -60,13 +60,13 @@ namespace iSpyApplication.Controls
             FTP.port = (int)txtFTPPort.Value;
             FTP.rename = chkFTPRename.Checked;
             FTP.usepassive = chkUsePassive.Checked;
-            
+
             DialogResult = DialogResult.OK;
             Close();
 
         }
 
-        string _testloc = "test.jpg";
+        private string _testloc = "test.jpg";
 
         private void btnTest_Click(object sender, EventArgs e)
         {
@@ -81,15 +81,14 @@ namespace iSpyApplication.Controls
                     {
                         Resources.cam_offline.Save(imageStream, ImageFormat.Jpeg);
 
-                        string error;
                         CleanData();
 
                         string fn = string.Format(CultureInfo.InvariantCulture, _testloc, Helper.Now);
-                        int port = (int) txtFTPPort.Value;
+                        int port = (int)txtFTPPort.Value;
                         if ((new AsynchronousFtpUpLoader()).FTP(txtFTPServer.Text, port,
                                                                 chkUsePassive.Checked,
                                                                 txtFTPUsername.Text, txtFTPPassword.Text, fn, 0,
-                                                                "", out error, chkFTPRename.Checked, chkSFTP.Checked, imageStream.ToArray()))
+                                                                "", out string error, chkFTPRename.Checked, chkSFTP.Checked, imageStream.ToArray()))
                         {
                             MessageBox.Show(LocRm.GetString("ImageUploaded"), LocRm.GetString("Success"));
                         }

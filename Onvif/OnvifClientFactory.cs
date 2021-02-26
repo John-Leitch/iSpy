@@ -1,15 +1,15 @@
-﻿using System;
+﻿using iSpyApplication.Onvif.Behaviour;
+using iSpyApplication.Onvif.Security;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
-using iSpyApplication.Onvif.Behaviour;
-using iSpyApplication.Onvif.Security;
 
 namespace iSpyApplication.Onvif
 {
-    class OnvifClientFactory : IOnvifClientFactory
+    internal class OnvifClientFactory : IOnvifClientFactory
     {
         private SecurityToken _securityToken;
 
@@ -19,10 +19,7 @@ namespace iSpyApplication.Onvif
             ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, policyErrors) => { return true; };
         }
 
-        public TService CreateClient<TService>(Uri uri, IConnectionParameters connectionParameters, MessageVersion messageEncodingVersion, int timeout)
-        {
-            return CreateClient<TService>(new EndpointAddress(uri), connectionParameters, messageEncodingVersion, timeout);
-        }
+        public TService CreateClient<TService>(Uri uri, IConnectionParameters connectionParameters, MessageVersion messageEncodingVersion, int timeout) => CreateClient<TService>(new EndpointAddress(uri), connectionParameters, messageEncodingVersion, timeout);
 
         public TService CreateClient<TService>(EndpointAddress address, IConnectionParameters connectionParameters, MessageVersion messageEncodingVersion, int timeout)
         {
@@ -52,10 +49,7 @@ namespace iSpyApplication.Onvif
             return service;
         }
 
-        public void SetSecurityToken(SecurityToken token)
-        {
-            _securityToken = token;
-        }
+        public void SetSecurityToken(SecurityToken token) => _securityToken = token;
 
         private static CustomBinding CreateCustomBinding(TimeSpan connectionTimeout, NetworkCredential credentials, MessageVersion messageVersion)
         {

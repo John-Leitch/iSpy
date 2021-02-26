@@ -1,8 +1,8 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using Newtonsoft.Json;
+using System;
 using System.IO;
 using System.Net;
-using iSpyApplication.Utilities;
-using Newtonsoft.Json;
 
 namespace iSpyApplication.Sources.Video
 {
@@ -32,8 +32,7 @@ namespace iSpyApplication.Sources.Video
             ReconnectInterval = 0;
             try
             {
-                HttpWebRequest wreq;
-                using (var wr = _connectionFactory.GetResponse(_url, "POST", _post, out wreq))
+                using (var wr = _connectionFactory.GetResponse(_url, "POST", _post, out HttpWebRequest wreq))
                 {
                     if (wr == null)
                     {
@@ -76,7 +75,7 @@ namespace iSpyApplication.Sources.Video
             {
                 var uri = new Uri(vss);
 
-                var url = "http://" + uri.Host +":"+ _tokenPort + "/ "+_tokenPath;
+                var url = "http://" + uri.Host + ":" + _tokenPort + "/ " + _tokenPath;
                 var post = _postData;
                 post = post.Replace("[USERNAME]", _username);
                 post = post.Replace("[PASSWORD]", _password);
@@ -86,10 +85,10 @@ namespace iSpyApplication.Sources.Video
             }
             catch (Exception ex)
             {
-                Logger.LogException(ex,"Tokens");
+                Logger.LogException(ex, "Tokens");
             }
         }
-        
+
 
 
 

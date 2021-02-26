@@ -1,4 +1,5 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -6,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using iSpyApplication.Utilities;
 using DateTime = System.DateTime;
 
 namespace iSpyApplication
@@ -45,7 +45,7 @@ namespace iSpyApplication
                 var l = new Li { Name = c.name, Ot = 1, ID = c.id };
                 ddlObject.Items.Add(l);
             }
-            ddlObject.Items.Insert(0,LocRm.GetString("PleaseSelect"));
+            ddlObject.Items.Insert(0, LocRm.GetString("PleaseSelect"));
             ddlObject.SelectedIndex = 0;
         }
 
@@ -54,10 +54,7 @@ namespace iSpyApplication
             public string Name;
             public int Ot;
             public int ID;
-            public override string ToString()
-            {
-                return Name;
-            }
+            public override string ToString() => Name;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -93,7 +90,7 @@ namespace iSpyApplication
             {
                 var vl = MainClass.GetVolumeLevel(_currentObject.ID);
                 _pbMerge = vl.FileList.Where(
-                    p =>p.CreatedDateTicks >= dateTimePicker1.Value.Ticks &&
+                    p => p.CreatedDateTicks >= dateTimePicker1.Value.Ticks &&
                         p.CreatedDateTicks <= dateTimePicker2.Value.Ticks).OrderBy(p => p.CreatedDateTicks).ToList();
             }
             else
@@ -112,7 +109,7 @@ namespace iSpyApplication
 
                 _dir = Helper.GetFullPath(_currentObject.Ot, _currentObject.ID);
                 _outfile = _currentObject.ID + "_" +
-                           $"Merge_{date.Year}-{Helper.ZeroPad(date.Month)}-{Helper.ZeroPad(date.Day)}_{Helper.ZeroPad(date.Hour)}-{Helper.ZeroPad(date.Minute)}-{Helper.ZeroPad(date.Second)}" +"."+ext;
+                           $"Merge_{date.Year}-{Helper.ZeroPad(date.Month)}-{Helper.ZeroPad(date.Day)}_{Helper.ZeroPad(date.Hour)}-{Helper.ZeroPad(date.Minute)}-{Helper.ZeroPad(date.Second)}" + "." + ext;
 
                 string filelist = _pbMerge.Aggregate("",
                     (current, file) => current + ("file '" + _dir + file.Filename + "'" + Environment.NewLine));
@@ -121,18 +118,18 @@ namespace iSpyApplication
                 if (filelist != "")
                 {
                     var startInfo = new ProcessStartInfo
-                                    {
-                                        FileName = "\""+Program.AppPath + "ffmpeg.exe\"",
-                                        Arguments =
+                    {
+                        FileName = "\"" + Program.AppPath + "ffmpeg.exe\"",
+                        Arguments =
                                             "-f concat -safe 0  -i \"" + Program.AppDataPath + "concat.txt" +
                                             "\" -codec copy \"" + _dir + _outfile + "\"",
-                                        RedirectStandardOutput = false,
-                                        RedirectStandardError = false,
-                                        UseShellExecute = false,
-                                        CreateNoWindow = true
-                                    };
+                        RedirectStandardOutput = false,
+                        RedirectStandardError = false,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
                     Logger.LogMessage("Merge: " + startInfo.FileName + " " + startInfo.Arguments);
-                    _ffmpegProcess = new Process {StartInfo = startInfo, EnableRaisingEvents = true};
+                    _ffmpegProcess = new Process { StartInfo = startInfo, EnableRaisingEvents = true };
                     _ffmpegProcess.Exited += FfmpegMergeProcessExited;
                     _ffmpegProcess.ErrorDataReceived += FfmpegMergeProcessErrorDataReceived;
                     try
@@ -150,20 +147,20 @@ namespace iSpyApplication
             }
         }
 
-        void FfmpegMergeProcessErrorDataReceived(object sender, DataReceivedEventArgs e)
+        private void FfmpegMergeProcessErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
-            Logger.LogError("merge process error: "+e.Data);
+            Logger.LogError("merge process error: " + e.Data);
             DoClose();
         }
 
-        void FfmpegMergeProcessExited(object sender, EventArgs e)
+        private void FfmpegMergeProcessExited(object sender, EventArgs e)
         {
             if (_ffmpegProcess.ExitCode == 0)
             {
-                if (_pbMerge.Count>0)
+                if (_pbMerge.Count > 0)
                 {
                     var ma = 0d;
-                    var fi = new FileInfo(_dir+_outfile);
+                    var fi = new FileInfo(_dir + _outfile);
 
 
                     var alertData = new StringBuilder();
@@ -182,19 +179,19 @@ namespace iSpyApplication
                     }
 
                     var ff = new FilesFile
-                             {
-                                 CreatedDateTicks = DateTime.Now.Ticks,
-                                 DurationSeconds = durationSeconds,
-                                 IsTimelapse = false,
-                                 TriggerLevel = _pbMerge.First().TriggerLevel,
-                                 TriggerLevelMax = _pbMerge.First().TriggerLevelMax,
-                                 Filename = _outfile,
-                                 AlertData = Helper.GetMotionDataPoints(alertData),
-                                 MaxAlarm = ma,
-                                 SizeBytes = fi.Length,
-                                 IsMergeFile = true,
-                                 IsMergeFileSpecified = true
-                             };
+                    {
+                        CreatedDateTicks = DateTime.Now.Ticks,
+                        DurationSeconds = durationSeconds,
+                        IsTimelapse = false,
+                        TriggerLevel = _pbMerge.First().TriggerLevel,
+                        TriggerLevelMax = _pbMerge.First().TriggerLevelMax,
+                        Filename = _outfile,
+                        AlertData = Helper.GetMotionDataPoints(alertData),
+                        MaxAlarm = ma,
+                        SizeBytes = fi.Length,
+                        IsMergeFile = true,
+                        IsMergeFileSpecified = true
+                    };
 
                     string name;
                     if (_currentObject.Ot == 1)
@@ -213,18 +210,18 @@ namespace iSpyApplication
                         //get preview image
                         string imgname = fpv.Filename.Substring(0,
                             fpv.Filename.LastIndexOf(".", StringComparison.Ordinal));
-                        var imgpath = _dir + "thumbs/" + imgname+"_large.jpg";
-                        
+                        var imgpath = _dir + "thumbs/" + imgname + "_large.jpg";
+
                         if (File.Exists(imgpath))
                         {
                             Image bmpPreview = Image.FromFile(imgpath);
-                           
+
                             string jpgname = _dir + "thumbs\\" + ff.Filename.Substring(0,
                                 ff.Filename.LastIndexOf(".", StringComparison.Ordinal));
 
                             bmpPreview.Save(jpgname + "_large.jpg", MainForm.Encoder,
                                 MainForm.EncoderParams);
-                            
+
                             Image.GetThumbnailImageAbort myCallback = ThumbnailCallback;
                             Image myThumbnail = bmpPreview.GetThumbnailImage(96, 72, myCallback, IntPtr.Zero);
 
@@ -238,7 +235,7 @@ namespace iSpyApplication
 
                     }
 
-                    var fp = new FilePreview(_outfile, durationSeconds, name, ff.CreatedDateTicks, _currentObject.Ot,_currentObject.ID, ma,false,true);
+                    var fp = new FilePreview(_outfile, durationSeconds, name, ff.CreatedDateTicks, _currentObject.Ot, _currentObject.ID, ma, false, true);
                     MainForm.MasterFileAdd(fp);
                     MainForm.NeedsMediaRefresh = Helper.Now;
                 }
@@ -252,10 +249,7 @@ namespace iSpyApplication
             DoClose();
         }
 
-        private static bool ThumbnailCallback()
-        {
-            return false;
-        }
+        private static bool ThumbnailCallback() => false;
 
         private void DoClose()
         {
@@ -264,7 +258,7 @@ namespace iSpyApplication
             {
                 Invoke(new Delegates.SimpleDelegate(DoClose));
                 return;
-            }  
+            }
             Close();
         }
     }

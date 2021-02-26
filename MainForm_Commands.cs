@@ -1,22 +1,22 @@
-﻿using System;
+﻿using iSpyApplication.Controls;
+using iSpyApplication.Joystick;
+using iSpyApplication.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Timers;
 using System.Windows.Forms;
-using iSpyApplication.Controls;
-using iSpyApplication.Joystick;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication
 {
-    partial class MainForm
+    public partial class MainForm
     {
         private JoystickDevice _jst;
         private readonly bool[] _buttonsLast = new bool[128];
         private bool _needstop, _sentdirection;
 
-        void TmrJoystickElapsed(object sender, ElapsedEventArgs e)
+        private void TmrJoystickElapsed(object sender, ElapsedEventArgs e)
         {
             if (_shuttingDown)
                 return;
@@ -25,14 +25,15 @@ namespace iSpyApplication
             _tmrJoystick.Start();
         }
 
-        private void CheckJoystick()    {
+        private void CheckJoystick()
+        {
 
             if (_jst != null)
             {
                 _jst.UpdateStatus();
 
-                CameraWindow cw=null;
-                VolumeLevel vl=null;
+                CameraWindow cw = null;
+                VolumeLevel vl = null;
 
                 foreach (Control c in _pnlCameras.Controls)
                 {
@@ -57,21 +58,18 @@ namespace iSpyApplication
                             {
                                 cw.VolumeControl.Listening = !cw.VolumeControl.Listening;
                             }
-                            if (vl!=null)
+                            if (vl != null)
                             {
                                 vl.Listening = !vl.Listening;
                             }
                         }
 
-                        if (j == Conf.Joystick.Talk)
+                        if (j == Conf.Joystick.Talk && cw != null)
                         {
-                            if (cw != null)
-                            {
-                                cw.Talking = !cw.Talking;
-                                TalkTo(cw, cw.Talking);
-                            }
+                            cw.Talking = !cw.Talking;
+                            TalkTo(cw, cw.Talking);
                         }
-                        
+
                         if (j == Conf.Joystick.Previous)
                         {
                             ProcessKey("previous_control");
@@ -130,25 +128,25 @@ namespace iSpyApplication
                                 angle = 0;
                                 break;
                             case 31500:
-                                angle = Math.PI/4;
+                                angle = Math.PI / 4;
                                 break;
                             case 0:
-                                angle = Math.PI/2;
+                                angle = Math.PI / 2;
                                 break;
                             case 4500:
-                                angle = 3*Math.PI/4;
+                                angle = 3 * Math.PI / 4;
                                 break;
                             case 9000:
                                 angle = Math.PI;
                                 break;
                             case 13500:
-                                angle = -3*Math.PI/4;
+                                angle = -3 * Math.PI / 4;
                                 break;
                             case 18000:
-                                angle = -Math.PI/2;
+                                angle = -Math.PI / 2;
                                 break;
                             case 22500:
-                                angle = -Math.PI/4;
+                                angle = -Math.PI / 4;
                                 break;
                         }
                     }
@@ -164,7 +162,7 @@ namespace iSpyApplication
                             y = _jst.Axis[Conf.Joystick.YAxis - 1] - Conf.Joystick.CenterYAxis;
                         }
 
-                        var d = Math.Sqrt((x*x) + (y*y));
+                        var d = Math.Sqrt((x * x) + (y * y));
                         if (d > 20)
                         {
                             angle = Math.Atan2(y, x);
@@ -179,10 +177,7 @@ namespace iSpyApplication
                         }
                         if (Conf.Joystick.InvertXAxis)
                         {
-                            if (angle >= 0)
-                                angle = Math.PI - angle;
-                            else
-                                angle = (0 - Math.PI) - angle;
+                            angle = angle >= 0 ? Math.PI - angle : (0 - Math.PI) - angle;
                         }
 
                         cw.Calibrating = true;
@@ -198,7 +193,7 @@ namespace iSpyApplication
                         if (Math.Abs(z) > 20)
                         {
                             if (Conf.Joystick.InvertZAxis)
-                                z = 0-z;
+                                z = 0 - z;
                             cw.Calibrating = true;
                             cw.PTZ.SendPTZCommand(z > 0 ? Enums.PtzCommand.ZoomIn : Enums.PtzCommand.ZoomOut);
 
@@ -223,40 +218,34 @@ namespace iSpyApplication
         {
             foreach (Control c in _pnlCameras.Controls)
             {
-                var window = c as CameraWindow;
-                if (window != null)
+                if (c is CameraWindow window)
                 {
                     var cameraControl = window;
-                    if (on && !cameraControl.IsEnabled)
+                    if (on && !cameraControl.IsEnabled && !scheduledOnly)
                     {
-                        if (!scheduledOnly)
-                            cameraControl.Enable();
+                        cameraControl.Enable();
                     }
 
-                    if (!on && cameraControl.IsEnabled)
+                    if (!on && cameraControl.IsEnabled && !scheduledOnly)
                     {
-                        if (!scheduledOnly)
-                            cameraControl.Disable();
+                        cameraControl.Disable();
                     }
                 }
             }
             foreach (Control c in _pnlCameras.Controls)
             {
-                var level = c as VolumeLevel;
-                if (level != null)
+                if (c is VolumeLevel level)
                 {
                     var volumeControl = level;
 
-                    if (on && !volumeControl.IsEnabled)
+                    if (on && !volumeControl.IsEnabled && !scheduledOnly)
                     {
-                        if (!scheduledOnly)
-                            volumeControl.Enable();
+                        volumeControl.Enable();
                     }
 
-                    if (!on && volumeControl.IsEnabled)
+                    if (!on && volumeControl.IsEnabled && !scheduledOnly)
                     {
-                        if (!scheduledOnly)
-                            volumeControl.Disable();
+                        volumeControl.Disable();
                     }
                 }
             }
@@ -266,8 +255,7 @@ namespace iSpyApplication
         {
             foreach (Control c in _pnlCameras.Controls)
             {
-                var window = c as CameraWindow;
-                if (window != null)
+                if (c is CameraWindow window)
                 {
                     var cameraControl = window;
                     cameraControl.Camobject.detector.recordondetect = on;
@@ -275,8 +263,7 @@ namespace iSpyApplication
                         cameraControl.Camobject.detector.recordonalert = false;
                     continue;
                 }
-                var level = c as VolumeLevel;
-                if (level == null) continue;
+                if (!(c is VolumeLevel level)) continue;
                 var volumeControl = level;
                 volumeControl.Micobject.detector.recordondetect = @on;
                 if (@on && volumeControl.Micobject.detector.recordonalert)
@@ -288,8 +275,7 @@ namespace iSpyApplication
         {
             foreach (Control c in _pnlCameras.Controls)
             {
-                var window = c as CameraWindow;
-                if (window != null)
+                if (c is CameraWindow window)
                 {
                     var cameraControl = window;
                     if (cameraControl.Camobject.settings.active)
@@ -302,8 +288,7 @@ namespace iSpyApplication
         {
             foreach (Control c in _pnlCameras.Controls)
             {
-                var window = c as CameraWindow;
-                if (window != null)
+                if (c is CameraWindow window)
                 {
                     var cameraControl = window;
                     cameraControl.Camobject.detector.recordonalert = on;
@@ -311,8 +296,7 @@ namespace iSpyApplication
                         cameraControl.Camobject.detector.recordondetect = false;
                     continue;
                 }
-                var level = c as VolumeLevel;
-                if (level == null) continue;
+                if (!(c is VolumeLevel level)) continue;
                 var volumeControl = level;
                 volumeControl.Micobject.detector.recordonalert = @on;
                 if (@on && volumeControl.Micobject.detector.recordondetect)
@@ -324,15 +308,13 @@ namespace iSpyApplication
         {
             foreach (Control c in _pnlCameras.Controls)
             {
-                var window = c as CameraWindow;
-                if (window != null)
+                if (c is CameraWindow window)
                 {
                     var cameraControl = window;
                     cameraControl.Camobject.alerts.active = on;
                     continue;
                 }
-                var level = c as VolumeLevel;
-                if (level == null) continue;
+                if (!(c is VolumeLevel level)) continue;
                 var volumeControl = level;
                 volumeControl.Micobject.alerts.active = @on;
             }
@@ -342,16 +324,14 @@ namespace iSpyApplication
         {
             foreach (Control c in _pnlCameras.Controls)
             {
-                var window = c as CameraWindow;
-                if (window != null)
+                if (c is CameraWindow window)
                 {
                     var cameraControl = window;
                     if (cameraControl.IsEnabled)
                         cameraControl.RecordSwitch(record);
                     continue;
                 }
-                var level = c as VolumeLevel;
-                if (level == null) continue;
+                if (!(c is VolumeLevel level)) continue;
                 var volumeControl = level;
                 if (volumeControl.IsEnabled)
                     volumeControl.RecordSwitch(record);
@@ -398,27 +378,27 @@ namespace iSpyApplication
             if (Helper.HasFeature(Enums.Features.Recording))
             {
                 cmd = new objectsCommand
-                      {
-                          command = "ispy RECORDONDETECTON",
-                          id = 3,
-                          name = "cmd_RecordOnDetectAll",
-                      };
+                {
+                    command = "ispy RECORDONDETECTON",
+                    id = 3,
+                    name = "cmd_RecordOnDetectAll",
+                };
                 lcom.Add(cmd);
 
                 cmd = new objectsCommand
-                      {
-                          command = "ispy RECORDONALERTON",
-                          id = 4,
-                          name = "cmd_RecordOnAlertAll",
-                      };
+                {
+                    command = "ispy RECORDONALERTON",
+                    id = 4,
+                    name = "cmd_RecordOnAlertAll",
+                };
                 lcom.Add(cmd);
 
                 cmd = new objectsCommand
-                      {
-                          command = "ispy RECORDINGOFF",
-                          id = 5,
-                          name = "cmd_RecordOffAll",
-                      };
+                {
+                    command = "ispy RECORDINGOFF",
+                    id = 5,
+                    name = "cmd_RecordOffAll",
+                };
                 lcom.Add(cmd);
 
                 cmd = new objectsCommand
@@ -458,11 +438,11 @@ namespace iSpyApplication
             {
 
                 cmd = new objectsCommand
-                      {
-                          command = "ispy SNAPSHOT",
-                          id = 10,
-                          name = "cmd_SnapshotAll",
-                      };
+                {
+                    command = "ispy SNAPSHOT",
+                    id = 10,
+                    name = "cmd_SnapshotAll",
+                };
                 lcom.Add(cmd);
             }
             return lcom.ToArray();
@@ -493,7 +473,7 @@ namespace iSpyApplication
         {
             try
             {
-                if (command.ToLower().StartsWith("ispy ") || command.ToLower().StartsWith("ispy.exe "))
+                if (command.StartsWith("ispy ", StringComparison.OrdinalIgnoreCase) || command.StartsWith("ispy.exe ", StringComparison.OrdinalIgnoreCase))
                 {
                     string cmd2 = command.Substring(command.IndexOf(" ", StringComparison.Ordinal) + 1).ToLower().Trim();
                     if (cmd2.StartsWith("commands "))
@@ -562,11 +542,10 @@ namespace iSpyApplication
                     }
                     return;
             }
-            int i;
-            var c = GetActiveControl(out i);
+            var c = GetActiveControl(out int i);
             if (i == -1)
                 return;
-            
+
 
             var cw = c as CameraWindow;
             var vl = c as VolumeLevel;
@@ -629,7 +608,7 @@ namespace iSpyApplication
                 case "delete":
                     if (cw != null)
                     {
-                        RemoveCamera(cw,true);
+                        RemoveCamera(cw, true);
                     }
                     if (vl != null)
                     {
@@ -641,8 +620,8 @@ namespace iSpyApplication
                     }
                     break;
                 case "talk":
-                    
-                    if (cw!=null)
+
+                    if (cw != null)
                     {
                         cw.Talking = !cw.Talking;
                         TalkTo(cw, cw.Talking);
@@ -658,9 +637,9 @@ namespace iSpyApplication
                 case "edit":
                     if (cw != null)
                         EditCamera(cw.Camobject);
-                    if (vl!=null)
+                    if (vl != null)
                         EditMicrophone(vl.Micobject);
-                    if (fp!=null)
+                    if (fp != null)
                         EditFloorplan(fp.Fpobject);
 
                     break;
@@ -672,7 +651,7 @@ namespace iSpyApplication
                             if (tc.ShowDialog() == DialogResult.OK)
                             {
                                 cw.Camobject.settings.tagsnv = tc.TagsNV;
-                                if (cw.Camera!=null)
+                                if (cw.Camera != null)
                                     cw.Camera.Tags = null;
                             }
                         }

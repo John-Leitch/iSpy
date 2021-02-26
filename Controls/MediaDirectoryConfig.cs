@@ -25,16 +25,13 @@ namespace iSpyApplication.Controls
             Text = LocRm.GetString("MediaDirectoryConfiguration");
         }
 
-        public override sealed string Text
+        public sealed override string Text
         {
-            get { return base.Text; }
-            set { base.Text = value; }
+            get => base.Text;
+            set => base.Text = value;
         }
 
-        private void chkStorage_CheckedChanged(object sender, EventArgs e)
-        {
-            gbStorage.Enabled = chkStorage.Checked;
-        }
+        private void chkStorage_CheckedChanged(object sender, EventArgs e) => gbStorage.Enabled = chkStorage.Checked;
 
         private void button2_Click(object sender, EventArgs e)
         {
@@ -42,8 +39,8 @@ namespace iSpyApplication.Controls
             {
                 Config.Enable_Storage_Management = chkStorage.Checked;
                 Config.Entry = txtMediaDirectory.Text;
-                Config.MaxMediaFolderSizeMB = (int) txtMaxMediaSize.Value;
-                Config.DeleteFilesOlderThanDays = (int) txtDaysDelete.Value;
+                Config.MaxMediaFolderSizeMB = (int)txtMaxMediaSize.Value;
+                Config.DeleteFilesOlderThanDays = (int)txtDaysDelete.Value;
                 Config.StopSavingOnStorageLimit = chkStopRecording.Checked;
                 Config.archive = chkArchive.Checked;
                 if (!Config.Enable_Storage_Management)
@@ -55,7 +52,7 @@ namespace iSpyApplication.Controls
             {
                 MessageBox.Show(this, LocRm.GetString("MediaDirectoryNotFound"));
             }
-            
+
         }
 
         private void MediaDirectoryConfig_Load(object sender, EventArgs e)
@@ -89,8 +86,8 @@ namespace iSpyApplication.Controls
 
                 }
             }
-            
-            
+
+
             if (Fsd.ShowDialog(Handle))
             {
                 bool success = false;

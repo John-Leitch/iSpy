@@ -58,7 +58,7 @@ namespace iSpyApplication.Utilities
             Rectangle clientRect = GetClientRect(hWnd);
 
             // This gives us the width of the left, right and bottom chrome - we can then determine the top height
-            int chromeWidth = (int)((windowRect.Width - clientRect.Width) / 2);
+            int chromeWidth = (windowRect.Width - clientRect.Width) / 2;
 
             return new Rectangle(new Point(windowRect.X + chromeWidth, windowRect.Y + (windowRect.Height - clientRect.Height - chromeWidth)), clientRect.Size);
         }
@@ -250,7 +250,7 @@ namespace iSpyApplication.Utilities
         /// <returns>Return's the value of <b>dst</b> - pointer to destination.</returns>
         /// 
         [DllImport("ntdll.dll", CallingConvention = CallingConvention.Cdecl)]
-        internal static unsafe extern int memcpy(
+        internal static extern unsafe int memcpy(
             byte* dst,
             byte* src,
             int count);
@@ -318,47 +318,47 @@ namespace iSpyApplication.Utilities
 
         public int X
         {
-            get { return _Left; }
-            set { _Left = value; }
+            get => _Left;
+            set => _Left = value;
         }
         public int Y
         {
-            get { return _Top; }
-            set { _Top = value; }
+            get => _Top;
+            set => _Top = value;
         }
         public int Left
         {
-            get { return _Left; }
-            set { _Left = value; }
+            get => _Left;
+            set => _Left = value;
         }
         public int Top
         {
-            get { return _Top; }
-            set { _Top = value; }
+            get => _Top;
+            set => _Top = value;
         }
         public int Right
         {
-            get { return _Right; }
-            set { _Right = value; }
+            get => _Right;
+            set => _Right = value;
         }
         public int Bottom
         {
-            get { return _Bottom; }
-            set { _Bottom = value; }
+            get => _Bottom;
+            set => _Bottom = value;
         }
         public int Height
         {
-            get { return _Bottom - _Top; }
-            set { _Bottom = value + _Top; }
+            get => _Bottom - _Top;
+            set => _Bottom = value + _Top;
         }
         public int Width
         {
-            get { return _Right - _Left; }
-            set { _Right = value + _Left; }
+            get => _Right - _Left;
+            set => _Right = value + _Left;
         }
         public System.Drawing.Point Location
         {
-            get { return new System.Drawing.Point(Left, Top); }
+            get => new System.Drawing.Point(Left, Top);
             set
             {
                 _Left = value.X;
@@ -367,7 +367,7 @@ namespace iSpyApplication.Utilities
         }
         public Size Size
         {
-            get { return new Size(Width, Height); }
+            get => new Size(Width, Height);
             set
             {
                 _Right = value.Width + _Left;
@@ -375,56 +375,29 @@ namespace iSpyApplication.Utilities
             }
         }
 
-        public static implicit operator System.Drawing.Rectangle(RECT Rectangle)
-        {
-            return new System.Drawing.Rectangle(Rectangle.Left, Rectangle.Top, Rectangle.Width, Rectangle.Height);
-        }
-        public static implicit operator RECT(System.Drawing.Rectangle Rectangle)
-        {
-            return new RECT(Rectangle.Left, Rectangle.Top, Rectangle.Right, Rectangle.Bottom);
-        }
-        public static bool operator ==(RECT Rectangle1, RECT Rectangle2)
-        {
-            return Rectangle1.Equals(Rectangle2);
-        }
+        public static implicit operator System.Drawing.Rectangle(RECT Rectangle) => new System.Drawing.Rectangle(Rectangle.Left, Rectangle.Top, Rectangle.Width, Rectangle.Height);
+        public static implicit operator RECT(System.Drawing.Rectangle Rectangle) => new RECT(Rectangle.Left, Rectangle.Top, Rectangle.Right, Rectangle.Bottom);
+        public static bool operator ==(RECT Rectangle1, RECT Rectangle2) => Rectangle1.Equals(Rectangle2);
 
-        public static bool operator !=(RECT Rectangle1, RECT Rectangle2)
-        {
-            return !Rectangle1.Equals(Rectangle2);
-        }
+        public static bool operator !=(RECT Rectangle1, RECT Rectangle2) => !Rectangle1.Equals(Rectangle2);
 
-        public Rectangle AsRectangle
-        {
-            get
-            {
-                return new Rectangle(this.Left, this.Top, this.Right - this.Left, this.Bottom - this.Top);
-            }
-        }
+        public Rectangle AsRectangle => new Rectangle(this.Left, this.Top, this.Right - this.Left, this.Bottom - this.Top);
 
-        public override string ToString()
-        {
-            return "{Left: " + _Left + "; " + "Top: " + _Top + "; Right: " + _Right + "; Bottom: " + _Bottom + "}";
-        }
+        public override string ToString() => "{Left: " + _Left + "; " + "Top: " + _Top + "; Right: " + _Right + "; Bottom: " + _Bottom + "}";
 
-        public override int GetHashCode()
-        {
-            return ToString().GetHashCode();
-        }
+        public override int GetHashCode() => ToString().GetHashCode();
 
-        public bool Equals(RECT Rectangle)
-        {
-            return Rectangle.Left == _Left && Rectangle.Top == _Top && Rectangle.Right == _Right && Rectangle.Bottom == _Bottom;
-        }
+        public bool Equals(RECT Rectangle) => Rectangle.Left == _Left && Rectangle.Top == _Top && Rectangle.Right == _Right && Rectangle.Bottom == _Bottom;
 
         public override bool Equals(object Object)
         {
-            if (Object is RECT)
+            if (Object is RECT rECT)
             {
-                return Equals((RECT)Object);
+                return Equals(rECT);
             }
-            else if (Object is System.Drawing.Rectangle)
+            else if (Object is System.Drawing.Rectangle rectangle)
             {
-                return Equals(new RECT((System.Drawing.Rectangle)Object));
+                return Equals(new RECT(rectangle));
             }
 
             return false;

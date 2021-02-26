@@ -10,7 +10,7 @@ namespace iSpyApplication.Controls
     {
         public double Maximum = 100;
         public double Minimum = 0;
-        
+
 
         private double _valueMin = 20;
         private double _valueMax = 100;
@@ -18,8 +18,9 @@ namespace iSpyApplication.Controls
 
         public double ValueMin
         {
-            get { return _valueMin; }
-            set {
+            get => _valueMin;
+            set
+            {
                 if (value < Minimum)
                     value = Minimum;
                 _valueMin = value;
@@ -29,7 +30,7 @@ namespace iSpyApplication.Controls
         }
         public double ValueMax
         {
-            get { return _valueMax; }
+            get => _valueMax;
             set
             {
                 if (value > Maximum)
@@ -41,7 +42,7 @@ namespace iSpyApplication.Controls
         }
         public float Gain
         {
-            get { return _gain; }
+            get => _gain;
             set
             {
                 _gain = value;
@@ -54,7 +55,7 @@ namespace iSpyApplication.Controls
         {
             txtVal1.Text = ValueMin.ToString("0.###");
             txtVal2.Text = ValueMax.ToString("0.###");
-            numGain.Value = (decimal) Gain;
+            numGain.Value = (decimal)Gain;
             Refresh();
         }
 
@@ -65,15 +66,9 @@ namespace iSpyApplication.Controls
             DoubleBuffered = true;
         }
 
-        private void Ranger_Load(object sender, EventArgs e)
-        {
-            label2.Text = LocRm.GetString("GainCamera");
-        }
+        private void Ranger_Load(object sender, EventArgs e) => label2.Text = LocRm.GetString("GainCamera");
 
-        private void Ranger_SizeChanged(object sender, EventArgs e)
-        {
-            Refresh();
-        }
+        private void Ranger_SizeChanged(object sender, EventArgs e) => Refresh();
 
         public delegate void ValueMinChangedDelegate();
         public event ValueMinChangedDelegate ValueMinChanged;
@@ -84,38 +79,38 @@ namespace iSpyApplication.Controls
         public delegate void GainChangedDelegate();
         public event GainChangedDelegate GainChanged;
 
-        
 
-       
+
+
         protected override void OnPaint(PaintEventArgs e)
         {
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             int barWidth = Width - 16;
-            
+
             //setup drawing objects
-            var baroutline = new Pen(Color.FromArgb(255,214,214,214), 1.0f);
-            var greenfill = new SolidBrush(Color.FromArgb(255, 38,255,92));
+            var baroutline = new Pen(Color.FromArgb(255, 214, 214, 214), 1.0f);
+            var greenfill = new SolidBrush(Color.FromArgb(255, 38, 255, 92));
             var graboutline = new Pen(Color.FromArgb(255, 172, 172, 172));
-            var grabBrush = new LinearGradientBrush(new Rectangle(0,0,11,20),Color.FromArgb(255,240,240,240),Color.FromArgb(255,229,229,229),270);
+            var grabBrush = new LinearGradientBrush(new Rectangle(0, 0, 11, 20), Color.FromArgb(255, 240, 240, 240), Color.FromArgb(255, 229, 229, 229), 270);
             var fill = new SolidBrush(Color.FromArgb(255, 231, 234, 234));
 
             //Fill Bar - red if zone is too small
             if (ValueMax - ValueMin < 1)
                 fill.Color = Color.Red;
             g.FillRectangle(fill, 8, 8, barWidth, 4);
-            
+
             //Fill Green Zone
             int x1 = 8 + Convert.ToInt32((Convert.ToDouble(barWidth) / (Maximum - Minimum)) * ValueMin);
             int x2 = 8 + Convert.ToInt32((Convert.ToDouble(barWidth) / (Maximum - Minimum)) * ValueMax);
-            g.FillRectangle(greenfill, x1,8,x2-x1,4);
+            g.FillRectangle(greenfill, x1, 8, x2 - x1, 4);
 
             //Draw Bar Outline
             g.DrawRectangle(baroutline, 8, 8, barWidth, 4);
-            
+
             //Draw Scale
-            double xStep = Convert.ToDouble(barWidth-8) / 50d;
-            for (int i = 0; i <= 50; i++ )
+            double xStep = Convert.ToDouble(barWidth - 8) / 50d;
+            for (int i = 0; i <= 50; i++)
             {
                 var h = 3;
                 if (i == 0 || i == 50)
@@ -125,12 +120,12 @@ namespace iSpyApplication.Controls
 
             //Draw Grabbers
             var gp1 = new GraphicsPath(FillMode.Winding);
-            gp1.AddLines(new [] {
-                                 new Point(x1-5,3), 
-                                 new Point(x1+5,3), 
+            gp1.AddLines(new[] {
+                                 new Point(x1-5,3),
+                                 new Point(x1+5,3),
                                  new Point(x1+5,14),
-                                 new Point(x1,19), 
-                                 new Point(x1-5,14), 
+                                 new Point(x1,19),
+                                 new Point(x1-5,14),
                                  new Point(x1-5,3)
                              });
 
@@ -138,12 +133,12 @@ namespace iSpyApplication.Controls
             g.DrawPath(graboutline, gp1);
 
             var gp2 = new GraphicsPath(FillMode.Winding);
-            gp2.AddLines(new [] {
-                                 new Point(x2-5,3), 
-                                 new Point(x2+5,3), 
+            gp2.AddLines(new[] {
+                                 new Point(x2-5,3),
+                                 new Point(x2+5,3),
                                  new Point(x2+5,14),
-                                 new Point(x2,19), 
-                                 new Point(x2-5,14), 
+                                 new Point(x2,19),
+                                 new Point(x2-5,14),
                                  new Point(x2-5,3)
                              });
 
@@ -163,7 +158,7 @@ namespace iSpyApplication.Controls
 
         private enum GrabSelected
         {
-            MinGrab,MaxGrab,None
+            MinGrab, MaxGrab, None
         }
 
         private GrabSelected _currentGrab = GrabSelected.None;
@@ -185,10 +180,7 @@ namespace iSpyApplication.Controls
 
         }
 
-        private void RangerMouseUp(object sender, MouseEventArgs e)
-        {
-            _currentGrab = GrabSelected.None;
-        }
+        private void RangerMouseUp(object sender, MouseEventArgs e) => _currentGrab = GrabSelected.None;
 
 
         private void RangerMouseMove(object sender, MouseEventArgs e)
@@ -196,22 +188,22 @@ namespace iSpyApplication.Controls
             if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
             {
                 int barWidth = Width - 16;
-                switch(_currentGrab)
+                switch (_currentGrab)
                 {
                     case GrabSelected.MinGrab:
-                        ValueMin = (e.X - 8)/((Convert.ToDouble(barWidth)/(Maximum - Minimum)));
+                        ValueMin = (e.X - 8) / ((Convert.ToDouble(barWidth) / (Maximum - Minimum)));
                         if (ValueMin < Minimum)
                             ValueMin = Minimum;
                         if (ValueMin > Maximum)
                             ValueMin = Maximum;
-                            
-                        if (ValueMin>ValueMax)
+
+                        if (ValueMin > ValueMax)
                         {
                             ValueMax = ValueMin;
                         }
                         break;
                     case GrabSelected.MaxGrab:
-                        ValueMax = (e.X - 8)/((Convert.ToDouble(barWidth)/(Maximum - Minimum)));
+                        ValueMax = (e.X - 8) / ((Convert.ToDouble(barWidth) / (Maximum - Minimum)));
                         if (ValueMax < Minimum)
                             ValueMax = Minimum;
                         if (ValueMax > Maximum)
@@ -223,7 +215,7 @@ namespace iSpyApplication.Controls
                         }
                         break;
                 }
-                
+
                 txtVal1.Text = ValueMin.ToString("0.###");
                 txtVal2.Text = ValueMax.ToString("0.###");
                 Refresh();
@@ -246,50 +238,33 @@ namespace iSpyApplication.Controls
 
         private void txtVal1_TextChanged(object sender, EventArgs e)
         {
-            double d;
-            if (double.TryParse(txtVal1.Text, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out d))
+            if (double.TryParse(txtVal1.Text, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out double d) && Math.Abs(d - ValueMin) > double.Epsilon)
             {
-                if (Math.Abs(d - ValueMin) > double.Epsilon)
+                if (d <= ValueMax && d >= Minimum)
                 {
-                    if (d <= ValueMax && d >= Minimum)
-                    {
-                        ValueMin = d;
-                        Refresh();
-                    }
+                    ValueMin = d;
+                    Refresh();
                 }
             }
         }
 
         private void txtVal2_TextChanged(object sender, EventArgs e)
         {
-            double d;
-            if (double.TryParse(txtVal2.Text, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out d))
+            if (double.TryParse(txtVal2.Text, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out double d) && Math.Abs(d - ValueMax) > double.Epsilon)
             {
-                if (Math.Abs(d - ValueMax) > double.Epsilon)
+                if (d >= ValueMin && d <= Maximum)
                 {
-                    if (d >= ValueMin && d<=Maximum)
-                    {
-                        ValueMax = d;
-                        Refresh();
-                    }
+                    ValueMax = d;
+                    Refresh();
                 }
             }
         }
 
-        private void txtVal2_Leave(object sender, EventArgs e)
-        {
-            txtVal2.Text = ValueMax.ToString("0.###");
-        }
+        private void txtVal2_Leave(object sender, EventArgs e) => txtVal2.Text = ValueMax.ToString("0.###");
 
-        private void txtVal1_Leave(object sender, EventArgs e)
-        {
-            txtVal1.Text = ValueMin.ToString("0.###");
-        }
+        private void txtVal1_Leave(object sender, EventArgs e) => txtVal1.Text = ValueMin.ToString("0.###");
 
-        private void numGain_ValueChanged(object sender, EventArgs e)
-        {
-            Gain = (float) numGain.Value;
-        }
+        private void numGain_ValueChanged(object sender, EventArgs e) => Gain = (float)numGain.Value;
 
     }
 }

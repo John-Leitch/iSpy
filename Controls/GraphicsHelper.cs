@@ -1,7 +1,7 @@
-﻿using System;
+﻿using AForge.Imaging;
+using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using AForge.Imaging;
 
 namespace iSpyApplication.Controls
 {
@@ -11,7 +11,7 @@ namespace iSpyApplication.Controls
 
         public static void GdiDrawImage(this Graphics graphics, UnmanagedImage image, int x, int y, int w, int h)
         {
-            
+
             IntPtr hdc = graphics.GetHdc();
             IntPtr memdc = GdiInterop.CreateCompatibleDC(hdc);
             IntPtr bmp = image.ImageData;
@@ -70,7 +70,7 @@ namespace iSpyApplication.Controls
         //}
     }
 
-    public class GdiInterop
+    public static class GdiInterop
     {
         /// <summary>
         /// Enumeration for the raster operations used in BitBlt.

@@ -1,11 +1,11 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.Server
 {
@@ -95,8 +95,7 @@ namespace iSpyApplication.Server
             {
                 foreach (var nd in List)
                 {
-                    string mac;
-                    ARPList.TryGetValue(nd.IPAddress.ToString(), out mac);
+                    ARPList.TryGetValue(nd.IPAddress.ToString(), out string mac);
                     nd.MAC = mac;
 
                 }
@@ -139,8 +138,7 @@ namespace iSpyApplication.Server
             DeviceName = deviceName;
             WebServer = webServer;
             Port = port;
-            string mac;
-            NetworkDeviceList.ARPList.TryGetValue(ipAddress.ToString(), out mac);
+            NetworkDeviceList.ARPList.TryGetValue(ipAddress.ToString(), out string mac);
             MAC = mac;
 
         }

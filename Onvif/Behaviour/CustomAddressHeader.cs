@@ -3,7 +3,7 @@ using System.Xml;
 
 namespace iSpyApplication.Onvif.Behaviour
 {
-    class CustomAddressHeader : AddressHeader
+    internal class CustomAddressHeader : AddressHeader
     {
         private readonly XmlElement _xmlElement;
 
@@ -18,9 +18,6 @@ namespace iSpyApplication.Onvif.Behaviour
             Namespace = xmlElement.NamespaceURI;
         }
 
-        protected override void OnWriteAddressHeaderContents(XmlDictionaryWriter writer)
-        {
-            _xmlElement.WriteContentTo(writer);
-        }
+        protected override void OnWriteAddressHeaderContents(XmlDictionaryWriter writer) => _xmlElement.WriteContentTo(writer);
     }
 }

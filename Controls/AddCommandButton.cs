@@ -62,11 +62,11 @@ namespace iSpyApplication.Controls
             cd.Dispose();
         }
 
-        
+
 
         private void EditCommandButton_Load(object sender, EventArgs e)
         {
-            foreach (var c in MainForm.RemoteCommands.Where(p=>!p.inwindow))
+            foreach (var c in MainForm.RemoteCommands.Where(p => !p.inwindow))
             {
                 var n = c.name;
                 if (n.StartsWith("cmd_"))
@@ -94,7 +94,7 @@ namespace iSpyApplication.Controls
 
         private void EditCommandButton_FormClosing(object sender, FormClosingEventArgs e)
         {
-            
+
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -114,10 +114,7 @@ namespace iSpyApplication.Controls
 
         }
 
-        private void ddlCommand_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            ValidateSize();
-        }
+        private void ddlCommand_SelectedIndexChanged(object sender, EventArgs e) => ValidateSize();
 
         private void ValidateSize()
         {

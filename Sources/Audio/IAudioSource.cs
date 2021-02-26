@@ -11,7 +11,7 @@ namespace iSpyApplication.Sources.Audio
     /// 
     public interface IAudioSource
     {
-       // bool IsAudio { get; }
+        // bool IsAudio { get; }
         /// <summary>
         /// New Packet event.
         /// </summary>
@@ -84,7 +84,7 @@ namespace iSpyApplication.Sources.Audio
         /// 
         /// <remarks>Current state of Audio source object - listening (playing back through audio device) or not.</remarks>
         /// 
-        bool Listening { get; set;}
+        bool Listening { get; set; }
 
 
         /// <summary>

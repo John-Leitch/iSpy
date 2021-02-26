@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace iSpyApplication.Server
 {
@@ -44,9 +41,7 @@ namespace iSpyApplication.Server
             source = source.ToUpperInvariant();
 
             var d = DeviceList.FirstOrDefault(p => p.Name.ToUpperInvariant() == source && p.ObjectTypeID == objectType);
-            if (d == null)
-                return 2;
-            return d.SourceTypeID;
+            return d == null ? 2 : d.SourceTypeID;
         }
     }
 }

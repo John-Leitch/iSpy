@@ -25,25 +25,19 @@ namespace iSpyApplication.Controls
             Text = LocRm.GetString("Scheduler");
         }
 
-        private void chkSchedulePTZ_CheckedChanged(object sender, EventArgs e)
-        {
-            tableLayoutPanel20.Enabled = chkSchedulePTZ.Checked;
-        }
+        private void chkSchedulePTZ_CheckedChanged(object sender, EventArgs e) => tableLayoutPanel20.Enabled = chkSchedulePTZ.Checked;
 
         private void button6_Click(object sender, EventArgs e)
         {
-            if (ddlScheduleCommand.SelectedIndex > -1)
+            if (ddlScheduleCommand.SelectedIndex > -1 && ddlScheduleCommand.SelectedIndex > -1)
             {
-                if (ddlScheduleCommand.SelectedIndex > -1)
-                {
-                    var cmd = ddlScheduleCommand.SelectedItem.ToString();
-                    var time = dtpSchedulePTZ.Value;
-                    var s = new objectsCameraPtzscheduleEntry { command = cmd, time = time };
-                    List<objectsCameraPtzscheduleEntry> scheds = CameraControl.Camobject.ptzschedule.entries.ToList();
-                    scheds.Add(s);
-                    CameraControl.Camobject.ptzschedule.entries = scheds.ToArray();
-                    ShowPTZSchedule();
-                }
+                var cmd = ddlScheduleCommand.SelectedItem.ToString();
+                var time = dtpSchedulePTZ.Value;
+                var s = new objectsCameraPtzscheduleEntry { command = cmd, time = time };
+                List<objectsCameraPtzscheduleEntry> scheds = CameraControl.Camobject.ptzschedule.entries.ToList();
+                scheds.Add(s);
+                CameraControl.Camobject.ptzschedule.entries = scheds.ToArray();
+                ShowPTZSchedule();
             }
         }
 
@@ -89,7 +83,7 @@ namespace iSpyApplication.Controls
 
         private void button8_Click(object sender, EventArgs e)
         {
-            CameraControl.Camobject.ptzschedule.entries = new objectsCameraPtzscheduleEntry[0];
+            CameraControl.Camobject.ptzschedule.entries = Array.Empty<objectsCameraPtzscheduleEntry>();
             ShowPTZSchedule();
         }
 
@@ -116,7 +110,7 @@ namespace iSpyApplication.Controls
             {
                 PTZSettings2Camera ptz = MainForm.PTZs.Single(p => p.id == CameraControl.Camobject.ptz);
                 CameraControl.PTZ.PTZSettings = ptz;
-                if (ptz.ExtendedCommands != null && ptz.ExtendedCommands.Command != null)
+                if (ptz.ExtendedCommands?.Command != null)
                 {
                     foreach (var extcmd in ptz.ExtendedCommands.Command)
                     {

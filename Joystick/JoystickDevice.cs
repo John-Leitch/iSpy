@@ -1,8 +1,7 @@
-﻿using System;
-using System.Linq;
-using System.Windows.Forms;
-using iSpyApplication.Utilities;
+﻿using iSpyApplication.Utilities;
 using SharpDX.DirectInput;
+using System;
+using System.Linq;
 
 namespace iSpyApplication.Joystick
 {
@@ -18,9 +17,8 @@ namespace iSpyApplication.Joystick
 
         public JoystickDevice()
         {
-            int a = 0;
-            while (a < 21)
-            { _axis[a] = 0; a++; }
+            for (int a = 0; a < 21; a++)
+            { _axis[a] = 0; }
 
             AxisCount = 0;
         }
@@ -40,9 +38,9 @@ namespace iSpyApplication.Joystick
             }
         }
 
-        public string[] FindJoysticks()
+        public static string[] FindJoysticks()
         {
-            var ret = new string[]{};
+            var ret = Array.Empty<string>();
             try
             {
                 var dinput = new DirectInput();
@@ -50,7 +48,7 @@ namespace iSpyApplication.Joystick
                 if (r != null)
                 {
                     ret = r.Select(device => device.InstanceName + "|" + device.InstanceGuid.ToString()).ToArray();
-                }                
+                }
             }
             catch (Exception ex)
             {
@@ -72,7 +70,7 @@ namespace iSpyApplication.Joystick
                 var dinput = new DirectInput();
                 foreach (DeviceInstance device in dinput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly))
                 {
-                    if (device.InstanceGuid==guid)
+                    if (device.InstanceGuid == guid)
                     {
                         _joystick = new SharpDX.DirectInput.Joystick(dinput, device.InstanceGuid);
                     }
@@ -82,7 +80,7 @@ namespace iSpyApplication.Joystick
                 {
                     foreach (DeviceObjectInstance deviceObject in _joystick.GetObjects())
                     {
-                        
+
                         //if ((deviceObject.ObjectType & ObjectDeviceType.Axis) != 0)
                         switch (deviceObject.ObjectId.Flags)
                         {
@@ -111,7 +109,7 @@ namespace iSpyApplication.Joystick
                     AxisCount = cps.AxeCount;
 
                     UpdateStatus();
-                }               
+                }
             }
             catch (Exception ex)
             {
@@ -122,11 +120,7 @@ namespace iSpyApplication.Joystick
             return true;
         }
 
-        public void ReleaseJoystick()
-        {
-            if (_joystick!=null)
-                _joystick.Unacquire();
-        }
+        public void ReleaseJoystick() => _joystick?.Unacquire();
 
         public void UpdateStatus()
         {
@@ -164,18 +158,12 @@ namespace iSpyApplication.Joystick
             get
             {
                 if (_state == null)
-                    return new int[]{};
-                int[] pow = _state.PointOfViewControllers; 
+                    return Array.Empty<int>();
+                int[] pow = _state.PointOfViewControllers;
                 return pow;
             }
         }
 
-        public int[] Axis
-        {
-            get
-            {
-                return _axis;
-            }
-        }
+        public int[] Axis => _axis;
     }
 }

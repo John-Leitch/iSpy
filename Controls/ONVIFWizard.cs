@@ -1,10 +1,9 @@
-﻿using System;
+﻿using iSpyApplication.Onvif;
+using iSpyApplication.Utilities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
-using iSpyApplication.Onvif;
-using iSpyApplication.Utilities;
-using iSpyPRO.DirectShow;
 
 namespace iSpyApplication.Controls
 {
@@ -25,13 +24,10 @@ namespace iSpyApplication.Controls
             btnBack.Text = LocRm.GetString("Back");
             lblURL.Text = LocRm.GetString("URL");
 
-            
+
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            SetPanel(pnlStep1);
-        }
+        private void button2_Click(object sender, EventArgs e) => SetPanel(pnlStep1);
 
         private void SetPanel(Panel p)
         {
@@ -46,7 +42,7 @@ namespace iSpyApplication.Controls
 
         }
 
-        private void HidePanel(Panel p)
+        private static void HidePanel(Panel p)
         {
             p.Visible = false;
             p.Dock = DockStyle.None;
@@ -85,10 +81,7 @@ namespace iSpyApplication.Controls
         {
             private static ISynchronizeInvoke _sync;
 
-            public static void Init(ISynchronizeInvoke sync)
-            {
-                _sync = sync;
-            }
+            public static void Init(ISynchronizeInvoke sync) => _sync = sync;
 
             public static void Execute(Action action)
             {
@@ -104,7 +97,7 @@ namespace iSpyApplication.Controls
 
         #endregion
 
-        public void Deinit()
+        public static void Deinit()
         {
 
         }
@@ -121,16 +114,12 @@ namespace iSpyApplication.Controls
         }
 
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            GoStep1();
-        }
+        private void button1_Click(object sender, EventArgs e) => GoStep1();
 
         public void GoStep1()
         {
             lbOnvifURLs.Items.Clear();
-            Uri uri;
-            if (!Uri.TryCreate(ddlDeviceURL.Text, UriKind.Absolute, out uri))
+            if (!Uri.TryCreate(ddlDeviceURL.Text, UriKind.Absolute, out Uri uri))
             {
                 MessageBox.Show("Invalid Address");
                 return;

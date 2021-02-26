@@ -13,7 +13,7 @@ namespace iSpyApplication.Sources.Audio
 
 
     public delegate void LevelChangedEventHandler(object sender, LevelChangedEventArgs e);
-    
+
     /// <summary>
     /// Delegate for Audio source error event handler.
     /// </summary>
@@ -49,10 +49,7 @@ namespace iSpyApplication.Sources.Audio
         /// 
         /// <param name="reason">Reason</param>
         /// 
-        public TimeUpdateEventArgs(long time)
-        {
-            Time = time;
-        }
+        public TimeUpdateEventArgs(long time) => Time = time;
 
         /// <summary>
         /// Audio source error description.
@@ -98,10 +95,7 @@ namespace iSpyApplication.Sources.Audio
         /// <summary>
         /// Initializes a new instance of the <see cref="DataAvailableEventArgs"/> class.
         /// </summary>
-        public LevelChangedEventArgs(float[] maxsamples)
-        {
-            MaxSamples = maxsamples;
-        }
+        public LevelChangedEventArgs(float[] maxsamples) => MaxSamples = maxsamples;
 
         /// <summary>
         /// New frame from Audio source.
@@ -122,10 +116,7 @@ namespace iSpyApplication.Sources.Audio
         /// 
         /// <param name="description">Error description.</param>
         /// 
-        public AudioSourceErrorEventArgs(string description)
-        {
-            Description = description;
-        }
+        public AudioSourceErrorEventArgs(string description) => Description = description;
 
         /// <summary>
         /// Audio source error description.
@@ -134,5 +125,5 @@ namespace iSpyApplication.Sources.Audio
         public string Description { get; }
     }
 
-    
+
 }

@@ -1,9 +1,9 @@
-﻿using System;
-using NAudio.Wave;
+﻿using NAudio.Wave;
+using System;
 
 namespace iSpyApplication.Sources.Audio.codecs
 {
-    class AcmALawChatCodec : AcmChatCodec
+    internal class AcmALawChatCodec : AcmChatCodec
     {
         public AcmALawChatCodec()
             : base(new WaveFormat(8000, 16, 1), WaveFormat.CreateALawFormat(8000, 1))
@@ -13,8 +13,7 @@ namespace iSpyApplication.Sources.Audio.codecs
         public override string Name => "ACM G.711 a-law";
     }
 
-
-    class ALawChatCodec : INetworkChatCodec
+    internal class ALawChatCodec : INetworkChatCodec
     {
         public string Name => "G.711 a-law";
 

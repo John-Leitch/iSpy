@@ -1,11 +1,10 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Windows.Forms;
-using System.Xml;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication
 {
@@ -15,13 +14,10 @@ namespace iSpyApplication
         public string Format;
         public string UnzipTo;
         public bool Success;
-        private bool aborting;
+        private readonly bool aborting;
         //private bool cancel;
 
-        public downloader()
-        {
-            InitializeComponent();
-        }
+        public downloader() => InitializeComponent();
 
         private void downloader_Load(object sender, EventArgs e)
         {
@@ -38,7 +34,7 @@ namespace iSpyApplication
             var request = WebRequest.Create(url);
             var response = request.GetResponse();
             // gets the size of the file in bytes
-            
+
             Int64 iSize = response.ContentLength;
 
             // keeps track of the total bytes downloaded so we can update the progress bar
@@ -59,10 +55,10 @@ namespace iSpyApplication
                         iRunningByteTotal += iByteSize;
 
                         // calculate the progress out of a base "100"
-                        var dIndex = (double) (iRunningByteTotal);
-                        var dTotal = (double) byteBuffer.Length;
-                        var dProgressPercentage = (dIndex/dTotal);
-                        var iProgressPercentage = (int) (dProgressPercentage*100);
+                        var dIndex = (double)(iRunningByteTotal);
+                        var dTotal = (double)byteBuffer.Length;
+                        var dProgressPercentage = (dIndex / dTotal);
+                        var iProgressPercentage = (int)(dProgressPercentage * 100);
 
                         // update the progress bar
                         backgroundWorker1.ReportProgress(iProgressPercentage);
@@ -87,7 +83,7 @@ namespace iSpyApplication
                 }
             }
             response.Close();
-            
+
         }
 
         private void Unzip(string zipPath)
@@ -123,10 +119,7 @@ namespace iSpyApplication
         {
             private static ISynchronizeInvoke _sync;
 
-            public static void Init(ISynchronizeInvoke sync)
-            {
-                _sync = sync;
-            }
+            public static void Init(ISynchronizeInvoke sync) => _sync = sync;
 
             public static void Execute(Action action)
             {
@@ -135,10 +128,7 @@ namespace iSpyApplication
             }
         }
 
-        private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            pbDownloading.Value = e.ProgressPercentage;
-        }
+        private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e) => pbDownloading.Value = e.ProgressPercentage;
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
@@ -153,7 +143,7 @@ namespace iSpyApplication
         {
             if (backgroundWorker1.IsBusy && !aborting)
             {
-                if (MessageBox.Show(this, LocRm.GetString("CancelUpdate"),LocRm.GetString("Confirm"), MessageBoxButtons.YesNo)==DialogResult.Yes)
+                if (MessageBox.Show(this, LocRm.GetString("CancelUpdate"), LocRm.GetString("Confirm"), MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     backgroundWorker1.CancelAsync();
                 }

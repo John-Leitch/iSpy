@@ -1,8 +1,8 @@
-﻿using System;
+﻿using iSpyApplication.Controls;
+using iSpyApplication.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using iSpyApplication.Controls;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication
 {
@@ -19,7 +19,7 @@ namespace iSpyApplication
             string make = txtMake.Text.Trim();
             string model = txtModel.Text.Trim();
 
-            if (make=="" || model=="")
+            if (make?.Length == 0 || model?.Length == 0)
             {
                 MessageBox.Show(this, LocRm.GetString("EnterMakeAndModel"));
                 return;
@@ -59,7 +59,7 @@ namespace iSpyApplication
                     camDb.Add(new AutoCompleteTextbox.TextEntry(name));
                     _hashdata.Add(name.ToUpper());
                 }
-                
+
             }
 
 
@@ -73,9 +73,6 @@ namespace iSpyApplication
             lblType.Text = FindCameras.LastConfig.Source;
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
+        private void button1_Click(object sender, EventArgs e) => Close();
     }
 }

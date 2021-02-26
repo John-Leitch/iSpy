@@ -1,11 +1,11 @@
-﻿using System;
-using iSpyApplication.Sources.Audio.streams;
+﻿using iSpyApplication.Sources.Audio.streams;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
+using System;
 
 namespace iSpyApplication.Sources.Audio.talk
 {
-    class TalkDeviceStream: IAudioSource
+    internal class TalkDeviceStream : IAudioSource
     {
         private string _source;
         private volatile bool _isrunning;
@@ -71,13 +71,13 @@ namespace iSpyApplication.Sources.Audio.talk
         /// 
         public virtual string Source
         {
-            get { return _source; }
-            set { _source = value; }
+            get => _source;
+            set => _source = value;
         }
 
         public float Gain
         {
-            get { return _gain; }
+            get => _gain;
             set
             {
                 _gain = value;
@@ -90,13 +90,7 @@ namespace iSpyApplication.Sources.Audio.talk
 
         public bool Listening
         {
-            get
-            {
-                if (IsRunning && _listening)
-                    return true;
-                return false;
-
-            }
+            get => IsRunning && _listening;
             set
             {
                 if (RecordingFormat == null)
@@ -107,7 +101,7 @@ namespace iSpyApplication.Sources.Audio.talk
 
                 if (WaveOutProvider != null)
                 {
-                    if (WaveOutProvider.BufferedBytes>0) WaveOutProvider.ClearBuffer();
+                    if (WaveOutProvider.BufferedBytes > 0) WaveOutProvider.ClearBuffer();
                     WaveOutProvider = null;
                 }
 
@@ -115,7 +109,7 @@ namespace iSpyApplication.Sources.Audio.talk
                 {
                     WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true, BufferDuration = TimeSpan.FromMilliseconds(500) };
                 }
-                
+
                 _listening = value;
             }
         }
@@ -141,10 +135,7 @@ namespace iSpyApplication.Sources.Audio.talk
         /// 
         /// <param name="source">source, which provides audio data.</param>
         /// 
-        public TalkDeviceStream(string source)
-        {
-            _source = source;
-        }
+        public TalkDeviceStream(string source) => _source = source;
 
         /// <summary>
         /// Start audio source.
@@ -179,9 +170,9 @@ namespace iSpyApplication.Sources.Audio.talk
                         //if (AudioSourceError != null)
                         //    AudioSourceError(this, new AudioSourceErrorEventArgs("not connected"));
                         AudioFinished?.Invoke(this, new PlayingFinishedEventArgs(ReasonToFinishPlaying.DeviceLost));
-                        return;    
+                        return;
                     }
-                    
+
                 }
 
                 _waveIn = new WaveInEvent { BufferMilliseconds = 200, DeviceNumber = selind, WaveFormat = RecordingFormat };
@@ -190,7 +181,7 @@ namespace iSpyApplication.Sources.Audio.talk
 
                 _waveProvider = new WaveInProvider(_waveIn);
                 _sampleChannel = new SampleChannel(_waveProvider);
-                
+
                 if (LevelChanged != null)
                 {
                     _sampleChannel.PreVolumeMeter += SampleChannelPreVolumeMeter;
@@ -200,12 +191,9 @@ namespace iSpyApplication.Sources.Audio.talk
             }
         }
 
-        void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e)
-        {
-            LevelChanged?.Invoke(this, new LevelChangedEventArgs(e.MaxSampleValues));
-        }
+        private void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e) => LevelChanged?.Invoke(this, new LevelChangedEventArgs(e.MaxSampleValues));
 
-        void WaveInDataAvailable(object sender, WaveInEventArgs e)
+        private void WaveInDataAvailable(object sender, WaveInEventArgs e)
         {
             _isrunning = true;
             if (DataAvailable != null)
@@ -221,12 +209,12 @@ namespace iSpyApplication.Sources.Audio.talk
                 {
                     WaveOutProvider?.AddSamples(e.Buffer, 0, l);
                 }
-                
+
                 DataAvailable(this, new DataAvailableEventArgs((byte[])e.Buffer.Clone(), l));
             }
         }
 
-        void WaveInRecordingStopped(object sender, EventArgs e)
+        private void WaveInRecordingStopped(object sender, EventArgs e)
         {
             _isrunning = false;
             AudioFinished?.Invoke(this, new PlayingFinishedEventArgs(ReasonToFinishPlaying.StoppedByUser));
@@ -253,7 +241,7 @@ namespace iSpyApplication.Sources.Audio.talk
 
                 if (WaveOutProvider != null)
                 {
-                    if (WaveOutProvider.BufferedBytes>0) WaveOutProvider.ClearBuffer();
+                    if (WaveOutProvider.BufferedBytes > 0) WaveOutProvider.ClearBuffer();
                     WaveOutProvider = null;
                 }
 
@@ -265,7 +253,7 @@ namespace iSpyApplication.Sources.Audio.talk
 
         public void Restart()
         {
-            
+
         }
 
 

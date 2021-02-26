@@ -1,58 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-
-using System.Threading;
-using System.Windows.Forms;
-using iSpyApplication.Cloud;
+﻿using iSpyApplication.Cloud;
 using iSpyApplication.Controls;
 using iSpyApplication.Properties;
 using iSpyApplication.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace iSpyApplication
 {
-    partial class MainForm
+    public partial class MainForm
     {
         internal void SelectMediaRange(PreviewBox controlFrom, PreviewBox controlTo)
         {
             lock (ThreadLock)
             {
-                if (controlFrom != null && controlTo != null)
+                if (controlFrom != null && controlTo != null && flowPreview.Controls.Contains(controlFrom) && flowPreview.Controls.Contains(controlTo))
                 {
-                    if (flowPreview.Controls.Contains(controlFrom) && flowPreview.Controls.Contains(controlTo))
+                    bool start = false;
+                    foreach (Control c in flowPreview.Controls)
                     {
-                        bool start = false;
-                        foreach (Control c in flowPreview.Controls)
+                        if (c is PreviewBox p)
                         {
-                            var p = c as PreviewBox;
-                            if (p != null)
+                            if (p == controlFrom)
                             {
-                                if (p == controlFrom)
-                                {
-                                    start = true;
-                                }
-                                if (start)
-                                    p.Selected = true;
-                                if (p == controlTo)
-                                    break;
+                                start = true;
                             }
+                            if (start)
+                                p.Selected = true;
+                            if (p == controlTo)
+                                break;
                         }
-                        start = false;
-                        foreach (Control c in flowPreview.Controls)
+                    }
+                    start = false;
+                    foreach (Control c in flowPreview.Controls)
+                    {
+                        if (c is PreviewBox p)
                         {
-                            var p = c as PreviewBox;
-                            if (p != null)
+                            if (p == controlTo)
                             {
-                                if (p == controlTo)
-                                {
-                                    start = true;
-                                }
-                                if (start)
-                                    p.Selected = true;
-                                if (p == controlFrom)
-                                    break;
+                                start = true;
                             }
+                            if (start)
+                                p.Selected = true;
+                            if (p == controlFrom)
+                                break;
                         }
                     }
                 }
@@ -75,8 +69,7 @@ namespace iSpyApplication
             {
                 for (int i = 0; i < flowPreview.Controls.Count; i++)
                 {
-                    var pb = flowPreview.Controls[i] as PreviewBox;
-                    if (pb!=null && pb.Selected)
+                    if (flowPreview.Controls[i] is PreviewBox pb && pb.Selected)
                     {
                         DeletePreviewBox(pb);
                         i--;
@@ -126,16 +119,15 @@ namespace iSpyApplication
                 {
                     for (int i = 0; i < flowPreview.Controls.Count; i++)
                     {
-                        var pb = flowPreview.Controls[i] as PreviewBox;
-                        if (pb != null && pb.Selected)
+                        if (flowPreview.Controls[i] is PreviewBox pb && pb.Selected)
                         {
-                            msg=Helper.ArchiveFile(pb.Control, pb.FileName);
+                            msg = Helper.ArchiveFile(pb.Control, pb.FileName);
                             j++;
                         }
                     }
                 }
-                if (j > 0 && msg!="NOK")
-                    MessageBox.Show(this, LocRm.GetString("MediaArchivedTo") +Environment.NewLine+ msg);
+                if (j > 0 && msg != "NOK")
+                    MessageBox.Show(this, LocRm.GetString("MediaArchivedTo") + Environment.NewLine + msg);
             }
 
         }
@@ -149,7 +141,7 @@ namespace iSpyApplication
 
             try
             {
-               
+
                 switch (pb.Otid)
                 {
                     case 1:
@@ -163,7 +155,7 @@ namespace iSpyApplication
                 }
 
 
-               
+
             }
             catch (Exception ex)
             {
@@ -176,10 +168,10 @@ namespace iSpyApplication
 
             NeedsMediaRefresh = Helper.Now;
             _needsDelete = true;
-           
+
         }
 
-        
+
 
         public void LoadPreviews()
         {
@@ -187,15 +179,16 @@ namespace iSpyApplication
             {
                 NeedsMediaRefresh = DateTime.MinValue;
                 UISync.Execute(RenderPreviewBoxes);
-                
+
             }
         }
 
-        private void RenderPreviewBoxes()  {
+        private void RenderPreviewBoxes()
+        {
 
             lock (ThreadLock)
             {
-                if (MediaPanelPage * Conf.PreviewItems > MasterFileList.Count-1)
+                if (MediaPanelPage * Conf.PreviewItems > MasterFileList.Count - 1)
                 {
                     MediaPanelPage = 0;
                 }
@@ -218,26 +211,25 @@ namespace iSpyApplication
                 {
                     var displayList = MasterFileList.OrderByDescending(p => p.CreatedDateTicks).Skip(MediaPanelPage * Conf.PreviewItems).Take(Conf.PreviewItems).ToList();
                     int pageCount = (MasterFileList.Count - 1) / Conf.PreviewItems + 1;
-                    RenderList(displayList,pageCount);
+                    RenderList(displayList, pageCount);
                 }
-               
-                
-                   
+
+
+
             }
         }
 
-        private void RenderList(List<FilePreview> l, int pageCount )
+        private void RenderList(List<FilePreview> l, int pageCount)
         {
-            
+
             flowPreview.SuspendLayout();
             mediaPanelControl1.lblPage.Text = $"{(MediaPanelPage + 1)} / {pageCount}";
 
             var currentList = new List<PreviewBox>();
-            
+
             for (int i = 0; i < flowPreview.Controls.Count; i++)
             {
-                var pb = flowPreview.Controls[i] as PreviewBox;
-                if (pb != null)
+                if (flowPreview.Controls[i] is PreviewBox pb)
                 {
                     var cd = pb.CreatedDate;
                     if (NeedsMediaRebuild || l.Count(p => p.CreatedDateTicks == cd.Ticks) == 0)
@@ -255,8 +247,7 @@ namespace iSpyApplication
                 }
                 else
                 {
-                    var lb = flowPreview.Controls[i] as Label;
-                    if (lb != null)
+                    if (flowPreview.Controls[i] is Label lb)
                     {
                         flowPreview.Controls.Remove(lb);
                         i--;
@@ -275,7 +266,7 @@ namespace iSpyApplication
                     first = false;
                     dtCurrent = dt;
                     DateTime tag = new DateTime(dtCurrent.Year, dtCurrent.Month, dtCurrent.Day);
-                    var lb = new Label { Text = dtCurrent.ToShortDateString(), Tag = tag, Margin = new Padding(3), Padding = new Padding(0), ForeColor = Color.White, BackColor = Color.Black, Width=96, Height=73, TextAlign = ContentAlignment.MiddleCenter};
+                    var lb = new Label { Text = dtCurrent.ToShortDateString(), Tag = tag, Margin = new Padding(3), Padding = new Padding(0), ForeColor = Color.White, BackColor = Color.Black, Width = 96, Height = 73, TextAlign = ContentAlignment.MiddleCenter };
                     lb.Click += Lb_Click;
                     lb.Cursor = Cursors.Hand;
                     flowPreview.Controls.Add(lb);
@@ -295,7 +286,7 @@ namespace iSpyApplication
                             if (v != null)
                             {
                                 var filename = dir + "audio\\" + v.directory + "\\" + fp.Filename;
-                                pb = AddPreviewControl(fp1,Resources.audio, filename, v.name);
+                                pb = AddPreviewControl(fp1, Resources.audio, filename, v.name);
                             }
                             break;
                         case 2:
@@ -307,7 +298,7 @@ namespace iSpyApplication
                                             fp.Filename.Substring(0,
                                                                   fp.Filename.LastIndexOf(".", StringComparison.Ordinal)) +
                                             ".jpg";
-                                pb = AddPreviewControl(fp1,thumb, filename, c.name);
+                                pb = AddPreviewControl(fp1, thumb, filename, c.name);
                             }
                             break;
                     }
@@ -326,13 +317,12 @@ namespace iSpyApplication
 
         private void Lb_Click(object sender, EventArgs e)
         {
-            var dt = (DateTime)((Label) sender).Tag;
+            var dt = (DateTime)((Label)sender).Tag;
             var dtTo = dt.AddDays(1);
             bool f = true, s = false;
             foreach (var c in flowPreview.Controls)
             {
-                var pb = c as PreviewBox;
-                if (pb != null && pb.CreatedDate>dt && pb.CreatedDate <dtTo)
+                if (c is PreviewBox pb && pb.CreatedDate > dt && pb.CreatedDate < dtTo)
                 {
                     if (f)
                     {
@@ -350,16 +340,12 @@ namespace iSpyApplication
         {
             lock (ThreadLock)
             {
-                for(int i=0;i<flowPreview.Controls.Count;i++)
+                for (int i = 0; i < flowPreview.Controls.Count; i++)
                 {
-                    var pb = flowPreview.Controls[i] as PreviewBox;
-                    if (pb!=null)
+                    if (flowPreview.Controls[i] is PreviewBox pb && pb.FileName.EndsWith(fn))
                     {
-                        if (pb.FileName.EndsWith(fn))
-                        {
-                            UISync.Execute(() => DeletePreviewBox(pb));
-                            return;
-                        }
+                        UISync.Execute(() => DeletePreviewBox(pb));
+                        return;
                     }
                 }
             }
@@ -374,8 +360,7 @@ namespace iSpyApplication
             {
                 foreach (Control c in flowPreview.Controls)
                 {
-                    var pb = c as PreviewBox;
-                    if (pb != null && pb.Selected)
+                    if (c is PreviewBox pb && pb.Selected)
                     {
                         pb.MouseDown -= PbMouseDown;
                         pb.MouseEnter -= PbMouseEnter;
@@ -398,8 +383,7 @@ namespace iSpyApplication
             {
                 foreach (Control c in flowPreview.Controls)
                 {
-                    var pb = c as PreviewBox;
-                    if (pb != null && pb.Selected)
+                    if (c is PreviewBox pb && pb.Selected)
                     {
                         pb.MouseDown -= PbMouseDown;
                         pb.MouseEnter -= PbMouseEnter;
@@ -421,8 +405,7 @@ namespace iSpyApplication
             {
                 foreach (Control c in flowPreview.Controls)
                 {
-                    var pb = c as PreviewBox;
-                    if (pb != null && pb.Selected)
+                    if (c is PreviewBox pb && pb.Selected)
                     {
                         pb.MouseDown -= PbMouseDown;
                         pb.MouseEnter -= PbMouseEnter;
@@ -449,17 +432,15 @@ namespace iSpyApplication
             {
                 for (int i = 0; i < flowPreview.Controls.Count; i++)
                 {
-                    var pb = flowPreview.Controls[i] as PreviewBox;
-                    if (pb != null && pb.Selected)
+                    if (flowPreview.Controls[i] is PreviewBox pb && pb.Selected)
                     {
-                        bool b;
-                        msg = CloudGateway.Upload(pb.Otid, pb.Oid, pb.FileName, out b);
+                        msg = CloudGateway.Upload(pb.Otid, pb.Oid, pb.FileName, out bool b);
                     }
                 }
             }
             if (msg != "")
                 MessageBox.Show(this, LocRm.GetString(msg));
-            
+
         }
 
         internal void MediaUploadYouTube()
@@ -476,11 +457,9 @@ namespace iSpyApplication
             {
                 for (int i = 0; i < flowPreview.Controls.Count; i++)
                 {
-                    var pb = flowPreview.Controls[i] as PreviewBox;
-                    if (pb != null && pb.Selected)
+                    if (flowPreview.Controls[i] is PreviewBox pb && pb.Selected)
                     {
-                        bool b;
-                        msg = YouTubeUploader.Upload(pb.Oid, pb.FileName, out b);
+                        msg = YouTubeUploader.Upload(pb.Oid, pb.FileName, out bool b);
                     }
                 }
             }
@@ -491,7 +470,7 @@ namespace iSpyApplication
 
         internal void MergeMedia()
         {
-            using (var m = new Merger {MainClass = this})
+            using (var m = new Merger { MainClass = this })
             {
                 m.ShowDialog(this);
             }

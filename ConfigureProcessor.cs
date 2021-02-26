@@ -1,7 +1,7 @@
-﻿using System;
+﻿using iSpyApplication.Controls;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
-using iSpyApplication.Controls;
 
 namespace iSpyApplication
 {
@@ -82,10 +82,7 @@ namespace iSpyApplication
             Close();
         }
 
-        private void pnlTrackingColor_Click(object sender, EventArgs e)
-        {
-            ShowTrackingColor();
-        }
+        private void pnlTrackingColor_Click(object sender, EventArgs e) => ShowTrackingColor();
 
         private void ShowTrackingColor()
         {
@@ -93,7 +90,7 @@ namespace iSpyApplication
             if (cdTracking.ShowDialog(this) == DialogResult.OK)
             {
                 pnlTrackingColor.BackColor = cdTracking.Color;
-                
+
             }
         }
 

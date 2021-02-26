@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace iSpyApplication.Controls
@@ -15,15 +10,9 @@ namespace iSpyApplication.Controls
         private bool _mousedown;
         private Point _location = Point.Empty;
 
-        public PTZUI()
-        {
-            InitializeComponent();
-        }
+        public PTZUI() => InitializeComponent();
 
-        private void pnlPTZ_MouseMove(object sender, MouseEventArgs e)
-        {
-            _location = e.Location;
-        }
+        private void pnlPTZ_MouseMove(object sender, MouseEventArgs e) => _location = e.Location;
 
         private void pnlPTZ_MouseEnter(object sender, EventArgs e)
         {

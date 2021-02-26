@@ -1,11 +1,11 @@
-﻿using System;
-using System.Net.Sockets;
-using iSpyApplication.Utilities;
+﻿using iSpyApplication.Utilities;
 using NAudio.Wave;
+using System;
+using System.Net.Sockets;
 
 namespace iSpyApplication.Sources.Audio.talk
 {
-    internal class TalkNetworkKinect: ITalkTarget
+    internal class TalkNetworkKinect : ITalkTarget
     {
         private readonly object _obj = new object();
         private readonly int _port;
@@ -14,7 +14,7 @@ namespace iSpyApplication.Sources.Audio.talk
         private bool _bTalking;
         private readonly WaveFormat _waveFormat = new WaveFormat(8000, 16, 1);
         private readonly IAudioSource _audioSource;
-        const string Hdr = "TALK";
+        private const string Hdr = "TALK";
 
         public TalkNetworkKinect(string server, int port, IAudioSource audioSource)
         {
@@ -38,18 +38,15 @@ namespace iSpyApplication.Sources.Audio.talk
             }
             catch (Exception ex)
             {
-                Logger.LogException(ex,"TalkKinect");
+                Logger.LogException(ex, "TalkKinect");
                 TalkStopped?.Invoke(this, EventArgs.Empty);
             }
         }
-        
-        public void Stop()
-        {
-            StopTalk();
-        }
+
+        public void Stop() => StopTalk();
 
         public event TalkStoppedEventHandler TalkStopped;
-        
+
         private void StartTalk()
         {
             if (_bTalking)
@@ -101,7 +98,7 @@ namespace iSpyApplication.Sources.Audio.talk
                         if (!_audioSource.RecordingFormat.Equals(_waveFormat))
                         {
                             var ws = new TalkHelperStream(bSrc, totBytes, _audioSource.RecordingFormat);
-                            
+
                             var bDst = new byte[44100];
                             totBytes = 0;
                             using (var helpStm = new WaveFormatConversionStream(_waveFormat, ws))
@@ -113,13 +110,14 @@ namespace iSpyApplication.Sources.Audio.talk
                                 }
                             }
                             bSrc = bDst;
-                            
+
                         }
 
                         var enc = new byte[totBytes / 2];
                         ALawEncoder.ALawEncode(bSrc, totBytes, enc);
 
-                        try {
+                        try
+                        {
                             _avstream.Write(enc, 0, enc.Length);
                         }
                         catch (SocketException)

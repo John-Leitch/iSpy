@@ -1,8 +1,8 @@
-﻿using System;
+﻿using AForge.Imaging;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using AForge.Imaging;
 
 namespace iSpyApplication.Controls
 {
@@ -83,7 +83,7 @@ namespace iSpyApplication.Controls
         [DefaultValue(0)]
         public int Value
         {
-            get { return _min; }
+            get => _min;
             set
             {
                 if (_type == HuePickerType.Value)
@@ -100,7 +100,7 @@ namespace iSpyApplication.Controls
         [DefaultValue(0)]
         public int Min
         {
-            get { return _min; }
+            get => _min;
             set
             {
                 if (_type == HuePickerType.Range)
@@ -117,7 +117,7 @@ namespace iSpyApplication.Controls
         [DefaultValue(359)]
         public int Max
         {
-            get { return _max; }
+            get => _max;
             set
             {
                 if (_type == HuePickerType.Range)
@@ -137,7 +137,7 @@ namespace iSpyApplication.Controls
         [DefaultValue(HuePickerType.Value)]
         public HuePickerType Type
         {
-            get { return _type; }
+            get => _type;
             set
             {
                 _type = value;
@@ -257,43 +257,43 @@ namespace iSpyApplication.Controls
             }
 
             //
-            double halfWidth = (double) rcPie.Width/2;
-            double angleRad = -_min*Math.PI/180;
+            double halfWidth = (double)rcPie.Width / 2;
+            double angleRad = -_min * Math.PI / 180;
             double angleCos = Math.Cos(angleRad);
             double angleSin = Math.Sin(angleRad);
 
-            double x = halfWidth*angleCos;
-            double y = halfWidth*angleSin;
+            double x = halfWidth * angleCos;
+            double y = halfWidth * angleSin;
 
-            _ptCenter.X = rcPie.Left + (int) (halfWidth);
-            _ptCenter.Y = rcPie.Top + (int) (halfWidth);
-            _ptMin.X = rcPie.Left + (int) (halfWidth + x);
-            _ptMin.Y = rcPie.Top + (int) (halfWidth + y);
+            _ptCenter.X = rcPie.Left + (int)(halfWidth);
+            _ptCenter.Y = rcPie.Top + (int)(halfWidth);
+            _ptMin.X = rcPie.Left + (int)(halfWidth + x);
+            _ptMin.Y = rcPie.Top + (int)(halfWidth + y);
 
             // draw MIN pointer
             g.FillEllipse(_blackBrush,
-                rcPie.Left + (int) (halfWidth + x) - 4,
-                rcPie.Top + (int) (halfWidth + y) - 4,
+                rcPie.Left + (int)(halfWidth + x) - 4,
+                rcPie.Top + (int)(halfWidth + y) - 4,
                 8, 8);
             g.DrawLine(_blackPen, _ptCenter, _ptMin);
 
             // check picker type
             if (_type == HuePickerType.Range)
             {
-                angleRad = -_max*Math.PI/180;
+                angleRad = -_max * Math.PI / 180;
                 angleCos = Math.Cos(angleRad);
                 angleSin = Math.Sin(angleRad);
 
-                x = halfWidth*angleCos;
-                y = halfWidth*angleSin;
+                x = halfWidth * angleCos;
+                y = halfWidth * angleSin;
 
-                _ptMax.X = rcPie.Left + (int) (halfWidth + x);
-                _ptMax.Y = rcPie.Top + (int) (halfWidth + y);
+                _ptMax.X = rcPie.Left + (int)(halfWidth + x);
+                _ptMax.Y = rcPie.Top + (int)(halfWidth + y);
 
                 // draw MAX pointer
                 g.FillEllipse(_whiteBrush,
-                    rcPie.Left + (int) (halfWidth + x) - 4,
-                    rcPie.Top + (int) (halfWidth + y) - 4,
+                    rcPie.Left + (int)(halfWidth + x) - 4,
+                    rcPie.Top + (int)(halfWidth + y) - 4,
                     8, 8);
                 g.DrawLine(_whitePen, _ptCenter, _ptMax);
             }
@@ -351,7 +351,7 @@ namespace iSpyApplication.Controls
                 if (_trackMode == 1)
                 {
                     // MIN pointer tracking
-                    _min = (int) (Math.Atan2(-dy, dx)*180/Math.PI);
+                    _min = (int)(Math.Atan2(-dy, dx) * 180 / Math.PI);
                     if (_min < 0)
                     {
                         _min = 360 + _min;
@@ -360,7 +360,7 @@ namespace iSpyApplication.Controls
                 else
                 {
                     // MAX pointer tracking
-                    _max = (int) (Math.Atan2(-dy, dx)*180/Math.PI);
+                    _max = (int)(Math.Atan2(-dy, dx) * 180 / Math.PI);
                     if (_max < 0)
                     {
                         _max = 360 + _max;

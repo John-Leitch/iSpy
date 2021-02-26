@@ -1,6 +1,6 @@
-﻿using System.Drawing;
-using iSpyApplication.Sources.Audio;
+﻿using iSpyApplication.Sources.Audio;
 using NAudio.Wave;
+using System.Drawing;
 
 namespace iSpyApplication.Sources.Video
 {
@@ -9,16 +9,10 @@ namespace iSpyApplication.Sources.Video
         private readonly IVideoSource _source;
         private bool _disposed;
 
-        public CloneStream()
-        {
-            _source = null;
-        }
+        public CloneStream() => _source = null;
 
 
-        public CloneStream(IVideoSource source)
-        {
-            _source = source;
-        }
+        public CloneStream(IVideoSource source) => _source = source;
 
         public int FrameInterval { get; set; }
 
@@ -32,7 +26,7 @@ namespace iSpyApplication.Sources.Video
         public event LevelChangedEventHandler LevelChanged;
         public event AudioFinishedEventHandler AudioFinished;
 
-        public virtual string Source => _source==null?"None":_source.Source;
+        public virtual string Source => _source == null ? "None" : _source.Source;
 
         public WaveFormat RecordingFormat { get; } = null;
         public BufferedWaveProvider WaveOutProvider { get; set; }
@@ -40,7 +34,7 @@ namespace iSpyApplication.Sources.Video
         public bool Listening { get; set; }
 
 
-        public bool IsRunning => (_source != null && _source.IsRunning);
+        public bool IsRunning => (_source?.IsRunning == true);
 
 
         public void Start()
@@ -51,8 +45,7 @@ namespace iSpyApplication.Sources.Video
             _source.NewFrame += SourceNewFrame;
         }
 
-
-        void SourceNewFrame(object sender, NewFrameEventArgs eventArgs)
+        private void SourceNewFrame(object sender, NewFrameEventArgs eventArgs)
         {
             var bm = (Bitmap)eventArgs.Frame.Clone();
             NewFrame?.Invoke(this, new NewFrameEventArgs(bm));
@@ -73,10 +66,7 @@ namespace iSpyApplication.Sources.Video
 
         #endregion
 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         // Protected implementation of Dispose pattern. 
         protected virtual void Dispose(bool disposing)
@@ -86,7 +76,7 @@ namespace iSpyApplication.Sources.Video
 
             if (disposing)
             {
-                
+
             }
 
             // Free any unmanaged objects here. 

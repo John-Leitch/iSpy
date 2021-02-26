@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace iSpyApplication.Controls
@@ -9,7 +8,7 @@ namespace iSpyApplication.Controls
     public sealed partial class ScheduleRow : UserControl
     {
 
-        public new static int Height = 31;
+        public static new int Height = 31;
         public objectsScheduleEntry Ose;
 
         public event EventHandler ScheduleEntryDelete;
@@ -26,11 +25,8 @@ namespace iSpyApplication.Controls
             BackColor = DefaultBackColor;
         }
 
-        private string GetSummary(objectsScheduleEntry se)
-        {
-            return FormatTime(se.time) + " \t" + FormatDays(se.daysofweek.Split(',')) + " \t" +
+        private string GetSummary(objectsScheduleEntry se) => FormatTime(se.time) + " \t" + FormatDays(se.daysofweek.Split(',')) + " \t" +
                        Helper.ScheduleDescription(se.typeid);
-        }
 
 
         private static string FormatTime(int t)
@@ -84,10 +80,7 @@ namespace iSpyApplication.Controls
             chkSummary.Text = GetSummary(Ose);
         }
 
-        private void pictureBox2_Click(object sender, EventArgs e)
-        {
-            ScheduleEntryDelete?.Invoke(this, EventArgs.Empty);
-        }
+        private void pictureBox2_Click(object sender, EventArgs e) => ScheduleEntryDelete?.Invoke(this, EventArgs.Empty);
 
         private void tableLayoutPanel1_MouseEnter(object sender, EventArgs e)
         {
@@ -101,10 +94,7 @@ namespace iSpyApplication.Controls
             Invalidate();
         }
 
-        private void chkSummary_CheckedChanged(object sender, EventArgs e)
-        {
-            Ose.active = chkSummary.Checked;
-        }
+        private void chkSummary_CheckedChanged(object sender, EventArgs e) => Ose.active = chkSummary.Checked;
 
         private void ScheduleRow_Layout(object sender, LayoutEventArgs e)
         {

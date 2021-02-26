@@ -1,12 +1,8 @@
-﻿using System;
+﻿using iSpyApplication.Controls;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using iSpyApplication.Controls;
 
 namespace iSpyApplication
 {
@@ -23,15 +19,12 @@ namespace iSpyApplication
         private void RenderResources()
         {
             Text = LocRm.GetString("GridViewManager");
-            LocRm.SetString(button3,"Edit");
+            LocRm.SetString(button3, "Edit");
             LocRm.SetString(button2, "Delete");
             LocRm.SetString(button1, "New");
         }
 
-        private void GridViewManager_Load(object sender, EventArgs e)
-        {
-            LoadGrids();
-        }
+        private void GridViewManager_Load(object sender, EventArgs e) => LoadGrids();
 
         private void LoadGrids()
         {
@@ -68,7 +61,7 @@ namespace iSpyApplication
                     Fill = gvc.Fill,
                     ModeConfig = gvc.ModeConfig,
                     ShowAtStartup = gvc.ShowAtStartup,
-                    GridItem = new configurationGridGridItem[] { }
+                    GridItem = Array.Empty<configurationGridGridItem>()
                 };
                 List<configurationGrid> l = MainForm.Conf.GridViews.ToList();
                 l.Add(cg);
@@ -96,7 +89,7 @@ namespace iSpyApplication
         {
             foreach (var s in lbGridViews.SelectedItems)
             {
-                MainClass.EditGridView(s.ToString(),this);
+                MainClass.EditGridView(s.ToString(), this);
                 LoadGrids();
                 break;
             }

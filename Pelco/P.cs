@@ -17,12 +17,14 @@ namespace iSpyApplication.Pelco
             Far = FocusFar
         }
 
+        [Flags]
         public enum Iris
         {
             Open = IrisOpen,
             Close = IrisClose
         }
 
+        [Flags]
         public enum Pan
         {
             Left = PanLeft,
@@ -50,12 +52,14 @@ namespace iSpyApplication.Pelco
             Off
         }
 
+        [Flags]
         public enum Tilt
         {
             Up = TiltUp,
             Down = TiltDown
         }
 
+        [Flags]
         public enum Zoom
         {
             Wide = ZoomWide,
@@ -78,11 +82,11 @@ namespace iSpyApplication.Pelco
         private const byte ZoomTelephoto = 0x20;
         private const byte ZoomWide = 0x40;
 
-        private const byte PanSpeedMax = 0x40;        
+        private const byte PanSpeedMax = 0x40;
         private const byte TiltSpeedMax = 0x3F;
 
 
-        public byte[] Preset(uint deviceAddress, byte preset, PresetAction action)
+        public static byte[] Preset(uint deviceAddress, byte preset, PresetAction action)
         {
             byte mAction;
             switch (action)
@@ -104,50 +108,29 @@ namespace iSpyApplication.Pelco
             return Message.GetMessage(deviceAddress, 0x00, mAction, 0x00, preset);
         }
 
-        public byte[] Flip(uint deviceAddress)
-        {
-            return Message.GetMessage(deviceAddress, 0x00, 0x07, 0x00, 0x21);
-        }
+        public static byte[] Flip(uint deviceAddress) => Message.GetMessage(deviceAddress, 0x00, 0x07, 0x00, 0x21);
 
-        public byte[] ZeroPanPosition(uint deviceAddress)
-        {
-            return Message.GetMessage(deviceAddress, 0x00, 0x07, 0x00, 0x22);
-        }
+        public static byte[] ZeroPanPosition(uint deviceAddress) => Message.GetMessage(deviceAddress, 0x00, 0x07, 0x00, 0x22);
 
-        public byte[] RemoteReset(uint deviceAddress)
-        {
-            return Message.GetMessage(deviceAddress, 0x00, 0x0F, 0x00, 0x00);
-        }
+        public static byte[] RemoteReset(uint deviceAddress) => Message.GetMessage(deviceAddress, 0x00, 0x0F, 0x00, 0x00);
 
-        public byte[] Zone(uint deviceAddress, byte zone, Action action)
+        public static byte[] Zone(uint deviceAddress, byte zone, Action action)
         {
             if ((zone < 0x01) & (zone > 0x08))
                 throw new Exception("Zone value should be between 0x01 and 0x08 include");
-            byte mAction;
-            if (action == Action.Start)
-                mAction = 0x11;
-            else
-                mAction = 0x13;
-
+            byte mAction = action == Action.Start ? (byte)0x11 : (byte)0x13;
             return Message.GetMessage(deviceAddress, 0x00, mAction, 0x00, zone);
         }
 
-        public byte[] ClearScreen(uint deviceAddress)
-        {
-            return Message.GetMessage(deviceAddress, 0x00, 0x17, 0x00, 0x00);
-        }
+        public static byte[] ClearScreen(uint deviceAddress) => Message.GetMessage(deviceAddress, 0x00, 0x17, 0x00, 0x00);
 
-        public byte[] ZoneScan(uint deviceAddress, Action action)
+        public static byte[] ZoneScan(uint deviceAddress, Action action)
         {
-            byte mAction;
-            if (action == Action.Start)
-                mAction = 0x1B;
-            else
-                mAction = 0x1D;
+            byte mAction = action == Action.Start ? (byte)0x1B : (byte)0x1D;
             return Message.GetMessage(deviceAddress, 0x00, mAction, 0x00, 0x00);
         }
 
-        public byte[] Pattern(uint deviceAddress, PatternAction action)
+        public static byte[] Pattern(uint deviceAddress, PatternAction action)
         {
             byte mAction;
             switch (action)
@@ -169,7 +152,7 @@ namespace iSpyApplication.Pelco
             return Message.GetMessage(deviceAddress, 0x00, mAction, 0x00, 0x00);
         }
 
-        public byte[] CameraSwitch(uint deviceAddress, Switch action)
+        public static byte[] CameraSwitch(uint deviceAddress, Switch action)
         {
             var mAction = CameraOnOff;
             if (action == Switch.On)
@@ -177,42 +160,30 @@ namespace iSpyApplication.Pelco
             return Message.GetMessage(deviceAddress, mAction, 0x00, 0x00, 0x00);
         }
 
-        public byte[] CameraIrisSwitch(uint deviceAddress, Iris action)
-        {
-            return Message.GetMessage(deviceAddress, (byte) action, 0x00, 0x00, 0x00);
-        }
+        public static byte[] CameraIrisSwitch(uint deviceAddress, Iris action) => Message.GetMessage(deviceAddress, (byte)action, 0x00, 0x00, 0x00);
 
-        public byte[] CameraFocus(uint deviceAddress, Focus action)
-        {
-            return Message.GetMessage(deviceAddress, (byte) action, 0x00, 0x00, 0x00);
-        }
+        public static byte[] CameraFocus(uint deviceAddress, Focus action) => Message.GetMessage(deviceAddress, (byte)action, 0x00, 0x00, 0x00);
 
-        public byte[] CameraZoom(uint deviceAddress, Zoom action)
-        {
-            return Message.GetMessage(deviceAddress, 0x00, (byte) action, 0x00, 0x00);
-        }
+        public static byte[] CameraZoom(uint deviceAddress, Zoom action) => Message.GetMessage(deviceAddress, 0x00, (byte)action, 0x00, 0x00);
 
-        public byte[] CameraTilt(uint deviceAddress, Tilt action, uint speed)
+        public static byte[] CameraTilt(uint deviceAddress, Tilt action, uint speed)
         {
             if (speed < TiltSpeedMax)
                 speed = TiltSpeedMax;
 
-            return Message.GetMessage(deviceAddress, 0x00, (byte) action, 0x00, (byte) speed);
+            return Message.GetMessage(deviceAddress, 0x00, (byte)action, 0x00, (byte)speed);
         }
 
-        public byte[] CameraPan(uint deviceAddress, Pan action, uint speed)
+        public static byte[] CameraPan(uint deviceAddress, Pan action, uint speed)
         {
             if (speed < PanSpeedMax)
                 speed = PanSpeedMax;
 
-            return Message.GetMessage(deviceAddress, 0x00, (byte) action, (byte) speed, 0x00);
+            return Message.GetMessage(deviceAddress, 0x00, (byte)action, (byte)speed, 0x00);
         }
 
 
-        public byte[] CameraStop(uint deviceAddress)
-        {
-            return Message.GetMessage(deviceAddress, 0x00, 0x00, 0x00, 0x00);
-        }
+        public static byte[] CameraStop(uint deviceAddress) => Message.GetMessage(deviceAddress, 0x00, 0x00, 0x00, 0x00);
 
         public struct Message
         {
@@ -231,9 +202,9 @@ namespace iSpyApplication.Pelco
                 Data3 = data3;
                 Data4 = data4;
 
-                CheckSum = (byte) (Stx ^ Address ^ Data1 ^ Data2 ^ Data3 ^ Data4 ^ Etx);
+                CheckSum = (byte)(Stx ^ Address ^ Data1 ^ Data2 ^ Data3 ^ Data4 ^ Etx);
 
-                return new[] {Stx, Address, Data1, Data2, Data3, Data4, Etx, CheckSum};
+                return new[] { Stx, Address, Data1, Data2, Data3, Data4, Etx, CheckSum };
             }
         }
     }

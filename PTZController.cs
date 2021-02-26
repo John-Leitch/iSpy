@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using iSpyApplication.Controls;
+using iSpyApplication.OnvifServices;
+using iSpyApplication.Pelco;
+using iSpyApplication.Sources.Video;
+using iSpyApplication.Utilities;
+using iSpyPRO.DirectShow;
+using System;
 using System.Globalization;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using iSpyApplication.Controls;
-using iSpyApplication.OnvifServices;
-using iSpyApplication.Pelco;
-using iSpyApplication.Sources.Video;
-using iSpyApplication.Utilities;
-using iSpyPRO.DirectShow;
 using DateTime = System.DateTime;
 using Rectangle = System.Drawing.Rectangle;
 using SerialPort = System.IO.Ports.SerialPort;
@@ -20,7 +19,7 @@ namespace iSpyApplication
 {
     public class PTZController
     {
-        readonly ConnectionFactory _connectionFactory = new ConnectionFactory();
+        private readonly ConnectionFactory _connectionFactory = new ConnectionFactory();
         public static string[] PelcoCommands =
                                              {
                                                  "Focus Near", "Focus Far", "Open Iris", "Close Iris", "Switch On",
@@ -72,10 +71,8 @@ namespace iSpyApplication
             }
 
             string[] cfg = _cameraControl.Camobject.settings.ptzpelcoconfig.Split('|');
-            Parity p;
-            Enum.TryParse(cfg[4], out p);
-            StopBits sb;
-            Enum.TryParse(cfg[3], out sb);
+            Enum.TryParse(cfg[4], out Parity p);
+            Enum.TryParse(cfg[3], out StopBits sb);
             try
             {
                 _serialPort = new SerialPort(cfg[0], Convert.ToInt32(cfg[1]), p, Convert.ToInt32(cfg[2]), sb)
@@ -89,7 +86,7 @@ namespace iSpyApplication
         }
 
         //private HttpWebRequest _request;
-        const double Arc = Math.PI / 8;
+        private const double Arc = Math.PI / 8;
         private string _nextcommand = "";
 
         private PTZSettings2Camera _ptzSettings;
@@ -114,10 +111,7 @@ namespace iSpyApplication
         internal bool DigitalPTZ => PTZSettings == null;
 
 
-        public PTZController(CameraWindow cameraControl)
-        {
-            _cameraControl = cameraControl;
-        }
+        public PTZController(CameraWindow cameraControl) => _cameraControl = cameraControl;
 
         public void AddPreset(string name, string presetToken)
         {
@@ -158,10 +152,7 @@ namespace iSpyApplication
             }
         }
 
-        public void ResetONVIF()
-        {
-            _ptzSettings = null;
-        }
+        public void ResetONVIF() => _ptzSettings = null;
 
         public void SendPTZDirection(double angle)
         {
@@ -178,10 +169,7 @@ namespace iSpyApplication
                 //don't flip digital controls
                 if (_cameraControl.Camobject.settings.ptzflipx)
                 {
-                    if (angle <= 0)
-                        angle = -Math.PI - angle;
-                    else
-                        angle = Math.PI - angle;
+                    angle = angle <= 0 ? -Math.PI - angle : Math.PI - angle;
                 }
                 if (_cameraControl.Camobject.settings.ptzflipy)
                 {
@@ -227,14 +215,11 @@ namespace iSpyApplication
                     cmd = Enums.PtzCommand.DownLeft;
                 }
 
-                if (IsContinuous)
+                if (IsContinuous && cmd != Enums.PtzCommand.Stop)
                 {
-                    if (cmd != Enums.PtzCommand.Stop)
-                    {
-                        //ignore - continuous
-                        if (_lastCommand == cmd)
-                            return;
-                    }
+                    //ignore - continuous
+                    if (_lastCommand == cmd)
+                        return;
                 }
                 switch (_cameraControl.Camobject.ptz)
                 {
@@ -524,15 +509,13 @@ namespace iSpyApplication
 
             if (!d)
             {
-                if (command == Enums.PtzCommand.ZoomIn)
+                if (command == Enums.PtzCommand.ZoomIn && string.IsNullOrEmpty(ptz.Commands.ZoomIn))
                 {
-                    if (string.IsNullOrEmpty(ptz.Commands.ZoomIn))
-                        d = true;
+                    d = true;
                 }
-                if (command == Enums.PtzCommand.ZoomOut)
+                if (command == Enums.PtzCommand.ZoomOut && string.IsNullOrEmpty(ptz.Commands.ZoomOut))
                 {
-                    if (string.IsNullOrEmpty(ptz.Commands.ZoomOut))
-                        d = true;
+                    d = true;
                 }
             }
 
@@ -575,21 +558,15 @@ namespace iSpyApplication
                         SendPTZCommand(ptz.Commands.Center);
                         break;
                     case Enums.PtzCommand.Stop:
-                        if (_previousCommand == Enums.PtzCommand.ZoomIn)
+                        if (_previousCommand == Enums.PtzCommand.ZoomIn && !string.IsNullOrEmpty(ptz.Commands.ZoomInStop))
                         {
-                            if (!string.IsNullOrEmpty(ptz.Commands.ZoomInStop))
-                            {
-                                SendPTZCommand(ptz.Commands.ZoomInStop);
-                                break;
-                            }
+                            SendPTZCommand(ptz.Commands.ZoomInStop);
+                            break;
                         }
-                        if (_previousCommand == Enums.PtzCommand.ZoomOut)
+                        if (_previousCommand == Enums.PtzCommand.ZoomOut && !string.IsNullOrEmpty(ptz.Commands.ZoomOutStop))
                         {
-                            if (!string.IsNullOrEmpty(ptz.Commands.ZoomOutStop))
-                            {
-                                SendPTZCommand(ptz.Commands.ZoomOutStop);
-                                break;
-                            }
+                            SendPTZCommand(ptz.Commands.ZoomOutStop);
+                            break;
                         }
                         SendPTZCommand(ptz.Commands.Stop);
                         break;
@@ -662,10 +639,9 @@ namespace iSpyApplication
             }
         }
 
-        void ProcessIAM(Enums.PtzCommand command)
+        private void ProcessIAM(Enums.PtzCommand command)
         {
-            var d = _cameraControl.Camera?.VideoSource as VideoCaptureDevice;
-            if (d != null)
+            if (_cameraControl.Camera?.VideoSource is VideoCaptureDevice d)
             {
                 try
                 {
@@ -722,12 +698,10 @@ namespace iSpyApplication
             }
         }
 
-        void IAMMove(VideoCaptureDevice d, CameraControlProperty p, int i)
+        private static void IAMMove(VideoCaptureDevice d, CameraControlProperty p, int i)
         {
-            int v, minv, maxv, stepSize, defVal;
-            CameraControlFlags f, cf;
-            d.GetCameraProperty(p, out v, out f);
-            d.GetCameraPropertyRange(p, out minv, out maxv, out stepSize, out defVal, out cf);
+            d.GetCameraProperty(p, out int v, out CameraControlFlags f);
+            d.GetCameraPropertyRange(p, out int minv, out int maxv, out int stepSize, out int defVal, out CameraControlFlags cf);
 
             int newv = v + i * stepSize;
             if (newv < minv)
@@ -752,7 +726,7 @@ namespace iSpyApplication
         private Enums.PtzCommand _lastOnvifCommand = Enums.PtzCommand.Center;
         private DateTime _lastOnvifCommandSent = DateTime.MinValue;
 
-        void ProcessOnvif(Enums.PtzCommand command)
+        private void ProcessOnvif(Enums.PtzCommand command)
         {
             if (!_cameraControl.ONVIFConnected)
                 return;
@@ -829,18 +803,15 @@ namespace iSpyApplication
             }
         }
 
-        void ProcessOnvifCommand(string ptzToken)
+        private void ProcessOnvifCommand(string ptzToken)
         {
             if (PTZToken != null)
             {
                 try
                 {
                     var ptz = _cameraControl.ONVIFDevice?.PTZ;
-                    if (ptz != null)
-                    {
-                        ptz.GotoPresetAsync(PTZToken, ptzToken, null);
-                    }
-                    
+                    ptz?.GotoPresetAsync(PTZToken, ptzToken, null);
+
                 }
                 catch (Exception ex)
                 {
@@ -850,14 +821,7 @@ namespace iSpyApplication
             }
         }
 
-        private string PTZToken
-        {
-            get {
-                if (!_cameraControl.ONVIFConnected)
-                    return null;
-                return _cameraControl?.ONVIFDevice?.Profile?.token;
-            }
-        }
+        private string PTZToken => !_cameraControl.ONVIFConnected ? null : (_cameraControl?.ONVIFDevice?.Profile?.token);
 
         public PTZPreset[] ONVIFPresets
         {
@@ -879,11 +843,11 @@ namespace iSpyApplication
                 {
                     Logger.LogException(ex);
                 }
-                return new PTZPreset[] { };
+                return Array.Empty<PTZPreset>();
             }
         }
 
-        void ProcessPelco(Enums.PtzCommand command, bool usePelcoP)
+        private void ProcessPelco(Enums.PtzCommand command, bool usePelcoP)
         {
             //PELCO
             if (_serialPort == null)
@@ -908,7 +872,7 @@ namespace iSpyApplication
                     //SerialPort.DataReceived += SerialPort_DataReceived;
                 }
             }
-            if (_serialPort == null || !_serialPort.IsOpen)
+            if (_serialPort?.IsOpen != true)
                 return;
 
             _lastCommand = command;
@@ -919,44 +883,44 @@ namespace iSpyApplication
                 switch (command)
                 {
                     case Enums.PtzCommand.Left:
-                        SendPelco(pelcoP.CameraPan(_addr, PelcoP.Pan.Left, 1));
+                        SendPelco(PelcoP.CameraPan(_addr, PelcoP.Pan.Left, 1));
                         break;
                     case Enums.PtzCommand.UpLeft:
-                        SendPelco(pelcoP.CameraTilt(_addr, PelcoP.Tilt.Up, 1));
-                        SendPelco(pelcoP.CameraPan(_addr, PelcoP.Pan.Left, 1));
+                        SendPelco(PelcoP.CameraTilt(_addr, PelcoP.Tilt.Up, 1));
+                        SendPelco(PelcoP.CameraPan(_addr, PelcoP.Pan.Left, 1));
                         break;
                     case Enums.PtzCommand.Up:
-                        SendPelco(pelcoP.CameraTilt(_addr, PelcoP.Tilt.Up, 1));
+                        SendPelco(PelcoP.CameraTilt(_addr, PelcoP.Tilt.Up, 1));
                         break;
                     case Enums.PtzCommand.UpRight:
-                        SendPelco(pelcoP.CameraTilt(_addr, PelcoP.Tilt.Up, 1));
-                        SendPelco(pelcoP.CameraPan(_addr, PelcoP.Pan.Right, 1));
+                        SendPelco(PelcoP.CameraTilt(_addr, PelcoP.Tilt.Up, 1));
+                        SendPelco(PelcoP.CameraPan(_addr, PelcoP.Pan.Right, 1));
                         break;
                     case Enums.PtzCommand.Right:
-                        SendPelco(pelcoP.CameraPan(_addr, PelcoP.Pan.Right, 1));
+                        SendPelco(PelcoP.CameraPan(_addr, PelcoP.Pan.Right, 1));
                         break;
                     case Enums.PtzCommand.DownRight:
-                        SendPelco(pelcoP.CameraTilt(_addr, PelcoP.Tilt.Down, 1));
-                        SendPelco(pelcoP.CameraPan(_addr, PelcoP.Pan.Right, 1));
+                        SendPelco(PelcoP.CameraTilt(_addr, PelcoP.Tilt.Down, 1));
+                        SendPelco(PelcoP.CameraPan(_addr, PelcoP.Pan.Right, 1));
                         break;
                     case Enums.PtzCommand.Down:
-                        SendPelco(pelcoP.CameraTilt(_addr, PelcoP.Tilt.Down, 1));
+                        SendPelco(PelcoP.CameraTilt(_addr, PelcoP.Tilt.Down, 1));
                         break;
                     case Enums.PtzCommand.DownLeft:
-                        SendPelco(pelcoP.CameraTilt(_addr, PelcoP.Tilt.Down, 1));
-                        SendPelco(pelcoP.CameraPan(_addr, PelcoP.Pan.Left, 1));
+                        SendPelco(PelcoP.CameraTilt(_addr, PelcoP.Tilt.Down, 1));
+                        SendPelco(PelcoP.CameraPan(_addr, PelcoP.Pan.Left, 1));
                         break;
                     case Enums.PtzCommand.ZoomIn:
-                        SendPelco(pelcoP.CameraZoom(_addr, PelcoP.Zoom.Telephoto));
+                        SendPelco(PelcoP.CameraZoom(_addr, PelcoP.Zoom.Telephoto));
                         break;
                     case Enums.PtzCommand.ZoomOut:
-                        SendPelco(pelcoP.CameraZoom(_addr, PelcoP.Zoom.Wide));
+                        SendPelco(PelcoP.CameraZoom(_addr, PelcoP.Zoom.Wide));
                         break;
                     case Enums.PtzCommand.Center:
-                        SendPelco(pelcoP.ZeroPanPosition(_addr));
+                        SendPelco(PelcoP.ZeroPanPosition(_addr));
                         break;
                     case Enums.PtzCommand.Stop:
-                        SendPelco(pelcoP.CameraStop(_addr));
+                        SendPelco(PelcoP.CameraStop(_addr));
                         break;
                 }
             }
@@ -966,44 +930,44 @@ namespace iSpyApplication
                 switch (command)
                 {
                     case Enums.PtzCommand.Left:
-                        SendPelco(pelcoD.CameraPan(_addr, PelcoD.Pan.Left, 1));
+                        SendPelco(PelcoD.CameraPan(_addr, PelcoD.Pan.Left, 1));
                         break;
                     case Enums.PtzCommand.UpLeft:
-                        SendPelco(pelcoD.CameraTilt(_addr, PelcoD.Tilt.Up, 1));
-                        SendPelco(pelcoD.CameraPan(_addr, PelcoD.Pan.Left, 1));
+                        SendPelco(PelcoD.CameraTilt(_addr, PelcoD.Tilt.Up, 1));
+                        SendPelco(PelcoD.CameraPan(_addr, PelcoD.Pan.Left, 1));
                         break;
                     case Enums.PtzCommand.Up:
-                        SendPelco(pelcoD.CameraTilt(_addr, PelcoD.Tilt.Up, 1));
+                        SendPelco(PelcoD.CameraTilt(_addr, PelcoD.Tilt.Up, 1));
                         break;
                     case Enums.PtzCommand.UpRight:
-                        SendPelco(pelcoD.CameraTilt(_addr, PelcoD.Tilt.Up, 1));
-                        SendPelco(pelcoD.CameraPan(_addr, PelcoD.Pan.Right, 1));
+                        SendPelco(PelcoD.CameraTilt(_addr, PelcoD.Tilt.Up, 1));
+                        SendPelco(PelcoD.CameraPan(_addr, PelcoD.Pan.Right, 1));
                         break;
                     case Enums.PtzCommand.Right:
-                        SendPelco(pelcoD.CameraPan(_addr, PelcoD.Pan.Right, 1));
+                        SendPelco(PelcoD.CameraPan(_addr, PelcoD.Pan.Right, 1));
                         break;
                     case Enums.PtzCommand.DownRight:
-                        SendPelco(pelcoD.CameraTilt(_addr, PelcoD.Tilt.Down, 1));
-                        SendPelco(pelcoD.CameraPan(_addr, PelcoD.Pan.Right, 1));
+                        SendPelco(PelcoD.CameraTilt(_addr, PelcoD.Tilt.Down, 1));
+                        SendPelco(PelcoD.CameraPan(_addr, PelcoD.Pan.Right, 1));
                         break;
                     case Enums.PtzCommand.Down:
-                        SendPelco(pelcoD.CameraTilt(_addr, PelcoD.Tilt.Down, 1));
+                        SendPelco(PelcoD.CameraTilt(_addr, PelcoD.Tilt.Down, 1));
                         break;
                     case Enums.PtzCommand.DownLeft:
-                        SendPelco(pelcoD.CameraTilt(_addr, PelcoD.Tilt.Down, 1));
-                        SendPelco(pelcoD.CameraPan(_addr, PelcoD.Pan.Left, 1));
+                        SendPelco(PelcoD.CameraTilt(_addr, PelcoD.Tilt.Down, 1));
+                        SendPelco(PelcoD.CameraPan(_addr, PelcoD.Pan.Left, 1));
                         break;
                     case Enums.PtzCommand.ZoomIn:
-                        SendPelco(pelcoD.CameraZoom(_addr, PelcoD.Zoom.Telephoto));
+                        SendPelco(PelcoD.CameraZoom(_addr, PelcoD.Zoom.Telephoto));
                         break;
                     case Enums.PtzCommand.ZoomOut:
-                        SendPelco(pelcoD.CameraZoom(_addr, PelcoD.Zoom.Wide));
+                        SendPelco(PelcoD.CameraZoom(_addr, PelcoD.Zoom.Wide));
                         break;
                     case Enums.PtzCommand.Center:
-                        SendPelco(pelcoD.ZeroPanPosition(_addr));
+                        SendPelco(PelcoD.ZeroPanPosition(_addr));
                         break;
                     case Enums.PtzCommand.Stop:
-                        SendPelco(pelcoD.CameraStop(_addr));
+                        SendPelco(PelcoD.CameraStop(_addr));
                         break;
                 }
             }
@@ -1013,7 +977,7 @@ namespace iSpyApplication
             _serialPort = null;
         }
 
-        void ProcessPelcoCommand(string command, bool usePelcoP)
+        private void ProcessPelcoCommand(string command, bool usePelcoP)
         {
             //PELCO
             if (_serialPort == null)
@@ -1038,7 +1002,7 @@ namespace iSpyApplication
                     //SerialPort.DataReceived += SerialPort_DataReceived;
                 }
             }
-            if (_serialPort == null || !_serialPort.IsOpen)
+            if (_serialPort?.IsOpen != true)
                 return;
 
             if (usePelcoP)
@@ -1047,139 +1011,139 @@ namespace iSpyApplication
                 switch (command)
                 {
                     case "Focus Near":
-                        SendPelco(pelcoP.CameraFocus(_addr, PelcoP.Focus.Near));
+                        SendPelco(PelcoP.CameraFocus(_addr, PelcoP.Focus.Near));
                         break;
                     case "Focus Far":
-                        SendPelco(pelcoP.CameraFocus(_addr, PelcoP.Focus.Far));
+                        SendPelco(PelcoP.CameraFocus(_addr, PelcoP.Focus.Far));
                         break;
                     case "Open Iris":
-                        SendPelco(pelcoP.CameraIrisSwitch(_addr, PelcoP.Iris.Open));
+                        SendPelco(PelcoP.CameraIrisSwitch(_addr, PelcoP.Iris.Open));
                         break;
                     case "Close Iris":
-                        SendPelco(pelcoP.CameraIrisSwitch(_addr, PelcoP.Iris.Close));
+                        SendPelco(PelcoP.CameraIrisSwitch(_addr, PelcoP.Iris.Close));
                         break;
                     case "Switch On":
-                        SendPelco(pelcoP.CameraSwitch(_addr, PelcoP.Switch.On));
+                        SendPelco(PelcoP.CameraSwitch(_addr, PelcoP.Switch.On));
                         break;
                     case "Switch Off":
-                        SendPelco(pelcoP.CameraSwitch(_addr, PelcoP.Switch.Off));
+                        SendPelco(PelcoP.CameraSwitch(_addr, PelcoP.Switch.Off));
                         break;
                     case "Clear Screen":
-                        SendPelco(pelcoP.ClearScreen(_addr));
+                        SendPelco(PelcoP.ClearScreen(_addr));
                         break;
                     case "Flip":
-                        SendPelco(pelcoP.Flip(_addr));
+                        SendPelco(PelcoP.Flip(_addr));
                         break;
                     case "Pattern Stop":
-                        SendPelco(pelcoP.Pattern(_addr, PelcoP.PatternAction.Stop));
+                        SendPelco(PelcoP.Pattern(_addr, PelcoP.PatternAction.Stop));
                         break;
                     case "Pattern Run":
-                        SendPelco(pelcoP.Pattern(_addr, PelcoP.PatternAction.Run));
+                        SendPelco(PelcoP.Pattern(_addr, PelcoP.PatternAction.Run));
                         break;
                     case "Pattern Start":
-                        SendPelco(pelcoP.Pattern(_addr, PelcoP.PatternAction.Start));
+                        SendPelco(PelcoP.Pattern(_addr, PelcoP.PatternAction.Start));
                         break;
                     case "Go Preset 1":
-                        SendPelco(pelcoP.Preset(_addr, 1, PelcoP.PresetAction.Goto));
+                        SendPelco(PelcoP.Preset(_addr, 1, PelcoP.PresetAction.Goto));
                         break;
                     case "Set Preset 1":
-                        SendPelco(pelcoP.Preset(_addr, 1, PelcoP.PresetAction.Set));
+                        SendPelco(PelcoP.Preset(_addr, 1, PelcoP.PresetAction.Set));
                         break;
                     case "Clear Preset 1":
-                        SendPelco(pelcoP.Preset(_addr, 1, PelcoP.PresetAction.Clear));
+                        SendPelco(PelcoP.Preset(_addr, 1, PelcoP.PresetAction.Clear));
                         break;
                     case "Go Preset 2":
-                        SendPelco(pelcoP.Preset(_addr, 2, PelcoP.PresetAction.Goto));
+                        SendPelco(PelcoP.Preset(_addr, 2, PelcoP.PresetAction.Goto));
                         break;
                     case "Set Preset 2":
-                        SendPelco(pelcoP.Preset(_addr, 2, PelcoP.PresetAction.Set));
+                        SendPelco(PelcoP.Preset(_addr, 2, PelcoP.PresetAction.Set));
                         break;
                     case "Clear Preset 2":
-                        SendPelco(pelcoP.Preset(_addr, 2, PelcoP.PresetAction.Clear));
+                        SendPelco(PelcoP.Preset(_addr, 2, PelcoP.PresetAction.Clear));
                         break;
                     case "Go Preset 3":
-                        SendPelco(pelcoP.Preset(_addr, 3, PelcoP.PresetAction.Goto));
+                        SendPelco(PelcoP.Preset(_addr, 3, PelcoP.PresetAction.Goto));
                         break;
                     case "Set Preset 3":
-                        SendPelco(pelcoP.Preset(_addr, 3, PelcoP.PresetAction.Set));
+                        SendPelco(PelcoP.Preset(_addr, 3, PelcoP.PresetAction.Set));
                         break;
                     case "Clear Preset 3":
-                        SendPelco(pelcoP.Preset(_addr, 3, PelcoP.PresetAction.Clear));
+                        SendPelco(PelcoP.Preset(_addr, 3, PelcoP.PresetAction.Clear));
                         break;
                     case "Go Preset 4":
-                        SendPelco(pelcoP.Preset(_addr, 4, PelcoP.PresetAction.Goto));
+                        SendPelco(PelcoP.Preset(_addr, 4, PelcoP.PresetAction.Goto));
                         break;
                     case "Set Preset 4":
-                        SendPelco(pelcoP.Preset(_addr, 4, PelcoP.PresetAction.Set));
+                        SendPelco(PelcoP.Preset(_addr, 4, PelcoP.PresetAction.Set));
                         break;
                     case "Clear Preset 4":
-                        SendPelco(pelcoP.Preset(_addr, 4, PelcoP.PresetAction.Clear));
+                        SendPelco(PelcoP.Preset(_addr, 4, PelcoP.PresetAction.Clear));
                         break;
                     case "Go Preset 5":
-                        SendPelco(pelcoP.Preset(_addr, 5, PelcoP.PresetAction.Goto));
+                        SendPelco(PelcoP.Preset(_addr, 5, PelcoP.PresetAction.Goto));
                         break;
                     case "Set Preset 5":
-                        SendPelco(pelcoP.Preset(_addr, 5, PelcoP.PresetAction.Set));
+                        SendPelco(PelcoP.Preset(_addr, 5, PelcoP.PresetAction.Set));
                         break;
                     case "Clear Preset 5":
-                        SendPelco(pelcoP.Preset(_addr, 5, PelcoP.PresetAction.Clear));
+                        SendPelco(PelcoP.Preset(_addr, 5, PelcoP.PresetAction.Clear));
                         break;
                     case "Go Preset 6":
-                        SendPelco(pelcoP.Preset(_addr, 6, PelcoP.PresetAction.Goto));
+                        SendPelco(PelcoP.Preset(_addr, 6, PelcoP.PresetAction.Goto));
                         break;
                     case "Set Preset 6":
-                        SendPelco(pelcoP.Preset(_addr, 6, PelcoP.PresetAction.Set));
+                        SendPelco(PelcoP.Preset(_addr, 6, PelcoP.PresetAction.Set));
                         break;
                     case "Clear Preset 6":
-                        SendPelco(pelcoP.Preset(_addr, 6, PelcoP.PresetAction.Clear));
+                        SendPelco(PelcoP.Preset(_addr, 6, PelcoP.PresetAction.Clear));
                         break;
                     case "Remote Reset":
-                        SendPelco(pelcoP.RemoteReset(_addr));
+                        SendPelco(PelcoP.RemoteReset(_addr));
                         break;
                     case "Zero Pan Position":
-                        SendPelco(pelcoP.ZeroPanPosition(_addr));
+                        SendPelco(PelcoP.ZeroPanPosition(_addr));
                         break;
                     case "Start Zone 1":
-                        SendPelco(pelcoP.Zone(_addr, 1, PelcoP.Action.Start));
+                        SendPelco(PelcoP.Zone(_addr, 1, PelcoP.Action.Start));
                         break;
                     case "Stop Zone 1":
-                        SendPelco(pelcoP.Zone(_addr, 1, PelcoP.Action.Stop));
+                        SendPelco(PelcoP.Zone(_addr, 1, PelcoP.Action.Stop));
                         break;
                     case "Start Zone 2":
-                        SendPelco(pelcoP.Zone(_addr, 2, PelcoP.Action.Start));
+                        SendPelco(PelcoP.Zone(_addr, 2, PelcoP.Action.Start));
                         break;
                     case "Stop Zone 2":
-                        SendPelco(pelcoP.Zone(_addr, 2, PelcoP.Action.Stop));
+                        SendPelco(PelcoP.Zone(_addr, 2, PelcoP.Action.Stop));
                         break;
                     case "Start Zone 3":
-                        SendPelco(pelcoP.Zone(_addr, 3, PelcoP.Action.Start));
+                        SendPelco(PelcoP.Zone(_addr, 3, PelcoP.Action.Start));
                         break;
                     case "Stop Zone 3":
-                        SendPelco(pelcoP.Zone(_addr, 3, PelcoP.Action.Stop));
+                        SendPelco(PelcoP.Zone(_addr, 3, PelcoP.Action.Stop));
                         break;
                     case "Start Zone 4":
-                        SendPelco(pelcoP.Zone(_addr, 4, PelcoP.Action.Start));
+                        SendPelco(PelcoP.Zone(_addr, 4, PelcoP.Action.Start));
                         break;
                     case "Stop Zone 4":
-                        SendPelco(pelcoP.Zone(_addr, 4, PelcoP.Action.Stop));
+                        SendPelco(PelcoP.Zone(_addr, 4, PelcoP.Action.Stop));
                         break;
                     case "Start Zone 5":
-                        SendPelco(pelcoP.Zone(_addr, 5, PelcoP.Action.Start));
+                        SendPelco(PelcoP.Zone(_addr, 5, PelcoP.Action.Start));
                         break;
                     case "Stop Zone 5":
-                        SendPelco(pelcoP.Zone(_addr, 5, PelcoP.Action.Stop));
+                        SendPelco(PelcoP.Zone(_addr, 5, PelcoP.Action.Stop));
                         break;
                     case "Start Zone 6":
-                        SendPelco(pelcoP.Zone(_addr, 6, PelcoP.Action.Start));
+                        SendPelco(PelcoP.Zone(_addr, 6, PelcoP.Action.Start));
                         break;
                     case "Stop Zone 6":
-                        SendPelco(pelcoP.Zone(_addr, 6, PelcoP.Action.Stop));
+                        SendPelco(PelcoP.Zone(_addr, 6, PelcoP.Action.Stop));
                         break;
                     case "Start Zone Scan":
-                        SendPelco(pelcoP.ZoneScan(_addr, PelcoP.Action.Start));
+                        SendPelco(PelcoP.ZoneScan(_addr, PelcoP.Action.Start));
                         break;
                     case "Stop Zone Scan":
-                        SendPelco(pelcoP.ZoneScan(_addr, PelcoP.Action.Stop));
+                        SendPelco(PelcoP.ZoneScan(_addr, PelcoP.Action.Stop));
                         break;
                 }
             }
@@ -1189,139 +1153,139 @@ namespace iSpyApplication
                 switch (command)
                 {
                     case "Focus Near":
-                        SendPelco(pelcoD.CameraFocus(_addr, PelcoD.Focus.Near));
+                        SendPelco(PelcoD.CameraFocus(_addr, PelcoD.Focus.Near));
                         break;
                     case "Focus Far":
-                        SendPelco(pelcoD.CameraFocus(_addr, PelcoD.Focus.Far));
+                        SendPelco(PelcoD.CameraFocus(_addr, PelcoD.Focus.Far));
                         break;
                     case "Open Iris":
-                        SendPelco(pelcoD.CameraIrisSwitch(_addr, PelcoD.Iris.Open));
+                        SendPelco(PelcoD.CameraIrisSwitch(_addr, PelcoD.Iris.Open));
                         break;
                     case "Close Iris":
-                        SendPelco(pelcoD.CameraIrisSwitch(_addr, PelcoD.Iris.Close));
+                        SendPelco(PelcoD.CameraIrisSwitch(_addr, PelcoD.Iris.Close));
                         break;
                     case "Switch On":
-                        SendPelco(pelcoD.CameraSwitch(_addr, PelcoD.Switch.On));
+                        SendPelco(PelcoD.CameraSwitch(_addr, PelcoD.Switch.On));
                         break;
                     case "Switch Off":
-                        SendPelco(pelcoD.CameraSwitch(_addr, PelcoD.Switch.Off));
+                        SendPelco(PelcoD.CameraSwitch(_addr, PelcoD.Switch.Off));
                         break;
                     case "Clear Screen":
-                        SendPelco(pelcoD.ClearScreen(_addr));
+                        SendPelco(PelcoD.ClearScreen(_addr));
                         break;
                     case "Flip":
-                        SendPelco(pelcoD.Flip(_addr));
+                        SendPelco(PelcoD.Flip(_addr));
                         break;
                     case "Pattern Stop":
-                        SendPelco(pelcoD.Pattern(_addr, PelcoD.PatternAction.Stop));
+                        SendPelco(PelcoD.Pattern(_addr, PelcoD.PatternAction.Stop));
                         break;
                     case "Pattern Run":
-                        SendPelco(pelcoD.Pattern(_addr, PelcoD.PatternAction.Run));
+                        SendPelco(PelcoD.Pattern(_addr, PelcoD.PatternAction.Run));
                         break;
                     case "Pattern Start":
-                        SendPelco(pelcoD.Pattern(_addr, PelcoD.PatternAction.Start));
+                        SendPelco(PelcoD.Pattern(_addr, PelcoD.PatternAction.Start));
                         break;
                     case "Go Preset 1":
-                        SendPelco(pelcoD.Preset(_addr, 1, PelcoD.PresetAction.Goto));
+                        SendPelco(PelcoD.Preset(_addr, 1, PelcoD.PresetAction.Goto));
                         break;
                     case "Set Preset 1":
-                        SendPelco(pelcoD.Preset(_addr, 1, PelcoD.PresetAction.Set));
+                        SendPelco(PelcoD.Preset(_addr, 1, PelcoD.PresetAction.Set));
                         break;
                     case "Clear Preset 1":
-                        SendPelco(pelcoD.Preset(_addr, 1, PelcoD.PresetAction.Clear));
+                        SendPelco(PelcoD.Preset(_addr, 1, PelcoD.PresetAction.Clear));
                         break;
                     case "Go Preset 2":
-                        SendPelco(pelcoD.Preset(_addr, 2, PelcoD.PresetAction.Goto));
+                        SendPelco(PelcoD.Preset(_addr, 2, PelcoD.PresetAction.Goto));
                         break;
                     case "Set Preset 2":
-                        SendPelco(pelcoD.Preset(_addr, 2, PelcoD.PresetAction.Set));
+                        SendPelco(PelcoD.Preset(_addr, 2, PelcoD.PresetAction.Set));
                         break;
                     case "Clear Preset 2":
-                        SendPelco(pelcoD.Preset(_addr, 2, PelcoD.PresetAction.Clear));
+                        SendPelco(PelcoD.Preset(_addr, 2, PelcoD.PresetAction.Clear));
                         break;
                     case "Go Preset 3":
-                        SendPelco(pelcoD.Preset(_addr, 3, PelcoD.PresetAction.Goto));
+                        SendPelco(PelcoD.Preset(_addr, 3, PelcoD.PresetAction.Goto));
                         break;
                     case "Set Preset 3":
-                        SendPelco(pelcoD.Preset(_addr, 3, PelcoD.PresetAction.Set));
+                        SendPelco(PelcoD.Preset(_addr, 3, PelcoD.PresetAction.Set));
                         break;
                     case "Clear Preset 3":
-                        SendPelco(pelcoD.Preset(_addr, 3, PelcoD.PresetAction.Clear));
+                        SendPelco(PelcoD.Preset(_addr, 3, PelcoD.PresetAction.Clear));
                         break;
                     case "Go Preset 4":
-                        SendPelco(pelcoD.Preset(_addr, 4, PelcoD.PresetAction.Goto));
+                        SendPelco(PelcoD.Preset(_addr, 4, PelcoD.PresetAction.Goto));
                         break;
                     case "Set Preset 4":
-                        SendPelco(pelcoD.Preset(_addr, 4, PelcoD.PresetAction.Set));
+                        SendPelco(PelcoD.Preset(_addr, 4, PelcoD.PresetAction.Set));
                         break;
                     case "Clear Preset 4":
-                        SendPelco(pelcoD.Preset(_addr, 4, PelcoD.PresetAction.Clear));
+                        SendPelco(PelcoD.Preset(_addr, 4, PelcoD.PresetAction.Clear));
                         break;
                     case "Go Preset 5":
-                        SendPelco(pelcoD.Preset(_addr, 5, PelcoD.PresetAction.Goto));
+                        SendPelco(PelcoD.Preset(_addr, 5, PelcoD.PresetAction.Goto));
                         break;
                     case "Set Preset 5":
-                        SendPelco(pelcoD.Preset(_addr, 5, PelcoD.PresetAction.Set));
+                        SendPelco(PelcoD.Preset(_addr, 5, PelcoD.PresetAction.Set));
                         break;
                     case "Clear Preset 5":
-                        SendPelco(pelcoD.Preset(_addr, 5, PelcoD.PresetAction.Clear));
+                        SendPelco(PelcoD.Preset(_addr, 5, PelcoD.PresetAction.Clear));
                         break;
                     case "Go Preset 6":
-                        SendPelco(pelcoD.Preset(_addr, 6, PelcoD.PresetAction.Goto));
+                        SendPelco(PelcoD.Preset(_addr, 6, PelcoD.PresetAction.Goto));
                         break;
                     case "Set Preset 6":
-                        SendPelco(pelcoD.Preset(_addr, 6, PelcoD.PresetAction.Set));
+                        SendPelco(PelcoD.Preset(_addr, 6, PelcoD.PresetAction.Set));
                         break;
                     case "Clear Preset 6":
-                        SendPelco(pelcoD.Preset(_addr, 6, PelcoD.PresetAction.Clear));
+                        SendPelco(PelcoD.Preset(_addr, 6, PelcoD.PresetAction.Clear));
                         break;
                     case "Remote Reset":
-                        SendPelco(pelcoD.RemoteReset(_addr));
+                        SendPelco(PelcoD.RemoteReset(_addr));
                         break;
                     case "Zero Pan Position":
-                        SendPelco(pelcoD.ZeroPanPosition(_addr));
+                        SendPelco(PelcoD.ZeroPanPosition(_addr));
                         break;
                     case "Start Zone 1":
-                        SendPelco(pelcoD.Zone(_addr, 1, PelcoD.Action.Start));
+                        SendPelco(PelcoD.Zone(_addr, 1, PelcoD.Action.Start));
                         break;
                     case "Stop Zone 1":
-                        SendPelco(pelcoD.Zone(_addr, 1, PelcoD.Action.Stop));
+                        SendPelco(PelcoD.Zone(_addr, 1, PelcoD.Action.Stop));
                         break;
                     case "Start Zone 2":
-                        SendPelco(pelcoD.Zone(_addr, 2, PelcoD.Action.Start));
+                        SendPelco(PelcoD.Zone(_addr, 2, PelcoD.Action.Start));
                         break;
                     case "Stop Zone 2":
-                        SendPelco(pelcoD.Zone(_addr, 2, PelcoD.Action.Stop));
+                        SendPelco(PelcoD.Zone(_addr, 2, PelcoD.Action.Stop));
                         break;
                     case "Start Zone 3":
-                        SendPelco(pelcoD.Zone(_addr, 3, PelcoD.Action.Start));
+                        SendPelco(PelcoD.Zone(_addr, 3, PelcoD.Action.Start));
                         break;
                     case "Stop Zone 3":
-                        SendPelco(pelcoD.Zone(_addr, 3, PelcoD.Action.Stop));
+                        SendPelco(PelcoD.Zone(_addr, 3, PelcoD.Action.Stop));
                         break;
                     case "Start Zone 4":
-                        SendPelco(pelcoD.Zone(_addr, 4, PelcoD.Action.Start));
+                        SendPelco(PelcoD.Zone(_addr, 4, PelcoD.Action.Start));
                         break;
                     case "Stop Zone 4":
-                        SendPelco(pelcoD.Zone(_addr, 4, PelcoD.Action.Stop));
+                        SendPelco(PelcoD.Zone(_addr, 4, PelcoD.Action.Stop));
                         break;
                     case "Start Zone 5":
-                        SendPelco(pelcoD.Zone(_addr, 5, PelcoD.Action.Start));
+                        SendPelco(PelcoD.Zone(_addr, 5, PelcoD.Action.Start));
                         break;
                     case "Stop Zone 5":
-                        SendPelco(pelcoD.Zone(_addr, 5, PelcoD.Action.Stop));
+                        SendPelco(PelcoD.Zone(_addr, 5, PelcoD.Action.Stop));
                         break;
                     case "Start Zone 6":
-                        SendPelco(pelcoD.Zone(_addr, 6, PelcoD.Action.Start));
+                        SendPelco(PelcoD.Zone(_addr, 6, PelcoD.Action.Start));
                         break;
                     case "Stop Zone 6":
-                        SendPelco(pelcoD.Zone(_addr, 6, PelcoD.Action.Stop));
+                        SendPelco(PelcoD.Zone(_addr, 6, PelcoD.Action.Stop));
                         break;
                     case "Start Zone Scan":
-                        SendPelco(pelcoD.ZoneScan(_addr, PelcoD.Action.Start));
+                        SendPelco(PelcoD.ZoneScan(_addr, PelcoD.Action.Start));
                         break;
                     case "Stop Zone Scan":
-                        SendPelco(pelcoD.ZoneScan(_addr, PelcoD.Action.Stop));
+                        SendPelco(PelcoD.ZoneScan(_addr, PelcoD.Action.Stop));
                         break;
                 }
             }
@@ -1331,10 +1295,7 @@ namespace iSpyApplication
             _serialPort = null;
         }
 
-        void SendPelco(byte[] arr)
-        {
-            _serialPort.Write(arr, 0, arr.Length);
-        }
+        private void SendPelco(byte[] arr) => _serialPort.Write(arr, 0, arr.Length);
 
         public void SendPTZCommand(string cmd)
         {
@@ -1371,7 +1332,7 @@ namespace iSpyApplication
 
             string ub = _cameraControl.Camobject.settings.ptzurlbase;
 
-            if (ub != null && ub.StartsWith("http", true, CultureInfo.InvariantCulture))
+            if (ub?.StartsWith("http", true, CultureInfo.InvariantCulture) == true)
             {
                 urltemp = ub.Trim();
             }
@@ -1400,7 +1361,7 @@ namespace iSpyApplication
 
             uri.Port = _cameraControl.Camobject.settings.ptzport;
 
-            if (!uri.Scheme.ToLower().StartsWith("http")) //allow http and https
+            if (!uri.Scheme.StartsWith("http", StringComparison.OrdinalIgnoreCase)) //allow http and https
             {
                 uri.Scheme = "http";
             }
@@ -1459,10 +1420,7 @@ namespace iSpyApplication
                 string aurl = ptz.AppendAuth.Replace("[USERNAME]", Uri.EscapeDataString(un));
                 aurl = aurl.Replace("[PASSWORD]", Uri.EscapeDataString(pwd));
 
-                if (uri.Query == "")
-                    uri.Query = aurl;
-                else
-                    uri.Query = uri.Query.Trim('?') + "&" + aurl;
+                uri.Query = uri.Query?.Length == 0 ? aurl : uri.Query.Trim('?') + "&" + aurl;
             }
 
 
@@ -1472,7 +1430,7 @@ namespace iSpyApplication
             url = url.Replace("[PASSWORD]", Uri.EscapeDataString(pwd));
             url = url.Replace("[CHANNEL]", _cameraControl.Camobject.settings.ptzchannel);
 
-            byte[] data = {};
+            byte[] data = Array.Empty<byte>();
             if (ptz.Method != "GET")
             {
                 var j = url.IndexOf("?", StringComparison.Ordinal);
@@ -1521,7 +1479,7 @@ namespace iSpyApplication
                 string nc = _nextcommand;
                 _nextcommand = "";
                 Thread.Sleep(100);
-                
+
                 SendPTZCommand(nc);
             }
         }

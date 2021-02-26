@@ -6,9 +6,6 @@ namespace iSpyApplication.Controls
     {
         public string Command;
         // Constructor
-        public ThreadSafeCommand(string command)
-        {
-            Command = command;
-        }
+        public ThreadSafeCommand(string command) => Command = command;
     }
 }

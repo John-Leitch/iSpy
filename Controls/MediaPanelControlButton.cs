@@ -4,23 +4,18 @@ using System.Windows.Forms;
 
 namespace iSpyApplication.Controls
 {
-    class MediaPanelControlButton: PictureBox
+    internal class MediaPanelControlButton : PictureBox
     {
-        private Point _offset = new Point(0,0);
-        public Point Offset { 
-            get { return _offset; }
-            set { _offset = value; }
-        } 
-        private readonly Rectangle _dstRect = new Rectangle(0,0,30,30);
+        private Point _offset = new Point(0, 0);
+        public Point Offset
+        {
+            get => _offset;
+            set => _offset = value;
+        }
+        private readonly Rectangle _dstRect = new Rectangle(0, 0, 30, 30);
 
-        private Rectangle SrcRect
-        {
-            get { return new Rectangle(Offset, new Size(30, 30)); }
-        }
-        protected override void OnPaint(PaintEventArgs pe)
-        {
-            pe.Graphics.DrawImage(Properties.Resources.media_icons, _dstRect, SrcRect, GraphicsUnit.Pixel);
-        }
+        private Rectangle SrcRect => new Rectangle(Offset, new Size(30, 30));
+        protected override void OnPaint(PaintEventArgs pe) => pe.Graphics.DrawImage(Properties.Resources.media_icons, _dstRect, SrcRect, GraphicsUnit.Pixel);
 
         protected override void OnMouseEnter(EventArgs e)
         {

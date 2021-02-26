@@ -1,17 +1,17 @@
+using iSpyApplication.Controls;
+using iSpyApplication.Utilities;
 using System;
 using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Threading;
-using iSpyApplication.Controls;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.Sources.Video
 {
     internal class JpegStream : VideoBase, IVideoSource
     {
         // buffer size used to download JPEG image
-        private const int BufferSize = 1024*1024;
+        private const int BufferSize = 1024 * 1024;
         // size of portion to read at once
         private const int ReadSize = 1024;
         private ManualResetEvent _abort;
@@ -84,10 +84,7 @@ namespace iSpyApplication.Sources.Video
         public IWebProxy Proxy { get; set; }
 
         // Public implementation of Dispose pattern callable by consumers. 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         /// <summary>
         ///     New frame event.
@@ -119,8 +116,8 @@ namespace iSpyApplication.Sources.Video
         /// <remarks>URL, which provides JPEG files.</remarks>
         public virtual string Source
         {
-            get { return _source.settings.videosourcestring; }
-            set { _source.settings.videosourcestring = value; }
+            get => _source.settings.videosourcestring;
+            set => _source.settings.videosourcestring = value;
         }
 
         /// <summary>
@@ -165,7 +162,7 @@ namespace iSpyApplication.Sources.Video
                 _res = ReasonToFinishPlaying.DeviceLost;
 
                 // create and start new thread
-                _thread = new Thread(WorkerThread) {Name = _source.settings.videosourcestring, IsBackground = true};
+                _thread = new Thread(WorkerThread) { Name = _source.settings.videosourcestring, IsBackground = true };
                 _thread.Start();
             }
         }
@@ -205,7 +202,7 @@ namespace iSpyApplication.Sources.Video
             // stream for JPEG downloading
             Stream stream = null;
             // random generator to add fake parameter for cache preventing
-            var rand = new Random((int) DateTime.UtcNow.Ticks);
+            var rand = new Random((int)DateTime.UtcNow.Ticks);
             // download start time and duration
             var err = 0;
             var connectionFactory = new ConnectionFactory();
@@ -259,7 +256,7 @@ namespace iSpyApplication.Sources.Video
                         {
                             using (var ms = new MemoryStream(buffer, 0, total))
                             {
-                                using (var bitmap = (Bitmap) Image.FromStream(ms))
+                                using (var bitmap = (Bitmap)Image.FromStream(ms))
                                 {
                                     NewFrame(this, new NewFrameEventArgs(bitmap));
                                 }
@@ -308,7 +305,7 @@ namespace iSpyApplication.Sources.Video
             //
             if (disposing)
             {
-                
+
             }
             _disposed = true;
         }

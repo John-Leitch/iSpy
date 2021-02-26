@@ -5,15 +5,15 @@
 // andrew.kirillov@aforgenet.com
 //
 
+using AForge;
+using AForge.Imaging;
+using AForge.Imaging.Filters;
+using iSpyApplication.Controls;
 using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
-using AForge;
-using AForge.Imaging;
-using AForge.Imaging.Filters;
-using iSpyApplication.Controls;
 using PictureBox = iSpyApplication.Controls.PictureBox;
 
 namespace iSpyApplication
@@ -26,7 +26,7 @@ namespace iSpyApplication
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private Container components = null;
+        private readonly Container components = null;
 
         private readonly HSLFiltering _filter = new HSLFiltering();
         private Button _cancelButton;
@@ -71,18 +71,19 @@ namespace iSpyApplication
         private CheckBox _updateSCheck;
         private HuePicker _huePicker;
         private LinkLabel llblHelp;
-    
+
         public string Configuration
         {
-            get { 
+            get
+            {
                 string ret = "";
-                ret += _hue.Min + "|" + _hue.Max + "|" + _fillH+"|";
-                ret += String.Format(CultureInfo.InvariantCulture,"{0:0.000}", _saturation.Min)+"|";
-                ret += String.Format(CultureInfo.InvariantCulture,"{0:0.000}", _saturation.Max) + "|";
-                ret += String.Format(CultureInfo.InvariantCulture,"{0:0.000}", _fillS) + "|";
-                ret += String.Format(CultureInfo.InvariantCulture,"{0:0.000}", _luminance.Min) + "|";
-                ret += String.Format(CultureInfo.InvariantCulture,"{0:0.000}", +_luminance.Max) + "|";
-                ret +=String.Format(CultureInfo.InvariantCulture,"{0:0.000}", _fillL) + "|";
+                ret += _hue.Min + "|" + _hue.Max + "|" + _fillH + "|";
+                ret += String.Format(CultureInfo.InvariantCulture, "{0:0.000}", _saturation.Min) + "|";
+                ret += String.Format(CultureInfo.InvariantCulture, "{0:0.000}", _saturation.Max) + "|";
+                ret += String.Format(CultureInfo.InvariantCulture, "{0:0.000}", _fillS) + "|";
+                ret += String.Format(CultureInfo.InvariantCulture, "{0:0.000}", _luminance.Min) + "|";
+                ret += String.Format(CultureInfo.InvariantCulture, "{0:0.000}", +_luminance.Max) + "|";
+                ret += String.Format(CultureInfo.InvariantCulture, "{0:0.000}", _fillL) + "|";
                 ret += _fillTypeCombo.SelectedIndex + "|" + _filter.UpdateHue.ToString().ToLower() + "|";
 
                 ret += _filter.UpdateSaturation.ToString().ToLower() + "|" + _filter.UpdateLuminance.ToString().ToLower();
@@ -90,13 +91,10 @@ namespace iSpyApplication
             }
         }
 
-        private T ParseValue<T>(string valueString)
-        {
-            return (T)Convert.ChangeType(
+        private T ParseValue<T>(string valueString) => (T)Convert.ChangeType(
             valueString.Replace(',', '.'),
             typeof(T),
             CultureInfo.InvariantCulture);
-        }
 
 
         private Bitmap _imageprocess;
@@ -104,18 +102,15 @@ namespace iSpyApplication
 
         public Bitmap ImageProcess
         {
-            get
-            {
-                return _imageprocess;
-            }
+            get => _imageprocess;
             set
             {
-                if (value!=null)
+                if (value != null)
                 {
-                    lock(SyncLock)
+                    lock (SyncLock)
                     {
                         var rz = new ResizeBilinear(_filterPreview.Width, _filterPreview.Height);
-                        _imageprocess = rz.Apply(value);  
+                        _imageprocess = rz.Apply(value);
                     }
                     UpdateFilter();
                 }
@@ -131,7 +126,7 @@ namespace iSpyApplication
 
             if (!string.IsNullOrEmpty(Config))
             {
-                string[] config = Config.Split(Config.IndexOf("|", StringComparison.Ordinal)!=-1 ? '|' : ',');
+                string[] config = Config.Split(Config.IndexOf("|", StringComparison.Ordinal) != -1 ? '|' : ',');
 
                 _hue.Min = Convert.ToInt32(config[0]);
                 _hue.Max = Convert.ToInt32(config[1]);
@@ -167,7 +162,7 @@ namespace iSpyApplication
             _maxLBox.Text = _luminance.Max.ToString("F3");
             _fillLBox.Text = _fillL.ToString("F3");
 
-            
+
 
             _updateHCheck.Checked = _filter.UpdateHue;
             _updateSCheck.Checked = _filter.UpdateSaturation;
@@ -180,7 +175,7 @@ namespace iSpyApplication
         // Image property
         public Bitmap Image
         {
-            set { _filterPreview.Image = value; }
+            set => _filterPreview.Image = value;
         }
 
         // Filter property
@@ -251,7 +246,7 @@ namespace iSpyApplication
             try
             {
                 _saturation.Min = ParseValue<float>(_minSBox.Text);
-                _saturationSlider.Min = (int) (_saturation.Min*255);
+                _saturationSlider.Min = (int)(_saturation.Min * 255);
                 UpdateFilter();
             }
             catch (Exception)
@@ -265,7 +260,7 @@ namespace iSpyApplication
             try
             {
                 _saturation.Max = ParseValue<float>(_maxSBox.Text);
-                _saturationSlider.Max = (int) (_saturation.Max*255);
+                _saturationSlider.Max = (int)(_saturation.Max * 255);
                 UpdateFilter();
             }
             catch (Exception)
@@ -279,7 +274,7 @@ namespace iSpyApplication
             try
             {
                 _luminance.Min = ParseValue<float>(_minLBox.Text);
-                _luminanceSlider.Min = (int) (_luminance.Min*255);
+                _luminanceSlider.Min = (int)(_luminance.Min * 255);
                 UpdateFilter();
             }
             catch (Exception)
@@ -293,7 +288,7 @@ namespace iSpyApplication
             try
             {
                 _luminance.Max = ParseValue<float>(_maxLBox.Text);
-                _luminanceSlider.Max = (int) (_luminance.Max*255);
+                _luminanceSlider.Max = (int)(_luminance.Max * 255);
                 UpdateFilter();
             }
             catch (Exception)
@@ -311,15 +306,15 @@ namespace iSpyApplication
         // Saturation slider changed
         private void saturationSlider_ValuesChanged(object sender, EventArgs e)
         {
-            _minSBox.Text = ((double) _saturationSlider.Min/255).ToString("F3");
-            _maxSBox.Text = ((double) _saturationSlider.Max/255).ToString("F3");
+            _minSBox.Text = ((double)_saturationSlider.Min / 255).ToString("F3");
+            _maxSBox.Text = ((double)_saturationSlider.Max / 255).ToString("F3");
         }
 
         // Luminance slider changed
         private void luminanceSlider_ValuesChanged(object sender, EventArgs e)
         {
-            _minLBox.Text = ((double) _luminanceSlider.Min/255).ToString("F3");
-            _maxLBox.Text = ((double) _luminanceSlider.Max/255).ToString("F3");
+            _minLBox.Text = ((double)_luminanceSlider.Min / 255).ToString("F3");
+            _maxLBox.Text = ((double)_luminanceSlider.Max / 255).ToString("F3");
         }
 
         // Fill hue changed
@@ -364,9 +359,9 @@ namespace iSpyApplication
         // Update fill color
         private void UpdateFillColor()
         {
-            var v = (int) (_fillS*255);
+            var v = (int)(_fillS * 255);
             _saturationSlider.FillColor = Color.FromArgb(v, v, v);
-            v = (int) (_fillL*255);
+            v = (int)(_fillL * 255);
             _luminanceSlider.FillColor = Color.FromArgb(v, v, v);
 
 
@@ -844,18 +839,14 @@ namespace iSpyApplication
 
         #endregion
 
-        private void HSLFilteringForm_Load(object sender, EventArgs e)
-        {
-            
-            UpdateFilter();
-        }
+        private void HSLFilteringForm_Load(object sender, EventArgs e) => UpdateFilter();
 
         private void RenderResources()
         {
             _groupBox5.Text = LocRm.GetString("DetectorView");
             _groupBox4.Text = LocRm.GetString("FillColor");
             _groupBox5.Text = LocRm.GetString("DetectorView");
-            _label10.Text  = LocRm.GetString("FillType");
+            _label10.Text = LocRm.GetString("FillType");
             _okButton.Text = LocRm.GetString("OK");
             _cancelButton.Text = LocRm.GetString("Cancel");
             llblHelp.Text = LocRm.GetString("help");
@@ -871,10 +862,7 @@ namespace iSpyApplication
 
         }
 
-        private void llblHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            MainForm.OpenUrl( MainForm.Website+"/userguide-motion-detection.aspx#4");
-        }
+        private void llblHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => MainForm.OpenUrl(MainForm.Website + "/userguide-motion-detection.aspx#4");
 
         private void _filterPreview_Click(object sender, EventArgs e)
         {

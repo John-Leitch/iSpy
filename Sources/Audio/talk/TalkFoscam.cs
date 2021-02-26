@@ -1,15 +1,15 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using NAudio.Wave;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using iSpyApplication.Utilities;
-using NAudio.Wave;
 
 namespace iSpyApplication.Sources.Audio.talk
 {
-    internal class TalkFoscam: ITalkTarget, IDisposable
+    internal class TalkFoscam : ITalkTarget, IDisposable
     {
         private const string MoIPOprFlag = "MO_O";
         private const string MoIPAvFlag = "MO_V";
@@ -25,7 +25,7 @@ namespace iSpyApplication.Sources.Audio.talk
         private readonly string _server;
         private byte[] _talkBuffer = new byte[TalkBufferSize];
         private const int OprKeepAlive = 0xFF;
-        private const int OprLoginReq  = 0;
+        private const int OprLoginReq = 0;
         private const int OprVerifyReq = 0x2;
         private NetworkStream _avstream;
         private bool _needsencodeinit;
@@ -61,7 +61,7 @@ namespace iSpyApplication.Sources.Audio.talk
                 15289,16818,18500,20350,22385,24623,27086,29794,
                 32767
             };
-        private static readonly int[] ImaAdpcmIndexTable=
+        private static readonly int[] ImaAdpcmIndexTable =
             {
                 -1, -1, -1, -1, 2, 4, 6, 8,
             };
@@ -69,7 +69,7 @@ namespace iSpyApplication.Sources.Audio.talk
         private int _predictedValue;
         private int _stepIndex;
 
-        void EncodeInit(int sample1, int sample2)
+        private void EncodeInit(int sample1, int sample2)
         {
             _predictedValue = sample1;
             int delta = sample2 - sample1;
@@ -83,7 +83,7 @@ namespace iSpyApplication.Sources.Audio.talk
             _stepIndex = stepIndex;
         }
 
-        unsafe int EncodeFoscam(byte* raw, int len, byte* encoded)
+        private unsafe int EncodeFoscam(byte* raw, int len, byte* encoded)
         {
             short* pcm = (short*)raw;
             int i;
@@ -99,13 +99,13 @@ namespace iSpyApplication.Sources.Audio.talk
                     delta = -delta;
                     sb = 8;
                 }
-                
+
                 var code = 4 * delta / ImaAdpcmStepTable[_stepIndex];
                 if (code > 7)
                     code = 7;
 
                 delta = (ImaAdpcmStepTable[_stepIndex] * code) / 4 + ImaAdpcmStepTable[_stepIndex] / 8;
-                if (sb>0)
+                if (sb > 0)
                     delta = -delta;
                 _predictedValue += delta;
                 if (_predictedValue > 32767)
@@ -122,11 +122,11 @@ namespace iSpyApplication.Sources.Audio.talk
                 int j = i >> 1;
                 var t = code | sb;
                 if ((i & 0x01) > 0)
-                    encoded[j] |= (byte) t;
+                    encoded[j] |= (byte)t;
                 else
                 {
                     t = t << 4;
-                    encoded[j] = (byte) t;
+                    encoded[j] = (byte)t;
                 }
             }
             return len / 2;
@@ -151,12 +151,12 @@ namespace iSpyApplication.Sources.Audio.talk
             int ipos = 0;
             foreach (var c in flag)
             {
-                b[ipos] = (byte) c;
+                b[ipos] = (byte)c;
                 ipos++;
             }
-            b[ipos] = (byte) (op & 0x0000000F);
+            b[ipos] = (byte)(op & 0x0000000F);
             ipos++;
-            b[ipos] = (byte) (op & 0x000000F0);
+            b[ipos] = (byte)(op & 0x000000F0);
             ipos++;
 
             while (ipos < 23)
@@ -174,25 +174,13 @@ namespace iSpyApplication.Sources.Audio.talk
             return AddNext(cmd, data);
         }
 
-        private byte[] AddNext(byte[] cmd, byte data)
-        {
-            return AddNext(cmd, new[] {data});
-        }
+        private byte[] AddNext(byte[] cmd, byte data) => AddNext(cmd, new[] { data });
 
-        private byte[] AddNext(byte[] cmd, string data)
-        {
-            return AddNext(cmd, Encoding.ASCII.GetBytes(data));
-        }
+        private byte[] AddNext(byte[] cmd, string data) => AddNext(cmd, Encoding.ASCII.GetBytes(data));
 
-        private byte[] AddNext(byte[] cmd, Int32 data)
-        {
-            return AddNext(cmd, BitConverter.GetBytes(data));
-        }
+        private byte[] AddNext(byte[] cmd, Int32 data) => AddNext(cmd, BitConverter.GetBytes(data));
 
-        private byte[] AddNext(byte[] cmd, byte[] newdata)
-        {
-            return AddNext(cmd, newdata, newdata.Length);
-        }
+        private byte[] AddNext(byte[] cmd, byte[] newdata) => AddNext(cmd, newdata, newdata.Length);
 
         private byte[] AddNext(byte[] cmd, byte[] newdata, int len)
         {
@@ -260,27 +248,24 @@ namespace iSpyApplication.Sources.Audio.talk
         public void Start()
         {
             _stopEvent = new ManualResetEvent(false);
-            
+
             var t = new Thread(CommsThread);
             t.Start();
         }
-        
-        public void Stop()
-        {
-            StopTalk(false);
-        }
+
+        public void Stop() => StopTalk(false);
 
         public event TalkStoppedEventHandler TalkStopped;
-        
+
         private void StartTalk()
         {
             if (_bTalking)
             {
                 StopTalk(false);
             }
-            
+
             byte[] cmd = SInit(OprSpeakStartNotify, MoIPOprFlag);
-            cmd = AddNext(cmd, (byte) 0x1);
+            cmd = AddNext(cmd, (byte)0x1);
             Send(cmd);
 
             _audioSource.DataAvailable += AudioSourceDataAvailable;
@@ -320,7 +305,7 @@ namespace iSpyApplication.Sources.Audio.talk
                 }
             }
         }
-        
+
         public bool Connected => (_avstream != null);
 
         private void AudioSourceDataAvailable(object sender, DataAvailableEventArgs e)
@@ -337,7 +322,7 @@ namespace iSpyApplication.Sources.Audio.talk
                         if (!_audioSource.RecordingFormat.Equals(_waveFormat))
                         {
                             var ws = new TalkHelperStream(bSrc, totBytes, _audioSource.RecordingFormat);
-                            
+
                             var bDst = new byte[44100];
                             totBytes = 0;
                             using (var helpStm = new WaveFormatConversionStream(_waveFormat, ws))
@@ -349,7 +334,7 @@ namespace iSpyApplication.Sources.Audio.talk
                                 }
                             }
                             bSrc = bDst;
-                            
+
                         }
 
                         if (_needsencodeinit)
@@ -370,10 +355,10 @@ namespace iSpyApplication.Sources.Audio.talk
                                 }
                             }
                         }
-                        Buffer.BlockCopy(buff,0,_talkBuffer,_talkDatalen,c);
+                        Buffer.BlockCopy(buff, 0, _talkBuffer, _talkDatalen, c);
                         _talkDatalen += c;
 
-                        var dtms = (int) (DateTime.UtcNow - _dt).TotalMilliseconds;
+                        var dtms = (int)(DateTime.UtcNow - _dt).TotalMilliseconds;
                         int i = 0;
                         j = 0;
                         try
@@ -383,10 +368,10 @@ namespace iSpyApplication.Sources.Audio.talk
                                 //need to write out in 160 byte packets for 40ms
                                 byte[] cmd = SInit(TalkData, MoIPAvFlag);
 
-                                cmd = AddNext(cmd, dtms + (i*40));
+                                cmd = AddNext(cmd, dtms + (i * 40));
                                 cmd = AddNext(cmd, _seq);
-                                cmd = AddNext(cmd, (int) (DateTime.UtcNow - _dt).TotalSeconds);
-                                cmd = AddNext(cmd, (byte) 0x0);
+                                cmd = AddNext(cmd, (int)(DateTime.UtcNow - _dt).TotalSeconds);
+                                cmd = AddNext(cmd, (byte)0x0);
                                 cmd = AddNext(cmd, 160);
 
                                 var pkt = new byte[160];
@@ -401,7 +386,7 @@ namespace iSpyApplication.Sources.Audio.talk
                             }
                             if (j < _talkDatalen)
                             {
-                                Buffer.BlockCopy(_talkBuffer, j, _talkBuffer, 0, _talkDatalen-j);
+                                Buffer.BlockCopy(_talkBuffer, j, _talkBuffer, 0, _talkDatalen - j);
                                 _talkDatalen = _talkDatalen - j;
                             }
                         }
@@ -414,7 +399,7 @@ namespace iSpyApplication.Sources.Audio.talk
             }
             catch (Exception ex)
             {
-                Logger.LogException(ex,"TalkFoscam");
+                Logger.LogException(ex, "TalkFoscam");
                 StopTalk(true);
             }
         }
@@ -433,7 +418,7 @@ namespace iSpyApplication.Sources.Audio.talk
                 Logger.LogException(ex, "TalkFoscam");
                 return;
             }
-           
+
 
             byte[] cmd = SInit(OprLoginReq, MoIPOprFlag);
             Send(cmd);
@@ -448,14 +433,11 @@ namespace iSpyApplication.Sources.Audio.talk
                 {
                     if (_bTalking)
                         Thread.Sleep(100);
-                    if (bConnected)
+                    if (bConnected && DateTime.UtcNow - dtref > TimeSpan.FromSeconds(120))
                     {
-                        if (DateTime.UtcNow - dtref > TimeSpan.FromSeconds(120))
-                        {
-                            byte[] ka = SInit(OprKeepAlive, MoIPOprFlag);
-                            Send(ka);
-                            dtref = DateTime.UtcNow;
-                        }
+                        byte[] ka = SInit(OprKeepAlive, MoIPOprFlag);
+                        Send(ka);
+                        dtref = DateTime.UtcNow;
                     }
                     if (_stream.DataAvailable)
                     {
@@ -467,7 +449,7 @@ namespace iSpyApplication.Sources.Audio.talk
                             string r = "";
                             for (int j = 0; j < 5; j++)
                             {
-                                r += (char) data[j];
+                                r += (char)data[j];
                             }
 
                             if (r.StartsWith(MoIPOprFlag) && data.Length >= 23)
@@ -521,7 +503,7 @@ namespace iSpyApplication.Sources.Audio.talk
 
                                         int dwAvConnId = BitConverter.ToInt32(resp, 2);
 
-                                        var av = new TcpClient(_server, _port) {NoDelay = true};
+                                        var av = new TcpClient(_server, _port) { NoDelay = true };
                                         _avstream = av.GetStream();
 
                                         cmd = SInit(AvLoginReq, MoIPAvFlag);
@@ -552,10 +534,7 @@ namespace iSpyApplication.Sources.Audio.talk
 
         private bool _disposed;
         // Public implementation of Dispose pattern callable by consumers. 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         // Protected implementation of Dispose pattern. 
         protected virtual void Dispose(bool disposing)

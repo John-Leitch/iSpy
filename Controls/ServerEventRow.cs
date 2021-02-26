@@ -5,7 +5,7 @@ namespace iSpyApplication.Controls
 {
     public sealed partial class ServerEventRow : UserControl
     {
-        public new static int Height = 31;
+        public static new int Height = 31;
         public configurationServer Server;
         public int Index;
 
@@ -19,14 +19,11 @@ namespace iSpyApplication.Controls
             Server = server;
             Index = index;
             InitializeComponent();
-            if (server.sftp)
-                lblSummary.Text = "SFTP: "+server.name;
-            else
-                lblSummary.Text = server.name;
+            lblSummary.Text = server.sftp ? "SFTP: " + server.name : server.name;
             BackColor = DefaultBackColor;
         }
 
-       
+
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {

@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
 
 namespace iSpyApplication.Utilities
 {
@@ -37,18 +34,14 @@ namespace iSpyApplication.Utilities
             {
                 string em = ex.HelpLink + "<br/>" + ex.Message + "<br/>" + ex.Source + "<br/>" + ex.StackTrace +
                             "<br/>" + ex.InnerException + "<br/>" + ex.Data;
-                _logFile.Append("<tr><td style=\"color:red\" valign=\"top\">Exception:</td><td valign=\"top\">" +
-                               DateTime.Now.ToLongTimeString() + "</td><td valign=\"top\">" + em + "</td></tr>");
+                _logFile.Append("<tr><td style=\"color:red\" valign=\"top\">Exception:</td><td valign=\"top\">").Append(DateTime.Now.ToLongTimeString()).Append("</td><td valign=\"top\">").Append(em).Append("</td></tr>");
             }
             catch
             {
                 // ignored
             }
         }
-        internal static void LogMessage(String message, string e)
-        {
-            Logger.LogMessage(String.Format(message, e));
-        }
+        internal static void LogMessage(String message, string e) => Logger.LogMessage(String.Format(message, e));
         internal static void LogMessage(String message)
         {
             if (!_logging || !MainForm.Conf.Logging.Enabled)
@@ -56,8 +49,7 @@ namespace iSpyApplication.Utilities
 
             try
             {
-                _logFile.Append("<tr><td style=\"color:green\" valign=\"top\">Message</td><td valign=\"top\">" +
-                               DateTime.Now.ToLongTimeString() + "</td><td valign=\"top\">" + message + "</td></tr>");
+                _logFile.Append("<tr><td style=\"color:green\" valign=\"top\">Message</td><td valign=\"top\">").Append(DateTime.Now.ToLongTimeString()).Append("</td><td valign=\"top\">").Append(message).Append("</td></tr>");
             }
             catch
             {
@@ -68,7 +60,7 @@ namespace iSpyApplication.Utilities
         internal static void LogPluginToFile(string name, int id, string action, string detail)
         {
             DateTime dt = Helper.Now;
-            PluginLogFile.Append("<message name=\"" + name + "\" id=\"" + id + "\" action=\"" + action + "\" timestamp=\"" + dt.Ticks + "\">" + detail.Replace("&", "&amp;") + "</message>");
+            PluginLogFile.Append("<message name=\"").Append(name).Append("\" id=\"").Append(id).Append("\" action=\"").Append(action).Append("\" timestamp=\"").Append(dt.Ticks).Append("\">").Append(detail.Replace("&", "&amp;")).Append("</message>");
         }
 
         internal static void LogError(String message)
@@ -78,8 +70,7 @@ namespace iSpyApplication.Utilities
 
             try
             {
-                _logFile.Append("<tr><td style=\"color:red\" valign=\"top\">Error</td><td valign=\"top\">" +
-                               DateTime.Now.ToLongTimeString() + "</td><td valign=\"top\">" + message + "</td></tr>");
+                _logFile.Append("<tr><td style=\"color:red\" valign=\"top\">Error</td><td valign=\"top\">").Append(DateTime.Now.ToLongTimeString()).Append("</td><td valign=\"top\">").Append(message).Append("</td></tr>");
             }
             catch
             {
@@ -93,8 +84,7 @@ namespace iSpyApplication.Utilities
 
             try
             {
-                _logFile.Append("<tr><td style=\"color:red\" valign=\"top\">Error</td><td valign=\"top\">" +
-                               DateTime.Now.ToLongTimeString() + "</td><td valign=\"top\">" + message + ", " + message2 + "</td></tr>");
+                _logFile.Append("<tr><td style=\"color:red\" valign=\"top\">Error</td><td valign=\"top\">").Append(DateTime.Now.ToLongTimeString()).Append("</td><td valign=\"top\">").Append(message).Append(", ").Append(message2).Append("</td></tr>");
                 Console.WriteLine(message + ", " + message2);
             }
             catch
@@ -110,8 +100,7 @@ namespace iSpyApplication.Utilities
 
             try
             {
-                _logFile.Append("<tr><td style=\"color:orange\" valign=\"top\">Warning</td><td valign=\"top\">" +
-                               DateTime.Now.ToLongTimeString() + "</td><td valign=\"top\">" + message + "</td></tr>");
+                _logFile.Append("<tr><td style=\"color:orange\" valign=\"top\">Warning</td><td valign=\"top\">").Append(DateTime.Now.ToLongTimeString()).Append("</td><td valign=\"top\">").Append(message).Append("</td></tr>");
             }
             catch
             {
@@ -139,10 +128,7 @@ namespace iSpyApplication.Utilities
                 {
                     if (_logFile.Length > MainForm.Conf.Logging.FileSize * 1024)
                     {
-                        _logFile.Append("<tr><td style=\"color:red\" valign=\"top\">Logging Exiting</td><td valign=\"top\">" +
-                            DateTime.Now.ToLongTimeString() +
-                            "</td><td valign=\"top\">Logging is being disabled as it has reached the maximum size (" +
-                            MainForm.Conf.Logging.FileSize + "kb).</td></tr>");
+                        _logFile.Append("<tr><td style=\"color:red\" valign=\"top\">Logging Exiting</td><td valign=\"top\">").Append(DateTime.Now.ToLongTimeString()).Append("</td><td valign=\"top\">Logging is being disabled as it has reached the maximum size (").Append(MainForm.Conf.Logging.FileSize).Append("kb).</td></tr>");
                         _logging = false;
                     }
                     if (_lastlog.Length != _logFile.Length)

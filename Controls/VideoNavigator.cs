@@ -30,15 +30,17 @@ namespace iSpyApplication.Controls
         private int _mouseX;
         public int Value
         {
-            get { return _value; }
-            set { _value = value;
+            get => _value;
+            set
+            {
+                _value = value;
                 Invalidate();
             }
         }
 
         private void VideoNavigator_Load(object sender, EventArgs e)
         {
-            
+
         }
 
         protected override void OnPaint(PaintEventArgs pe)
@@ -46,7 +48,7 @@ namespace iSpyApplication.Controls
             base.OnPaint(pe);
 
             if (_ff != null)
-            { 
+            {
                 //draw scrolling graph
                 var pxCursor = ((float)Value / 100) * Width;
                 if (_navTimeline)
@@ -74,7 +76,7 @@ namespace iSpyApplication.Controls
                 int y2 = Height - _timelineHeight / 2;
                 var navPoints = new[]
                     {
-                        new Point(x2-4,y2-6), 
+                        new Point(x2-4,y2-6),
                         new Point(x2+4,y2),
                         new Point(x2-4,y2+6)
                     };
@@ -87,7 +89,7 @@ namespace iSpyApplication.Controls
             }
 
         }
-        
+
         public void Init(FilesFile fileData)
         {
             _ff = fileData ?? new FilesFile { AlertData = "0" };
@@ -123,7 +125,7 @@ namespace iSpyApplication.Controls
         private string[] _datapoints;
         private int _timelineHeight = 30;
         //readonly SolidBrush _bTimeLine = new SolidBrush(Color.FromArgb(200, 255, 255, 255));
-        
+
         private Bitmap _activityGraph;
         private Bitmap ActivityGraph
         {
@@ -140,7 +142,7 @@ namespace iSpyApplication.Controls
                     }
                     else
                     {
-                        
+
                         lock (_aglock)
                         {
                             _activityGraph = new Bitmap(_datapoints.Length, _timelineHeight);
@@ -166,8 +168,7 @@ namespace iSpyApplication.Controls
 
                             for (int i = 0; i < _datapoints.Length; i++)
                             {
-                                float d;
-                                if (float.TryParse(_datapoints[i], NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out d))
+                                if (float.TryParse(_datapoints[i], NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out float d))
                                 {
                                     d = d * dFact;
                                     if (d >= trigger && d <= triggermax)
@@ -209,10 +210,7 @@ namespace iSpyApplication.Controls
         }
 
 
-        protected override void OnMouseDown(MouseEventArgs e)
-        {
-            _navTimeline = true;
-        }
+        protected override void OnMouseDown(MouseEventArgs e) => _navTimeline = true;
 
         protected override void OnMouseUp(MouseEventArgs e)
         {

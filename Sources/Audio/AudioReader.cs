@@ -1,7 +1,7 @@
-﻿using System;
+﻿using FFmpeg.AutoGen;
+using System;
 using System.Collections.Generic;
 using System.Threading;
-using FFmpeg.AutoGen;
 
 namespace iSpyApplication.Sources.Audio
 {
@@ -19,7 +19,7 @@ namespace iSpyApplication.Sources.Audio
         private SwrContext* _swrContext = null;
         private AVStream* _audioStream = null;
 
-        private List<Filter> filtersAudio = new List<Filter>();
+        private readonly List<Filter> filtersAudio = new List<Filter>();
         private AVFilterContext* buffersrc_ctx = null;
         private AVFilterContext* buffersink_ctx = null;
         private AVFilterGraph* filter_graph = null;
@@ -36,15 +36,9 @@ namespace iSpyApplication.Sources.Audio
             this.channels = channels;
         }
 
-        public List<Filter> AudioFilters
-        {
-            get { return filtersAudio; }
-        }
+        public List<Filter> AudioFilters => filtersAudio;
 
-        public void AddAudioFilter(string name, string args, string key = "")
-        {
-            filtersAudio.Add(new Filter(name, args, key));
-        }
+        public void AddAudioFilter(string name, string args, string key = "") => filtersAudio.Add(new Filter(name, args, key));
 
         private AVFilterGraph* init_filter_graph(AVFormatContext* format, AVCodecContext* codec, int audio_stream_index, AVFilterContext** buffersrc_ctx, AVFilterContext** buffersink_ctx)
         {

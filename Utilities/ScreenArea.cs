@@ -58,9 +58,8 @@ namespace iSpyApplication.Utilities
 
         public int RectangleHeight;
         public int RectangleWidth;
-
-        readonly Graphics g;
-        readonly Pen _myPen = new Pen(Color.Black, 2);
+        private readonly Graphics g;
+        private readonly Pen _myPen = new Pen(Color.Black, 2);
         //readonly Pen _eraserPen = new Pen(Color.FromArgb(224, 224, 224), 1);
 
         protected override void OnMouseClick(MouseEventArgs e)
@@ -105,7 +104,7 @@ namespace iSpyApplication.Utilities
         {
             Area = new Rectangle(CurrentTopLeft.X, CurrentTopLeft.Y, CurrentBottomRight.X - CurrentTopLeft.X, CurrentBottomRight.Y - CurrentTopLeft.Y);
             if (Area.Width % 2 != 0)
-                Area.Width = Area.Width- 1;
+                Area.Width = Area.Width - 1;
             if (Area.Height % 2 != 0)
                 Area.Height = Area.Height - 1;
             Close();
@@ -330,127 +329,87 @@ namespace iSpyApplication.Utilities
             int x = Cursor.Position.X - _screen.WorkingArea.X;
             int y = Cursor.Position.Y - _screen.WorkingArea.Y;
 
-            if (CurrentAction == ClickAction.LeftSizing)
+            if (CurrentAction == ClickAction.LeftSizing && x < CurrentBottomRight.X - 10)
             {
 
-                if (x < CurrentBottomRight.X - 10)
-                {
-
-                    //Erase the previous rectangle
-                    g.Clear(BackColor);//.DrawRectangle(_eraserPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
-                    CurrentTopLeft.X = x;
-                    RectangleWidth = CurrentBottomRight.X - CurrentTopLeft.X;
-                    g.DrawRectangle(_myPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
-
-                }
+                //Erase the previous rectangle
+                g.Clear(BackColor);//.DrawRectangle(_eraserPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
+                CurrentTopLeft.X = x;
+                RectangleWidth = CurrentBottomRight.X - CurrentTopLeft.X;
+                g.DrawRectangle(_myPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
 
             }
-            if (CurrentAction == ClickAction.TopLeftSizing)
+            if (CurrentAction == ClickAction.TopLeftSizing && x < CurrentBottomRight.X - 10 && y < CurrentBottomRight.Y - 10)
             {
 
-                if (x < CurrentBottomRight.X - 10 && y < CurrentBottomRight.Y - 10)
-                {
-
-                    //Erase the previous rectangle
-                    g.Clear(BackColor); //g.DrawRectangle(_eraserPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
-                    CurrentTopLeft.X = x;
-                    CurrentTopLeft.Y = y;
-                    RectangleWidth = CurrentBottomRight.X - CurrentTopLeft.X;
-                    RectangleHeight = CurrentBottomRight.Y - CurrentTopLeft.Y;
-                    g.DrawRectangle(_myPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
-
-                }
+                //Erase the previous rectangle
+                g.Clear(BackColor); //g.DrawRectangle(_eraserPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
+                CurrentTopLeft.X = x;
+                CurrentTopLeft.Y = y;
+                RectangleWidth = CurrentBottomRight.X - CurrentTopLeft.X;
+                RectangleHeight = CurrentBottomRight.Y - CurrentTopLeft.Y;
+                g.DrawRectangle(_myPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
             }
-            if (CurrentAction == ClickAction.BottomLeftSizing)
+            if (CurrentAction == ClickAction.BottomLeftSizing && x < CurrentBottomRight.X - 10 && y > CurrentTopLeft.Y + 10)
             {
 
-                if (x < CurrentBottomRight.X - 10 && y > CurrentTopLeft.Y + 10)
-                {
-
-                    //Erase the previous rectangle
-                    g.Clear(BackColor); //g.DrawRectangle(_eraserPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
-                    CurrentTopLeft.X = x;
-                    CurrentBottomRight.Y = y;
-                    RectangleWidth = CurrentBottomRight.X - CurrentTopLeft.X;
-                    RectangleHeight = CurrentBottomRight.Y - CurrentTopLeft.Y;
-                    g.DrawRectangle(_myPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
-
-                }
+                //Erase the previous rectangle
+                g.Clear(BackColor); //g.DrawRectangle(_eraserPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
+                CurrentTopLeft.X = x;
+                CurrentBottomRight.Y = y;
+                RectangleWidth = CurrentBottomRight.X - CurrentTopLeft.X;
+                RectangleHeight = CurrentBottomRight.Y - CurrentTopLeft.Y;
+                g.DrawRectangle(_myPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
 
             }
-            if (CurrentAction == ClickAction.RightSizing)
+            if (CurrentAction == ClickAction.RightSizing && x > CurrentTopLeft.X + 10)
             {
 
-                if (x > CurrentTopLeft.X + 10)
-                {
-
-                    //Erase the previous rectangle
-                    g.Clear(BackColor); //g.DrawRectangle(_eraserPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
-                    CurrentBottomRight.X = x;
-                    RectangleWidth = CurrentBottomRight.X - CurrentTopLeft.X;
-                    g.DrawRectangle(_myPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
-
-                }
+                //Erase the previous rectangle
+                g.Clear(BackColor); //g.DrawRectangle(_eraserPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
+                CurrentBottomRight.X = x;
+                RectangleWidth = CurrentBottomRight.X - CurrentTopLeft.X;
+                g.DrawRectangle(_myPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
             }
-            if (CurrentAction == ClickAction.TopRightSizing)
+            if (CurrentAction == ClickAction.TopRightSizing && x > CurrentTopLeft.X + 10 && y < CurrentBottomRight.Y - 10)
             {
 
-                if (x > CurrentTopLeft.X + 10 && y < CurrentBottomRight.Y - 10)
-                {
-
-                    //Erase the previous rectangle
-                    g.Clear(BackColor); //g.DrawRectangle(_eraserPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
-                    CurrentBottomRight.X = x;
-                    CurrentTopLeft.Y = y;
-                    RectangleWidth = CurrentBottomRight.X - CurrentTopLeft.X;
-                    RectangleHeight = CurrentBottomRight.Y - CurrentTopLeft.Y;
-                    g.DrawRectangle(_myPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
-
-                }
+                //Erase the previous rectangle
+                g.Clear(BackColor); //g.DrawRectangle(_eraserPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
+                CurrentBottomRight.X = x;
+                CurrentTopLeft.Y = y;
+                RectangleWidth = CurrentBottomRight.X - CurrentTopLeft.X;
+                RectangleHeight = CurrentBottomRight.Y - CurrentTopLeft.Y;
+                g.DrawRectangle(_myPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
             }
-            if (CurrentAction == ClickAction.BottomRightSizing)
+            if (CurrentAction == ClickAction.BottomRightSizing && x > CurrentTopLeft.X + 10 && y > CurrentTopLeft.Y + 10)
             {
 
-                if (x > CurrentTopLeft.X + 10 && y > CurrentTopLeft.Y + 10)
-                {
-
-                    //Erase the previous rectangle
-                    g.Clear(BackColor); //g.DrawRectangle(_eraserPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
-                    CurrentBottomRight.X = x;
-                    CurrentBottomRight.Y = y;
-                    RectangleWidth = CurrentBottomRight.X - CurrentTopLeft.X;
-                    RectangleHeight = CurrentBottomRight.Y - CurrentTopLeft.Y;
-                    g.DrawRectangle(_myPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
-
-                }
+                //Erase the previous rectangle
+                g.Clear(BackColor); //g.DrawRectangle(_eraserPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
+                CurrentBottomRight.X = x;
+                CurrentBottomRight.Y = y;
+                RectangleWidth = CurrentBottomRight.X - CurrentTopLeft.X;
+                RectangleHeight = CurrentBottomRight.Y - CurrentTopLeft.Y;
+                g.DrawRectangle(_myPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
             }
-            if (CurrentAction == ClickAction.TopSizing)
+            if (CurrentAction == ClickAction.TopSizing && y < CurrentBottomRight.Y - 10)
             {
 
-                if (y < CurrentBottomRight.Y - 10)
-                {
-
-                    //Erase the previous rectangle
-                    g.Clear(BackColor); //g.DrawRectangle(_eraserPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
-                    CurrentTopLeft.Y = y;
-                    RectangleHeight = CurrentBottomRight.Y - CurrentTopLeft.Y;
-                    g.DrawRectangle(_myPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
-
-                }
+                //Erase the previous rectangle
+                g.Clear(BackColor); //g.DrawRectangle(_eraserPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
+                CurrentTopLeft.Y = y;
+                RectangleHeight = CurrentBottomRight.Y - CurrentTopLeft.Y;
+                g.DrawRectangle(_myPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
             }
-            if (CurrentAction == ClickAction.BottomSizing)
+            if (CurrentAction == ClickAction.BottomSizing && y > CurrentTopLeft.Y + 10)
             {
 
-                if (y > CurrentTopLeft.Y + 10)
-                {
-
-                    //Erase the previous rectangle
-                    g.Clear(BackColor); //g.DrawRectangle(_eraserPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
-                    CurrentBottomRight.Y = y;
-                    RectangleHeight = CurrentBottomRight.Y - CurrentTopLeft.Y;
-                    g.DrawRectangle(_myPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
-
-                }
+                //Erase the previous rectangle
+                g.Clear(BackColor); //g.DrawRectangle(_eraserPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
+                CurrentBottomRight.Y = y;
+                RectangleHeight = CurrentBottomRight.Y - CurrentTopLeft.Y;
+                g.DrawRectangle(_myPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
 
             }
 
@@ -477,20 +436,20 @@ namespace iSpyApplication.Utilities
             else
                 //Selection area has reached the right side of the screen
                 if (x - DragClickRelative.X > 0)
-                {
+            {
 
-                    CurrentTopLeft.X = _screen.Bounds.Width - RectangleWidth;
-                    CurrentBottomRight.X = CurrentTopLeft.X + RectangleWidth;
+                CurrentTopLeft.X = _screen.Bounds.Width - RectangleWidth;
+                CurrentBottomRight.X = CurrentTopLeft.X + RectangleWidth;
 
-                }
-                //Selection area has reached the left side of the screen
-                else
-                {
+            }
+            //Selection area has reached the left side of the screen
+            else
+            {
 
-                    CurrentTopLeft.X = 0;
-                    CurrentBottomRight.X = CurrentTopLeft.X + RectangleWidth;
+                CurrentTopLeft.X = 0;
+                CurrentBottomRight.X = CurrentTopLeft.X + RectangleWidth;
 
-                }
+            }
 
             if (y - DragClickRelative.Y > 0 && y - DragClickRelative.Y + RectangleHeight < _screen.Bounds.Height)
             {
@@ -502,20 +461,20 @@ namespace iSpyApplication.Utilities
             else
                 //Selection area has reached the bottom of the screen
                 if (y - DragClickRelative.Y > 0)
-                {
+            {
 
-                    CurrentTopLeft.Y = _screen.Bounds.Height - RectangleHeight;
-                    CurrentBottomRight.Y = CurrentTopLeft.Y + RectangleHeight;
+                CurrentTopLeft.Y = _screen.Bounds.Height - RectangleHeight;
+                CurrentBottomRight.Y = CurrentTopLeft.Y + RectangleHeight;
 
-                }
-                //Selection area has reached the top of the screen
-                else
-                {
+            }
+            //Selection area has reached the top of the screen
+            else
+            {
 
-                    CurrentTopLeft.Y = 0;
-                    CurrentBottomRight.Y = CurrentTopLeft.Y + RectangleHeight;
+                CurrentTopLeft.Y = 0;
+                CurrentBottomRight.Y = CurrentTopLeft.Y + RectangleHeight;
 
-                }
+            }
 
             //Draw a new rectangle
             g.DrawRectangle(_myPen, CurrentTopLeft.X, CurrentTopLeft.Y, RectangleWidth, RectangleHeight);

@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace iSpyApplication
@@ -62,7 +57,7 @@ namespace iSpyApplication
                 return;
             }
 
-            var oc = new objectsCommand { name = name, command = execute, id = MainForm.NextCommandId, emitshortcut = txtShortcutKeys.Text.Trim()};
+            var oc = new objectsCommand { name = name, command = execute, id = MainForm.NextCommandId, emitshortcut = txtShortcutKeys.Text.Trim() };
 
             MainForm.RemoteCommands.Add(oc);
             DialogResult = DialogResult.OK;
@@ -90,18 +85,12 @@ namespace iSpyApplication
 
                 txtShortcutKeys.Text = "";
             }
-            
+
         }
 
-        private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            MainForm.OpenUrl(MainForm.Website + "/userguide-remotecommands.aspx");
-        }
+        private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => MainForm.OpenUrl(MainForm.Website + "/userguide-remotecommands.aspx");
 
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            MainForm.OpenUrl(MainForm.Website + "/userguide-commandline.aspx");
-        }
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => MainForm.OpenUrl(MainForm.Website + "/userguide-commandline.aspx");
 
         private void tableLayoutPanel2_Paint(object sender, PaintEventArgs e)
         {
@@ -114,13 +103,10 @@ namespace iSpyApplication
             {
                 txtExecute.Text = OC.command;
                 txtShortcutKeys.Text = OC.emitshortcut;
-                if (OC.name.StartsWith("cmd_"))
-                    txtName.Text = LocRm.GetString(OC.name);
-                else
-                    txtName.Text = OC.name;
+                txtName.Text = OC.name.StartsWith("cmd_") ? LocRm.GetString(OC.name) : OC.name;
 
                 Text = btnAddCommand.Text = LocRm.GetString("Update");
-                
+
             }
         }
     }

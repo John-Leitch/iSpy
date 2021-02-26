@@ -1,7 +1,7 @@
-﻿using System;
-using System.Windows.Forms;
+﻿using iSpyApplication.Utilities;
+using System;
 using System.Runtime.InteropServices;
-using iSpyApplication.Utilities;
+using System.Windows.Forms;
 
 namespace iSpyApplication
 {
@@ -72,8 +72,8 @@ namespace iSpyApplication
 
         public class RemoteControlEventArgs : EventArgs
         {
-            RemoteControlButton _rcb;
-            InputDevice _device;
+            private RemoteControlButton _rcb;
+            private InputDevice _device;
 
             public RemoteControlEventArgs(RemoteControlButton rcb, InputDevice device)
             {
@@ -91,14 +91,14 @@ namespace iSpyApplication
 
             public RemoteControlButton Button
             {
-                get { return _rcb; }
-                set { _rcb = value; }
+                get => _rcb;
+                set => _rcb = value;
             }
 
             public InputDevice Device
             {
-                get { return _device; }
-                set { _device = value; }
+                get => _device;
+                set => _device = value;
             }
         }
 
@@ -210,10 +210,10 @@ namespace iSpyApplication
 
 
             [DllImport("User32.dll")]
-            extern static bool RegisterRawInputDevices(RAWINPUTDEVICE[] pRawInputDevice, uint uiNumDevices, uint cbSize);
+            private static extern bool RegisterRawInputDevices(RAWINPUTDEVICE[] pRawInputDevice, uint uiNumDevices, uint cbSize);
 
             [DllImport("User32.dll")]
-            extern static uint GetRawInputData(IntPtr hRawInput, uint uiCommand, IntPtr pData, ref uint pcbSize, uint cbSizeHeader);
+            private static extern uint GetRawInputData(IntPtr hRawInput, uint uiCommand, IntPtr pData, ref uint pcbSize, uint cbSizeHeader);
 
 
             private const int WM_KEYDOWN = 0x0100;
@@ -400,7 +400,7 @@ namespace iSpyApplication
             {
                 RemoteControlButton rcb = RemoteControlButton.Unknown;
 
-                int cmd = (int)(((ushort)(param >> 16)) & ~FAPPCOMMAND_MASK);
+                int cmd = ((ushort)(param >> 16)) & ~FAPPCOMMAND_MASK;
 
                 switch (cmd)
                 {
@@ -485,7 +485,7 @@ namespace iSpyApplication
 
                     try
                     {
-                        raw = (RAWINPUT) Marshal.PtrToStructure(buffer, typeof (RAWINPUT));
+                        raw = (RAWINPUT)Marshal.PtrToStructure(buffer, typeof(RAWINPUT));
                     }
                     catch
                     {
@@ -569,26 +569,20 @@ namespace iSpyApplication
             }
 
 
-            private InputDevice GetDevice(int param)
+            private static InputDevice GetDevice(int param)
             {
-                InputDevice inputDevice;
 
-                switch ((int)(((ushort)(param >> 16)) & FAPPCOMMAND_MASK))
+                switch (((ushort)(param >> 16)) & FAPPCOMMAND_MASK)
                 {
                     case FAPPCOMMAND_OEM:
-                        inputDevice = InputDevice.OEM;
-                        break;
+                        return InputDevice.OEM;
                     case FAPPCOMMAND_MOUSE:
-                        inputDevice = InputDevice.Mouse;
-                        break;
+                        return InputDevice.Mouse;
                     default:
-                        inputDevice = InputDevice.Key;
-                        break;
+                        return InputDevice.Key;
                 }
-
-                return inputDevice;
             }
         }
-    
+
     }
 }

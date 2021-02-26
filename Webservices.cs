@@ -1,8 +1,8 @@
+using iSpyApplication.Utilities;
 using System;
 using System.Globalization;
 using System.Net;
 using System.Windows.Forms;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication
 {
@@ -21,18 +21,15 @@ namespace iSpyApplication
             RenderResources();
         }
 
-        private void LinkLabel1LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            MainForm.StartBrowser(MainForm.Webserver+"/newuser.aspx");
-        }
+        private void LinkLabel1LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => MainForm.StartBrowser(MainForm.Webserver + "/newuser.aspx");
 
         private bool SetupNetwork(out int port, out int localport, out string error)
         {
             port = Convert.ToInt32(txtWANPort.Value);
             localport = (int)txtLANPort.Value;
-            if (tcIPMode.SelectedIndex==1)
+            if (tcIPMode.SelectedIndex == 1)
             {
-                localport = (int) txtPort.Value;
+                localport = (int)txtPort.Value;
             }
 
             MainForm.Conf.ServerPort = port;
@@ -58,18 +55,16 @@ namespace iSpyApplication
 
             error = MainForm.StopAndStartServer();
             Application.DoEvents();
-            return error=="";
+            return error?.Length == 0;
         }
 
         private void Button1Click(object sender, EventArgs e)
         {
             bool bIPv6 = tcIPMode.SelectedIndex == 1;
-            int port, localPort;
-            string error;
-            
-            if (!SetupNetwork(out port, out localPort, out error))
+
+            if (!SetupNetwork(out int port, out int localPort, out string error))
             {
-                MessageBox.Show(error+Environment.NewLine+LocRm.GetString("TryDifferentPort"));
+                MessageBox.Show(error + Environment.NewLine + LocRm.GetString("TryDifferentPort"));
                 return;
             }
 
@@ -81,26 +76,22 @@ namespace iSpyApplication
                     var r = fw.Initialize();
                     if (r == FireWall.FwErrorCode.FwNoerror)
                     {
-                        bool bOn;
-                        r = fw.IsWindowsFirewallOn(out bOn);
-                        if (r == FireWall.FwErrorCode.FwNoerror)
+                        r = fw.IsWindowsFirewallOn(out bool bOn);
+                        if (r == FireWall.FwErrorCode.FwNoerror && bOn)
                         {
-                            if (bOn)
+                            string strApplication = Application.StartupPath + "\\iSpy.exe";
+                            bool bEnabled = false;
+                            r = fw.IsAppEnabled(strApplication, ref bEnabled);
+                            if (r == FireWall.FwErrorCode.FwNoerror)
                             {
-                                string strApplication = Application.StartupPath + "\\iSpy.exe";
-                                bool bEnabled = false;
-                                r = fw.IsAppEnabled(strApplication, ref bEnabled);
-                                if (r == FireWall.FwErrorCode.FwNoerror)
+                                if (!bEnabled)
                                 {
-                                    if (!bEnabled)
-                                    {
-                                        fw.AddApplication(strApplication, "iSpy");
-                                    }
+                                    fw.AddApplication(strApplication, "iSpy");
                                 }
                             }
                         }
                     }
-                    if (r!= FireWall.FwErrorCode.FwNoerror)
+                    if (r != FireWall.FwErrorCode.FwNoerror)
                     {
                         throw new Exception(r.ToString());
                     }
@@ -109,14 +100,14 @@ namespace iSpyApplication
                 {
                     Logger.LogException(ex);
                     MessageBox.Show(this,
-                                       LocRm.GetString("ErrorFromFirewall") +Environment.NewLine+ ex.Message +Environment.NewLine+
+                                       LocRm.GetString("ErrorFromFirewall") + Environment.NewLine + ex.Message + Environment.NewLine +
                                        LocRm.GetString("AddFirewallExceptionManually"));
                 }
 
                 Next.Enabled = false;
                 Next.Text = "...";
                 Application.DoEvents();
-                
+
                 MainForm.Conf.DHCPReroute = chkReroute.Checked;
                 MainForm.Conf.SpecificIP = chkBindSpecific.Checked;
 
@@ -132,7 +123,7 @@ namespace iSpyApplication
 
                 if (!failed)
                 {
-                    if (result.Length>0 && result[0] == "OK")
+                    if (result.Length > 0 && result[0] == "OK")
                     {
                         EmailAddress = result[2];
                         MobileNumber = result[4];
@@ -155,9 +146,9 @@ namespace iSpyApplication
                                     {
                                         result = WsWrapper.TestConnection(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, true);
                                     }
-                                }  
+                                }
                             }
-                            
+
                             if (result[3] != "")
                             {
                                 MainForm.Conf.Loopback = false;
@@ -206,11 +197,11 @@ namespace iSpyApplication
                                 }
                             }
                         }
-                        if (result[3] == "")
+                        if (result[3]?.Length == 0)
                         {
                             MainForm.Conf.Loopback = true;
                             MainForm.LoopBack = true;
-                            
+
                             DialogResult = DialogResult.Yes;
                             Close();
                             return;
@@ -220,7 +211,7 @@ namespace iSpyApplication
                     }
                     else
                     {
-                        if (result.Length>0 && result[0].ToLower().IndexOf("login", StringComparison.Ordinal) == -1)
+                        if (result.Length > 0 && result[0].ToLower().IndexOf("login", StringComparison.Ordinal) == -1)
                         {
                             MessageBox.Show(result[0], LocRm.GetString("Error"));
                         }
@@ -278,7 +269,7 @@ namespace iSpyApplication
             }
             if (lbIPv4Address.Items.Count > 0 && lbIPv4Address.SelectedIndex == -1)
                 lbIPv4Address.SelectedIndex = 0;
-            
+
             int i = 0;
             foreach (IPAddress ipadd in MainForm.AddressListIPv6)
             {
@@ -289,7 +280,7 @@ namespace iSpyApplication
                 i++;
             }
 
-            if (i==0)
+            if (i == 0)
                 tcIPMode.TabPages.RemoveAt(1);
 
 
@@ -355,10 +346,7 @@ namespace iSpyApplication
         {
         }
 
-        private void Button2Click(object sender, EventArgs e)
-        {
-            Close();
-        }
+        private void Button2Click(object sender, EventArgs e) => Close();
 
         private void label6_Click(object sender, EventArgs e)
         {
@@ -368,10 +356,7 @@ namespace iSpyApplication
         {
         }
 
-        private void LinkLabel2LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            MainForm.StartBrowser(MainForm.Website+"/userguide-connecting.aspx#3");
-        }
+        private void LinkLabel2LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => MainForm.StartBrowser(MainForm.Website + "/userguide-connecting.aspx#3");
 
         private void ChkuPnpCheckedChanged(object sender, EventArgs e)
         {
@@ -383,17 +368,12 @@ namespace iSpyApplication
         {
         }
 
-        private void llblHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            MainForm.OpenUrl( MainForm.Website+"/userguide-connecting.aspx");
-        }
+        private void llblHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => MainForm.OpenUrl(MainForm.Website + "/userguide-connecting.aspx");
 
 
         private void ShowTroubleShooter()
         {
-            int port, localPort;
-            string error = "";
-            if (!SetupNetwork(out port, out localPort, out error))
+            if (!SetupNetwork(out int port, out int localPort, out string error))
             {
                 MessageBox.Show(error);
                 return;
@@ -404,11 +384,7 @@ namespace iSpyApplication
             nt.Dispose();
         }
 
-        private void tcIPMode_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            EnableNext();
-
-        }
+        private void tcIPMode_SelectedIndexChanged(object sender, EventArgs e) => EnableNext();
 
         private void EnableNext()
         {
@@ -423,10 +399,7 @@ namespace iSpyApplication
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            ShowTroubleShooter();
-        }
+        private void button1_Click(object sender, EventArgs e) => ShowTroubleShooter();
 
         private void chkEnableIPv6_CheckedChanged(object sender, EventArgs e)
         {
@@ -435,7 +408,7 @@ namespace iSpyApplication
                 if (chkEnableIPv6.Checked)
                 {
                     MessageBox.Show(this,
-                                    LocRm.GetString("IPv6Issues")+Environment.NewLine+LocRm.GetString("IPv6Warning"), LocRm.GetString("Warning"));
+                                    LocRm.GetString("IPv6Issues") + Environment.NewLine + LocRm.GetString("IPv6Warning"), LocRm.GetString("Warning"));
                 }
                 MainForm.Conf.IPv6Disabled = !chkEnableIPv6.Checked;
             }

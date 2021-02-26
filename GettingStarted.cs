@@ -62,9 +62,6 @@ namespace iSpyApplication
             Close();
         }
 
-        private void GettingStarted_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            MainForm.Conf.Enabled_ShowGettingStarted = chkShowGettingStarted.Checked;
-        }
+        private void GettingStarted_FormClosing(object sender, FormClosingEventArgs e) => MainForm.Conf.Enabled_ShowGettingStarted = chkShowGettingStarted.Checked;
     }
 }

@@ -1,5 +1,5 @@
-﻿using System;
-using NAudio.Wave;
+﻿using NAudio.Wave;
+using System;
 
 namespace iSpyApplication.Sources.Audio
 {
@@ -31,8 +31,8 @@ namespace iSpyApplication.Sources.Audio
         /// </summary>
         public float Volume
         {
-            get { return _volume; }
-            set { _volume = value; }
+            get => _volume;
+            set => _volume = value;
         }
 
         /// <summary>

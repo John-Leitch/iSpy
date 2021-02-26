@@ -39,14 +39,14 @@ namespace iSpyApplication.Controls
             areaSelector1.BoundsChanged += areaSelector1_BoundsChanged;
         }
 
-        void areaSelector1_BoundsChanged(object sender, EventArgs e)
+        private void areaSelector1_BoundsChanged(object sender, EventArgs e)
         {
             pip.config = areaSelector1.Areas;
             if (CW.Camera != null)
                 CW.Camera.PiPConfig = pip.config;
         }
 
-        
+
 
         private void btnOK_Click(object sender, EventArgs e)
         {
@@ -57,7 +57,7 @@ namespace iSpyApplication.Controls
 
         private void ddlCamera_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var li = (MainForm.ListItem) ddlCamera.SelectedItem;
+            var li = (MainForm.ListItem)ddlCamera.SelectedItem;
             areaSelector1.CurrentCameraID = (int)li.Value;
         }
 
@@ -67,9 +67,6 @@ namespace iSpyApplication.Controls
             pip.enabled = chkEnable.Checked;
         }
 
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            MainForm.OpenUrl(MainForm.Website + "/userguide-picture-in-picture.aspx");
-        }
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => MainForm.OpenUrl(MainForm.Website + "/userguide-picture-in-picture.aspx");
     }
 }

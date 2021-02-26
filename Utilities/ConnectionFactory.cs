@@ -29,9 +29,7 @@ namespace iSpyApplication.Utilities
         {
             var regHeader = new Regex($@"{varName}=""([^""]*)""");
             var matchHeader = regHeader.Match(header);
-            if (matchHeader.Success)
-                return matchHeader.Groups[1].Value;
-            throw new ApplicationException($"Header {varName} not found");
+            return matchHeader.Success ? matchHeader.Groups[1].Value : throw new ApplicationException($"Header {varName} not found");
         }
 
         private static int _nc;
@@ -114,17 +112,14 @@ namespace iSpyApplication.Utilities
 
         private static readonly List<DigestConfig> Digests = new List<DigestConfig>();
 
-        private static void AddDigest(DigestConfig digest)
-        {
-            Digests.Add(digest);            
-        }
+        private static void AddDigest(DigestConfig digest) => Digests.Add(digest);
 
         private static DigestConfig GetDigest(string host)
         {
             // Remove any digests more than an hour old
             Digests.RemoveAll(p => p.Created < DateTime.UtcNow.AddHours(-1));
             return Digests.FirstOrDefault(p => p.Host == host);
-            
+
         }
 
         private class DigestConfig
@@ -147,7 +142,7 @@ namespace iSpyApplication.Utilities
 
             try
             {
-                if (co.data!=null && co.data.Length>0)
+                if (co.data?.Length > 0)
                 {
                     using (var stream = request.GetRequestStream())
                     {
@@ -160,7 +155,7 @@ namespace iSpyApplication.Utilities
             {
                 response?.Close();
                 // Try to fix a 401 exception by adding a Authorization header
-                if (ex.Response == null || ((HttpWebResponse) ex.Response).StatusCode != HttpStatusCode.Unauthorized)
+                if (ex.Response == null || ((HttpWebResponse)ex.Response).StatusCode != HttpStatusCode.Unauthorized)
                 {
                     return null;
                 }
@@ -185,7 +180,7 @@ namespace iSpyApplication.Utilities
             var myRequestState = new RequestState { Request = request, ConnectionOptions = co };
             try
             {
-                if (co.data != null && co.data.Length > 0)
+                if (co.data?.Length > 0)
                 {
                     using (var stream = request.GetRequestStream())
                     {
@@ -200,7 +195,7 @@ namespace iSpyApplication.Utilities
                 Logger.LogException(ex, "Connection Factory");
             }
 
-            
+
         }
 
         private void FinishRequest(IAsyncResult result)
@@ -259,13 +254,9 @@ namespace iSpyApplication.Utilities
                 request.Headers["Authorization"] = authorization;
 
                 response = (HttpWebResponse)request.GetResponse();
-                Uri uri;
-                if (Uri.TryCreate(co.source, UriKind.Absolute, out uri))
+                if (Uri.TryCreate(co.source, UriKind.Absolute, out Uri uri) && uri != null)
                 {
-                    if (uri != null)
-                    {
-                        AddDigest(new DigestConfig(uri.Host, authorization));
-                    }
+                    AddDigest(new DigestConfig(uri.Host, authorization));
                 }
                 co.ExecuteCallback(true);
             }
@@ -288,17 +279,13 @@ namespace iSpyApplication.Utilities
 
         public HttpWebRequest GetRequest(ConnectionOptions co)
         {
-            Uri uri;
-            if (Uri.TryCreate(co.source, UriKind.Absolute, out uri))
+            if (Uri.TryCreate(co.source, UriKind.Absolute, out Uri uri) && string.IsNullOrEmpty(co.username))
             {
-                if (string.IsNullOrEmpty(co.username))
+                var ui = uri.UserInfo.Split(':');
+                if (ui.Length > 1)
                 {
-                    var ui = uri.UserInfo.Split(':');
-                    if (ui.Length > 1)
-                    {
-                        co.username = ui[0];
-                        co.password = ui[1];
-                    }
+                    co.username = ui[0];
+                    co.password = ui[1];
                 }
             }
             var request = GenerateRequest(co);
@@ -323,7 +310,7 @@ namespace iSpyApplication.Utilities
             return request;
         }
 
-        private HttpWebRequest GenerateRequest(ConnectionOptions co)
+        private static HttpWebRequest GenerateRequest(ConnectionOptions co)
         {
             var request = (HttpWebRequest)WebRequest.Create(co.source);
 

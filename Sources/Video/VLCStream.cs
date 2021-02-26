@@ -1,30 +1,28 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using iSpyApplication.Controls;
+using iSpyApplication.Sources.Audio;
+using iSpyApplication.Utilities;
+using LibVLCSharp.Shared;
+using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
-using LibVLCSharp.Shared;
-using iSpyApplication.Controls;
-using iSpyApplication.Sources.Audio;
-using iSpyApplication.Utilities;
-using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
-using File = System.IO.File;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using static iSpyApplication.Delegates;
-using System.Text;
 
 namespace iSpyApplication.Sources.Video
 {
     internal class VlcStream : VideoBase, IVideoSource, IAudioSource, ISupportsAudio
     {
         public string Source { get; }
-        private CameraWindow _camera;
+        private readonly CameraWindow _camera;
 
         public bool IsRunning { get; set; }
         public bool Seekable = false;
@@ -33,10 +31,7 @@ namespace iSpyApplication.Sources.Video
 
         public WaveFormat RecordingFormat
         {
-            get
-            {
-                return new WaveFormat(22050, 16, 1);
-            }
+            get => new WaveFormat(22050, 16, 1);
             set
             {
                 //ignore
@@ -57,11 +52,11 @@ namespace iSpyApplication.Sources.Video
         public event LevelChangedEventHandler LevelChanged;
         public event HasAudioStreamEventHandler HasAudioStream;
 
-        private int _timeoutMilliSeconds;
-        private int _connectMilliSeconds = 10000;
-        private bool _ignoreAudio;
+        private readonly int _timeoutMilliSeconds;
+        private readonly int _connectMilliSeconds = 10000;
+        private readonly bool _ignoreAudio;
         private bool _disposed;
-        private List<string> _options;
+        private readonly List<string> _options;
         private Size _size;
         private GCHandle? _imageData = null;
         private MediaPlayer _mediaPlayer = null;
@@ -70,9 +65,9 @@ namespace iSpyApplication.Sources.Video
         private LibVLC _libVLC = null;
         private bool _failedLoad = false;
         private static bool _coreInitialized = false;
-        private static object _coreLock = new object();
+        private static readonly object _coreLock = new object();
         private DateTime _lastTimeUpdate = DateTime.MinValue;
-        private AutoResetEvent _stopped = new AutoResetEvent(false);
+        private readonly AutoResetEvent _stopped = new AutoResetEvent(false);
         private LibVLC LibVLC
         {
             get
@@ -90,7 +85,7 @@ namespace iSpyApplication.Sources.Video
                                 Core.Initialize(VlcHelper.VLCLocation);
                                 _coreInitialized = true;
                             }
-                            catch(Exception ex)
+                            catch (Exception ex)
                             {
                                 Logger.LogException(ex);
                                 _failedLoad = true;
@@ -113,7 +108,7 @@ namespace iSpyApplication.Sources.Video
                 {
                     Logger.LogException(ex, "VLC Setup");
                     _failedLoad = true;
-                    throw new ApplicationException("VLC not found (v"+VlcHelper.MinVersion+"+). Set location in settings.");
+                    throw new ApplicationException("VLC not found (v" + VlcHelper.MinVersion + "+). Set location in settings.");
                 }
                 _libVLC.Log += _libVLC_Log;
                 //GC.KeepAlive(_libVLC);
@@ -121,10 +116,7 @@ namespace iSpyApplication.Sources.Video
             }
         }
 
-        private static void _libVLC_Log(object sender, LogEventArgs e)
-        {
-            Debug.WriteLine("vlc: " + e.Message);
-        }
+        private static void _libVLC_Log(object sender, LogEventArgs e) => Debug.WriteLine("vlc: " + e.Message);
 
         private MediaPlayer.LibVLCAudioPlayCb _processAudio;
         private MediaPlayer.LibVLCAudioSetupCb _audioSetup;
@@ -139,7 +131,7 @@ namespace iSpyApplication.Sources.Video
         private MediaPlayer.LibVLCVideoUnlockCb _unlockCB;
         private MediaPlayer.LibVLCVideoDisplayCb _displayCB;
         //private MediaPlayer.LibVLCVideoCleanupCb _cleanupVideoCB;
-        
+
         private DateTime _lastFrame = DateTime.UtcNow;
         private ReasonToFinishPlaying _res = ReasonToFinishPlaying.DeviceLost;
 
@@ -151,13 +143,10 @@ namespace iSpyApplication.Sources.Video
             _connectMilliSeconds = Math.Max(_timeoutMilliSeconds, 15000);
             _ignoreAudio = source.Camobject.settings.ignoreaudio;
             _options = source.Camobject.settings.vlcargs.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-            if (source.Camobject.settings.resize)
+            if (source.Camobject.settings.resize && source.Camobject.settings.resizeWidth > 0 && source.Camobject.settings.resizeHeight > 0)
             {
-                if (source.Camobject.settings.resizeWidth > 0 && source.Camobject.settings.resizeHeight > 0)
-                {
-                    _options.Add(":canvas-width=" + source.Camobject.settings.resizeWidth);
-                    _options.Add(":canvas-height=" + source.Camobject.settings.resizeHeight);
-                }
+                _options.Add(":canvas-width=" + source.Camobject.settings.resizeWidth);
+                _options.Add(":canvas-height=" + source.Camobject.settings.resizeHeight);
             }
 
             _options.Add(":avcodec-hw=none");
@@ -187,7 +176,7 @@ namespace iSpyApplication.Sources.Video
 
         public void Seek(float pc)
         {
-            if (_mediaPlayer != null && _mediaPlayer.IsSeekable)
+            if (_mediaPlayer?.IsSeekable == true)
             {
                 _mediaPlayer.Position = pc;
             }
@@ -204,7 +193,8 @@ namespace iSpyApplication.Sources.Video
             Task.Run(DoStart);
         }
 
-        private void DoStart() {
+        private void DoStart()
+        {
 
             if (_stopping) return;
             try
@@ -221,10 +211,7 @@ namespace iSpyApplication.Sources.Video
             }
         }
 
-        public void Stop()
-        {
-            Stop(ReasonToFinishPlaying.StoppedByUser);
-        }
+        public void Stop() => Stop(ReasonToFinishPlaying.StoppedByUser);
         public void Stop(ReasonToFinishPlaying res)
         {
 
@@ -238,9 +225,9 @@ namespace iSpyApplication.Sources.Video
 
                 _stopping = true;
                 _res = res;
-                
+
                 var mp = _mediaPlayer;
-                if (mp!=null && mp?.NativeReference != IntPtr.Zero && mp?.IsPlaying == true)
+                if (mp != null && mp?.NativeReference != IntPtr.Zero && mp?.IsPlaying == true)
                 {
                     Debug.WriteLine("stop (" + DateTime.Now.Millisecond + ")");
                     mp?.Pause();
@@ -250,7 +237,7 @@ namespace iSpyApplication.Sources.Video
 
             }
         }
-        
+
 
         public void Tick()
         {
@@ -325,12 +312,7 @@ namespace iSpyApplication.Sources.Video
 
         public bool Listening
         {
-            get
-            {
-                if (IsRunning && _listening)
-                    return true;
-                return false;
-            }
+            get => IsRunning && _listening;
             set
             {
                 if (RecordingFormat == null)
@@ -356,7 +338,7 @@ namespace iSpyApplication.Sources.Video
             }
         }
 
-        
+
         #endregion
 
         #region Vlc video callbacks
@@ -369,8 +351,8 @@ namespace iSpyApplication.Sources.Video
             {
                 var l = _size.Width * _size.Height * 4;
                 GC.AddMemoryPressure(l);
-                using (var mat = new Bitmap(_size.Width, _size.Height, _size.Width*4,
-                                    PixelFormat.Format32bppArgb,userdata))
+                using (var mat = new Bitmap(_size.Width, _size.Height, _size.Width * 4,
+                                    PixelFormat.Format32bppArgb, userdata))
                 {
                     var nfe = new NewFrameEventArgs(mat);
                     NewFrame.Invoke(this, nfe);
@@ -398,22 +380,18 @@ namespace iSpyApplication.Sources.Video
 
         }
 
-        private uint GetAlignedDimension(uint dimension, uint mod)
+        private static uint GetAlignedDimension(uint dimension, uint mod)
         {
             var modResult = dimension % mod;
-            if (modResult == 0)
-            {
-                return dimension;
-            }
-
-            return dimension + mod - (dimension % mod);
+            return modResult == 0 ? dimension : dimension + mod - (dimension % mod);
         }
+
         /// <summary>
         /// Converts a 4CC string representation to its UInt32 equivalent
         /// </summary>
         /// <param name="fourCCString">The 4CC string</param>
         /// <returns>The UInt32 representation of the 4cc</returns>
-        static void ToFourCC(string fourCCString, IntPtr destination)
+        private static void ToFourCC(string fourCCString, IntPtr destination)
         {
             if (fourCCString.Length != 4)
             {
@@ -466,8 +444,8 @@ namespace iSpyApplication.Sources.Video
                 }
             }
 
-            pitches = this.GetAlignedDimension((uint)(width * 32) / 8, 32);
-            lines = this.GetAlignedDimension(height, 32);
+            pitches = VlcStream.GetAlignedDimension(width * 32 / 8, 32);
+            lines = VlcStream.GetAlignedDimension(height, 32);
 
             var b = new byte[width * height * 32];
             if (_imageData != null)
@@ -477,10 +455,7 @@ namespace iSpyApplication.Sources.Video
             return 1;
         }
         #endregion
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         protected virtual void Dispose(bool disposing)
         {
@@ -542,7 +517,7 @@ namespace iSpyApplication.Sources.Video
 
             FromType ftype = FromType.FromLocation;
             Seekable = false;
-           
+
 
             var murl = overrideURL ?? Source;
             if (string.IsNullOrEmpty(murl))
@@ -566,7 +541,7 @@ namespace iSpyApplication.Sources.Video
             using (var media = new Media(LibVLC, murl, ftype))
             {
 
-                
+
                 Duration = Time = 0;
 
                 foreach (var opt in _options)
@@ -580,7 +555,7 @@ namespace iSpyApplication.Sources.Video
                 _mediaPlayer.TimeChanged += _mediaPlayer_TimeChanged;
                 _mediaPlayer.EnableHardwareDecoding = false;
 
-                
+
                 _mediaPlayer.SetAudioFormatCallback(_audioSetup, _cleanupAudio);
                 _mediaPlayer.SetAudioCallbacks(_processAudio, _pauseAudio, _resumeAudio, _flushAudio, _drainAudio);
 
@@ -605,7 +580,7 @@ namespace iSpyApplication.Sources.Video
                         IsRunning = false;
                         _stopping = false;
 
-                        
+
                         _stopped?.Set();
 
                         PlayingFinished?.Invoke(this, new PlayingFinishedEventArgs(_res));
@@ -617,15 +592,9 @@ namespace iSpyApplication.Sources.Video
             _mediaPlayer.Play();
         }
 
-        private void _mediaPlayer_TimeChanged(object sender, MediaPlayerTimeChangedEventArgs e)
-        {
-            _lastTimeUpdate = DateTime.UtcNow;
-        }
+        private void _mediaPlayer_TimeChanged(object sender, MediaPlayerTimeChangedEventArgs e) => _lastTimeUpdate = DateTime.UtcNow;
 
-       
-        private void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e)
-        {
-            LevelChanged?.Invoke(this, new LevelChangedEventArgs(e.MaxSampleValues));
-        }
+
+        private void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e) => LevelChanged?.Invoke(this, new LevelChangedEventArgs(e.MaxSampleValues));
     }
 }

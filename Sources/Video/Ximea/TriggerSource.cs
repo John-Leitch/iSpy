@@ -1,5 +1,5 @@
 ﻿namespace iSpyApplication.Sources.Video.Ximea
-{  
+{
     /// <summary>
     /// Enumeration of camera's trigger modes.
     /// </summary>

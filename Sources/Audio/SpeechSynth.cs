@@ -1,17 +1,17 @@
-﻿using System;
-using System.IO;
-using System.Speech.Synthesis;
-using System.Threading;
-using iSpyApplication.Controls;
+﻿using iSpyApplication.Controls;
 using iSpyApplication.Sources.Audio.streams;
 using iSpyApplication.Sources.Audio.talk;
 using NAudio.Wave;
+using System;
+using System.IO;
+using System.Speech.Synthesis;
+using System.Threading;
 
 namespace iSpyApplication.Sources.Audio
 {
-    static class SpeechSynth
+    internal static class SpeechSynth
     {
-        public static void Say(string text,CameraWindow cw)
+        public static void Say(string text, CameraWindow cw)
         {
             var t = new Thread(() => SynthToCam(Uri.UnescapeDataString(text), cw));
             t.Start();
@@ -55,7 +55,7 @@ namespace iSpyApplication.Sources.Audio
                     waveStream.Seek(0, SeekOrigin.Begin);
 
                     var ds = new DirectStream(waveStream) { RecordingFormat = new WaveFormat(11025, 16, 1) };
-                    var talkTarget = TalkHelper.GetTalkTarget(cw.Camobject, ds); 
+                    var talkTarget = TalkHelper.GetTalkTarget(cw.Camobject, ds);
                     ds.Start();
                     talkTarget.Start();
                     while (ds.IsRunning)

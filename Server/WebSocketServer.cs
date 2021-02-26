@@ -1,11 +1,11 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
-using iSpyApplication.Utilities;
 using Timer = System.Timers.Timer;
 
 namespace iSpyApplication.Server
@@ -13,9 +13,9 @@ namespace iSpyApplication.Server
     public enum ServerLogLevel { Nothing, Subtle, Verbose };
     public delegate void ClientConnectedEventHandler(object sender, EventArgs e);
 
-    public class WebSocketServer: IDisposable
+    public class WebSocketServer : IDisposable
     {
-        const string WsKey = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+        private const string WsKey = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
         public event ClientConnectedEventHandler ClientConnected;
 
@@ -42,7 +42,7 @@ namespace iSpyApplication.Server
             _tmrBroadcast.Start();
         }
 
-        void TmrBroadcastElapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private void TmrBroadcastElapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             _tmrBroadcast.Stop();
             try
@@ -56,14 +56,14 @@ namespace iSpyApplication.Server
             }
             catch (Exception ex)
             {
-                Logger.LogException(ex,"Broadcast Websockets");
+                Logger.LogException(ex, "Broadcast Websockets");
             }
             _tmrBroadcast.Start();
         }
 
         public void ConnectSocket(string headers, HttpRequest req)
         {
-            ShakeHands(headers.Split(Environment.NewLine.ToCharArray()),req.TcpClient.Client);
+            ShakeHands(headers.Split(Environment.NewLine.ToCharArray()), req.TcpClient.Client);
             var clientConnection = new WebSocketConnection(req);
             Connections.Add(clientConnection);
             clientConnection.Disconnected += ClientDisconnected;
@@ -91,14 +91,13 @@ namespace iSpyApplication.Server
 
                     }
                 }
-            }   
+            }
         }
 
-        void ClientDisconnected(object sender, EventArgs e)
+        private void ClientDisconnected(object sender, EventArgs e)
         {
-            var sconn = sender as WebSocketConnection;
             var c = Connections;
-            if (sconn != null && c != null && c.Count>0)
+            if (sender is WebSocketConnection sconn && c?.Count > 0)
             {
                 try
                 {
@@ -111,10 +110,9 @@ namespace iSpyApplication.Server
             }
         }
 
-        void DataReceivedFromClient(object sender, DataReceivedEventArgs e)
+        private void DataReceivedFromClient(object sender, DataReceivedEventArgs e)
         {
-            var sconn = sender as WebSocketConnection;
-            if (sconn != null)
+            if (sender is WebSocketConnection sconn)
             {
                 switch (e.Data)
                 {
@@ -126,7 +124,7 @@ namespace iSpyApplication.Server
         }
 
 
-        private readonly List<string> _broadCastEvents = new List<string>(); 
+        private readonly List<string> _broadCastEvents = new List<string>();
         /// <summary>
         /// send a string to all the clients
         /// </summary>
@@ -141,9 +139,9 @@ namespace iSpyApplication.Server
             }
             catch (Exception ex)
             {
-                Logger.LogException(ex,"Broadcast SendToAll");
+                Logger.LogException(ex, "Broadcast SendToAll");
             }
-        }       
+        }
 
         private static string ComputeWebSocketHandshakeSecurityHash09(string secWebSocketKey)
         {
@@ -175,7 +173,7 @@ namespace iSpyApplication.Server
                         if (nv.Length > 1)
                         {
                             var key = nv[1].Trim();
-                            writer.WriteLine("Sec-WebSocket-Accept: "+ComputeWebSocketHandshakeSecurityHash09(key));
+                            writer.WriteLine("Sec-WebSocket-Accept: " + ComputeWebSocketHandshakeSecurityHash09(key));
                             break;
                         }
 
@@ -187,10 +185,7 @@ namespace iSpyApplication.Server
 
         private bool _disposed;
         // Public implementation of Dispose pattern callable by consumers. 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         // Protected implementation of Dispose pattern. 
         protected virtual void Dispose(bool disposing)

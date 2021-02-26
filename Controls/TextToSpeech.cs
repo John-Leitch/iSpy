@@ -1,8 +1,8 @@
-﻿using System;
+﻿using iSpyApplication.Sources.Audio;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using iSpyApplication.Sources.Audio;
 
 namespace iSpyApplication.Controls
 {
@@ -20,10 +20,10 @@ namespace iSpyApplication.Controls
             button3.Text = LocRm.GetString("OK");
         }
 
-        public override sealed string Text
+        public sealed override string Text
         {
-            get { return base.Text; }
-            set { base.Text = value; }
+            get => base.Text;
+            set => base.Text = value;
         }
 
         private void TextToSpeech_Load(object sender, EventArgs e)
@@ -32,10 +32,7 @@ namespace iSpyApplication.Controls
             PopPaths();
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            Say();
-        }
+        private void button1_Click(object sender, EventArgs e) => Say();
 
         private void Say()
         {
@@ -106,10 +103,7 @@ namespace iSpyApplication.Controls
             }
         }
 
-        private void button3_Click(object sender, EventArgs e)
-        {
-            Play();
-        }
+        private void button3_Click(object sender, EventArgs e) => Play();
 
         private void Play()
         {

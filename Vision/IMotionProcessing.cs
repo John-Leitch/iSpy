@@ -38,7 +38,7 @@ namespace iSpyApplication.Vision
         /// of the <see cref="IMotionProcessing"/> interface - it may motion
         /// area highlighting, motion objects counting, etc.</para></remarks>
         /// 
-        void ProcessFrame( UnmanagedImage videoFrame, UnmanagedImage motionFrame );
+        void ProcessFrame(UnmanagedImage videoFrame, UnmanagedImage motionFrame);
 
         /// <summary>
         /// Reset internal state of motion processing algorithm.
@@ -53,6 +53,6 @@ namespace iSpyApplication.Vision
         /// history etc. In this case such algorithms provide empty implementation of this method.</note></para>
         /// </remarks>
         ///
-        void Reset( );
+        void Reset();
     }
 }

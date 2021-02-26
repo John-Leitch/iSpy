@@ -1,20 +1,20 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
-using iSpyApplication.Utilities;
-using Newtonsoft.Json;
 
 namespace iSpyApplication.Cloud
 {
     public static class Dropbox
     {
         private const string ApiKey = "6k40bpqlz573mqt";
-        private const string Secret= "mx5bth2wj95mkd2";
-        private static string _accessToken="";
+        private const string Secret = "mx5bth2wj95mkd2";
+        private static string _accessToken = "";
 
         //private static DropNetClient _service;
         private static volatile bool _uploading;
@@ -82,13 +82,13 @@ namespace iSpyApplication.Cloud
             catch (WebException ex)
             {
                 var resp = new StreamReader(ex.Response.GetResponseStream()).ReadToEnd();
-                Logger.LogError("Dropbox: "+resp);
+                Logger.LogError("Dropbox: " + resp);
             }
             catch (Exception ex)
             {
                 Logger.LogException(ex);
                 MainForm.Conf.Cloud.DropBox = "";
-                
+
             }
             return false;
         }
@@ -99,10 +99,7 @@ namespace iSpyApplication.Cloud
             public string DestinationPath;
         }
 
-        public static bool Authorised
-        {
-            get { return AccessToken != ""; }
-        }
+        public static bool Authorised => AccessToken != "";
 
         public static string Upload(string filename, string path, out bool success)
         {
@@ -157,7 +154,7 @@ namespace iSpyApplication.Cloud
                     return;
                 }
 
-                if (AccessToken == "")
+                if (AccessToken?.Length == 0)
                 {
                     _uploading = false;
                     return;
@@ -199,7 +196,7 @@ namespace iSpyApplication.Cloud
                         stream.Write(byteArray, 0, byteArray.Length);
                     }
 
-                    var response = (HttpWebResponse) request.GetResponse();
+                    var response = (HttpWebResponse)request.GetResponse();
                     var s = response.GetResponseStream();
                     if (s == null)
                         throw new Exception("null response stream");

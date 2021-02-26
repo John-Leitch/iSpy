@@ -8,8 +8,8 @@ namespace iSpyApplication.Controls
     {
         public objectsCamera OC;
         public objectsMicrophone OM;
-        private object[] cameraSettings = {
-                                        "Groups", 
+        private readonly object[] cameraSettings = {
+                                        "Groups",
                                         "Transform",
                                         "Timestamp",
                                         "Mask Image",
@@ -28,8 +28,8 @@ namespace iSpyApplication.Controls
                                         "Schedule",
                                         "Storage Settings (excluding directory)"
                                     };
-        private object[] micSettings = {
-                                        "Groups", 
+        private readonly object[] micSettings = {
+                                        "Groups",
                                         "Sound Detector Settings",
                                         "Alert Intervals",
                                         "Actions: Alert",
@@ -68,7 +68,7 @@ namespace iSpyApplication.Controls
                         clbObjects.Items.Add(new MainForm.ListItem(c.name, c.id));
                     }
                 }
-            
+
             }
             if (OM != null)
             {
@@ -122,10 +122,10 @@ namespace iSpyApplication.Controls
             MessageBox.Show(this, LocRm.GetString("OK"));
         }
 
-        private void CopyActions(int OID, int oid, int otid, string mode)
+        private static void CopyActions(int OID, int oid, int otid, string mode)
         {
-            MainForm.Actions.RemoveAll(p => p.objectid == oid && p.objecttypeid == otid && p.mode==mode);
-            var l = MainForm.Actions.Where(p => p.objectid == OID && p.objecttypeid == otid && p.mode==mode).ToList();
+            MainForm.Actions.RemoveAll(p => p.objectid == oid && p.objecttypeid == otid && p.mode == mode);
+            var l = MainForm.Actions.Where(p => p.objectid == OID && p.objecttypeid == otid && p.mode == mode).ToList();
             foreach (var oa in l)
             {
                 var oae = new objectsActionsEntry
@@ -204,19 +204,19 @@ namespace iSpyApplication.Controls
                     oc.alerts.minimuminterval = OC.alerts.minimuminterval;
                     break;
                 case "Actions: Alert":
-                {
-                    CopyActions(OC.id, oc.id, 2, "alert");
-                }
+                    {
+                        CopyActions(OC.id, oc.id, 2, "alert");
+                    }
                     break;
                 case "Actions: Connection Lost":
-                {
-                    CopyActions(OC.id, oc.id, 2, "disconnect");
-                }
+                    {
+                        CopyActions(OC.id, oc.id, 2, "disconnect");
+                    }
                     break;
                 case "Actions: Reconnect":
-                {
-                    CopyActions(OC.id, oc.id, 2, "reconnect");
-                }
+                    {
+                        CopyActions(OC.id, oc.id, 2, "reconnect");
+                    }
                     break;
                 case "Recording Mode":
                     oc.detector.recordonalert = OC.detector.recordonalert;
@@ -259,10 +259,10 @@ namespace iSpyApplication.Controls
                     oc.ftp.text = OC.ftp.text;
                     break;
                 case "Schedule":
-                {
-                    oc.schedule.entries = OC.schedule.entries.ToArray();
-                    oc.schedule.active = OC.schedule.active;
-                }
+                    {
+                        oc.schedule.entries = OC.schedule.entries.ToArray();
+                        oc.schedule.active = OC.schedule.active;
+                    }
                     break;
                 case "Storage Settings (excluding directory)":
                     oc.settings.storagemanagement.archive = OC.settings.storagemanagement.archive;

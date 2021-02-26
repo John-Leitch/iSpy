@@ -38,15 +38,13 @@ namespace iSpyApplication.Controls
             foreach (Control c in LayoutTarget.Controls)
             {
                 bool alert = false;
-                var window = c as CameraWindow;
-                if (window != null)
+                if (c is CameraWindow window)
                 {
                     alert = window.Alerted;
                 }
                 else
                 {
-                    var level = c as VolumeLevel;
-                    if (level != null)
+                    if (c is VolumeLevel level)
                     {
                         alert = level.Alerted;
                     }
@@ -85,19 +83,19 @@ namespace iSpyApplication.Controls
                     _vScrollBound += SystemInformation.HorizontalScrollBarHeight;
                 }
 
-                _xRat = Convert.ToDouble(Width)/xMax;
-                _yRat = Convert.ToDouble(Height)/yMax;
+                _xRat = Convert.ToDouble(Width) / xMax;
+                _yRat = Convert.ToDouble(Height) / yMax;
 
                 foreach (AlertRectangle r in rects)
                 {
-                    gLayout.DrawRectangle(!r.Alert ? Pens.White : Pens.Red, (float) _xRat*r.Rect.X,
-                        (float) _yRat*r.Rect.Y,
-                        (float) _xRat*r.Rect.Width,
-                        (float) _yRat*r.Rect.Height);
+                    gLayout.DrawRectangle(!r.Alert ? Pens.White : Pens.Red, (float)_xRat * r.Rect.X,
+                        (float)_yRat * r.Rect.Y,
+                        (float)_xRat * r.Rect.Width,
+                        (float)_yRat * r.Rect.Height);
                 }
 
-                gLayout.DrawRectangle(Pens.Orange, (float) _xRat*rc.X, (float) _yRat*rc.Y, (float) _xRat*rc.Width,
-                                      (float) _yRat*rc.Height);
+                gLayout.DrawRectangle(Pens.Orange, (float)_xRat * rc.X, (float)_yRat * rc.Y, (float)_xRat * rc.Width,
+                                      (float)_yRat * rc.Height);
             }
 
             base.OnPaint(pe);
@@ -117,8 +115,8 @@ namespace iSpyApplication.Controls
             {
                 int dx = e.Location.X - _startPoint.X;
                 int dy = e.Location.Y - _startPoint.Y;
-                double mx = dx/_xRat;
-                double my = dy/_yRat;
+                double mx = dx / _xRat;
+                double my = dy / _yRat;
 
                 double hScroll = _hscrolloffset + mx;
                 double vScroll = _vscrolloffset + my;

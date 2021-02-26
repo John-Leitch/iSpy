@@ -6,15 +6,9 @@ namespace iSpyApplication
 {
     public class SerializableFont
     {
-        public SerializableFont()
-        {
-            FontValue = null;
-        }
+        public SerializableFont() => FontValue = null;
 
-        public SerializableFont(Font font)
-        {
-            FontValue = font;
-        }
+        public SerializableFont(Font font) => FontValue = font;
 
         [XmlIgnore]
         public Font FontValue { get; set; }
@@ -22,25 +16,13 @@ namespace iSpyApplication
         [XmlElement("FontValue")]
         public string SerializeFontAttribute
         {
-            get
-            {
-                return FontXmlConverter.ConvertToString(FontValue);
-            }
-            set
-            {
-                FontValue = FontXmlConverter.ConvertToFont(value);
-            }
+            get => FontXmlConverter.ConvertToString(FontValue);
+            set => FontValue = FontXmlConverter.ConvertToFont(value);
         }
 
-        public static implicit operator Font(SerializableFont serializeableFont)
-        {
-            return serializeableFont?.FontValue;
-        }
+        public static implicit operator Font(SerializableFont serializeableFont) => serializeableFont?.FontValue;
 
-        public static implicit operator SerializableFont(Font font)
-        {
-            return new SerializableFont(font);
-        }
+        public static implicit operator SerializableFont(Font font) => new SerializableFont(font);
     }
 
     public static class FontXmlConverter

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -30,7 +29,7 @@ namespace iSpyApplication
             label45.Text = LocRm.GetString("forExamples");
             label82.Text = LocRm.GetString("YouCanTriggerRemoteComman");
             linkLabel3.Text = LocRm.GetString("Reset");
-            
+
         }
 
 
@@ -44,7 +43,7 @@ namespace iSpyApplication
                 {
                     n = LocRm.GetString(oc.name);
                 }
-                lbManualAlerts.Items.Add(new MainForm.ListItem(n,oc.id));
+                lbManualAlerts.Items.Add(new MainForm.ListItem(n, oc.id));
             }
         }
 
@@ -56,15 +55,15 @@ namespace iSpyApplication
                 {
                     RenderCommands();
                 }
-                
-            }           
+
+            }
         }
 
         private void BtnDeleteClick(object sender, EventArgs e)
         {
             if (lbManualAlerts.SelectedIndex > -1)
             {
-                var c = (MainForm.ListItem) lbManualAlerts.SelectedItem;
+                var c = (MainForm.ListItem)lbManualAlerts.SelectedItem;
                 objectsCommand oc = MainForm.RemoteCommands.FirstOrDefault(p => p.id == (int)c.Value);
                 if (oc != null)
                 {
@@ -76,17 +75,16 @@ namespace iSpyApplication
 
         private void lbManualAlerts_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (lbManualAlerts.SelectedIndex>-1)
+            if (lbManualAlerts.SelectedIndex > -1)
             {
                 var c = (MainForm.ListItem)lbManualAlerts.SelectedItem;
                 objectsCommand oc = MainForm.RemoteCommands.FirstOrDefault(p => p.id == (int)c.Value);
                 if (oc != null)
                 {
                     string s = oc.command;
-                    if (!string.IsNullOrEmpty(oc.emitshortcut))
+                    if (!string.IsNullOrEmpty(oc.emitshortcut) && oc.emitshortcut != "")
                     {
-                        if (oc.emitshortcut != "")
-                            s = oc.emitshortcut + " & " + oc.command;
+                        s = oc.emitshortcut + " & " + oc.command;
                     }
                     lblCommand.Text = s;
                 }
@@ -94,7 +92,7 @@ namespace iSpyApplication
             }
             btnDelete.Enabled = btnEditCommand.Enabled = lbManualAlerts.SelectedIndex > -1;
         }
-        
+
         private void linkLabel3_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             if (MessageBox.Show(LocRm.GetString("AreYouSure"), LocRm.GetString("Confirm"), MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel)
@@ -111,14 +109,14 @@ namespace iSpyApplication
                 objectsCommand oc = MainForm.RemoteCommands.FirstOrDefault(p => p.id == (int)c.Value);
                 if (oc != null)
                 {
-                    using (var arc = new AddRemoteCommand {OC = oc})
+                    using (var arc = new AddRemoteCommand { OC = oc })
                     {
                         if (arc.ShowDialog(this) == DialogResult.OK)
                         {
                             RenderCommands();
                         }
 
-                    }           
+                    }
                 }
             }
         }

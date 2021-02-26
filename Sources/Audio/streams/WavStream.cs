@@ -1,10 +1,9 @@
-﻿using System;
-using System.Net;
-using System.Threading;
-using System.Windows.Forms;
-using iSpyApplication.Utilities;
+﻿using iSpyApplication.Utilities;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
+using System;
+using System.Net;
+using System.Threading;
 
 namespace iSpyApplication.Sources.Audio.streams
 {
@@ -14,7 +13,7 @@ namespace iSpyApplication.Sources.Audio.streams
         private ManualResetEvent _abort;
         private ReasonToFinishPlaying _res = ReasonToFinishPlaying.DeviceLost;
         private bool _listening;
-        public bool IsAudio => true;
+        public static bool IsAudio => true;
         private Thread _thread;
         private BufferedWaveProvider _waveProvider;
         private SampleChannel _sampleChannel;
@@ -26,7 +25,7 @@ namespace iSpyApplication.Sources.Audio.streams
 
         public float Gain
         {
-            get { return _gain; }
+            get => _gain;
             set
             {
                 _gain = value;
@@ -38,13 +37,7 @@ namespace iSpyApplication.Sources.Audio.streams
         }
         public bool Listening
         {
-            get
-            {
-                if (IsRunning && _listening)
-                    return true;
-                return false;
-
-            }
+            get => IsRunning && _listening;
             set
             {
                 if (RecordingFormat == null)
@@ -110,8 +103,8 @@ namespace iSpyApplication.Sources.Audio.streams
         /// 
         public virtual string Source
         {
-            get { return _source; }
-            set { _source = value; }
+            get => _source;
+            set => _source = value;
         }
 
 
@@ -145,10 +138,7 @@ namespace iSpyApplication.Sources.Audio.streams
         /// 
         /// <param name="source">source, which provides audio data.</param>
         /// 
-        public WavStream(string source)
-        {
-            _source = source;
-        }
+        public WavStream(string source) => _source = source;
 
 
         /// <summary>
@@ -174,13 +164,13 @@ namespace iSpyApplication.Sources.Audio.streams
 
             _res = ReasonToFinishPlaying.DeviceLost;
             _thread = new Thread(StreamWav)
-                      {
-                          Name = "WavStream Audio Receiver (" + _source + ")"
-                      };
+            {
+                Name = "WavStream Audio Receiver (" + _source + ")"
+            };
             _thread.Start();
         }
 
-        
+
         private readonly ConnectionFactory _connectionFactory = new ConnectionFactory();
         private void StreamWav()
         {
@@ -188,10 +178,10 @@ namespace iSpyApplication.Sources.Audio.streams
             HttpWebRequest request = null;
             try
             {
-                using (HttpWebResponse resp = _connectionFactory.GetResponse(_source,"GET","", out request))
+                using (HttpWebResponse resp = _connectionFactory.GetResponse(_source, "GET", "", out request))
                 {
                     //1/4 of a second, 16 byte buffer
-                    var data = new byte[((RecordingFormat.SampleRate/4)*2)*RecordingFormat.Channels];
+                    var data = new byte[((RecordingFormat.SampleRate / 4) * 2) * RecordingFormat.Channels];
 
                     using (var stream = resp.GetResponseStream())
                     {
@@ -232,17 +222,14 @@ namespace iSpyApplication.Sources.Audio.streams
             catch (Exception ex)
             {
                 _res = ReasonToFinishPlaying.DeviceLost;
-                Logger.LogException(ex,"WavStream");
+                Logger.LogException(ex, "WavStream");
             }
 
             AudioFinished?.Invoke(this, new PlayingFinishedEventArgs(_res));
             _abort.Close();
         }
 
-        void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e)
-        {
-            LevelChanged?.Invoke(this, new LevelChangedEventArgs(e.MaxSampleValues));
-        }
+        private void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e) => LevelChanged?.Invoke(this, new LevelChangedEventArgs(e.MaxSampleValues));
 
         public void Stop()
         {
@@ -267,10 +254,7 @@ namespace iSpyApplication.Sources.Audio.streams
 
         private bool _disposed;
         // Public implementation of Dispose pattern callable by consumers. 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         // Protected implementation of Dispose pattern. 
         protected virtual void Dispose(bool disposing)

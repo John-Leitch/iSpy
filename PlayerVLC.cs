@@ -1,14 +1,12 @@
-﻿using System;
+﻿using iSpyApplication.Controls;
+using iSpyApplication.Utilities;
+using LibVLCSharp.Shared;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using LibVLCSharp.WinForms;
-using iSpyApplication.Controls;
-using iSpyApplication.Utilities;
-using LibVLCSharp.Shared;
 
 namespace iSpyApplication
 {
@@ -35,38 +33,35 @@ namespace iSpyApplication
 
         }
 
-         public PlayerVLC(string titleText, MainForm mf)
-         {
+        public PlayerVLC(string titleText, MainForm mf)
+        {
             MF = mf;
-            InitializeComponent();           
-             RenderResources();
-             _titleText = titleText;
-             chkRepeatAll.Checked = MainForm.VLCRepeatAll;
+            InitializeComponent();
+            RenderResources();
+            _titleText = titleText;
+            chkRepeatAll.Checked = MainForm.VLCRepeatAll;
 
-            
+
             videoView1.MediaPlayer = new MediaPlayer(LibVLC);
-            
+
             videoView1.MediaPlayer.PositionChanged += MediaPlayer_PositionChanged;
             videoView1.MediaPlayer.TimeChanged += MediaPlayer_TimeChanged; ;
             videoView1.MediaPlayer.EndReached += EventsMediaEnded;
-            videoView1.MediaPlayer.Stopped+= EventsPlayerStopped;
+            videoView1.MediaPlayer.Stopped += EventsPlayerStopped;
 
             try
             {
                 trackBar2.Value = videoView1.MediaPlayer.Volume;
                 tbSpeed.Value = Convert.ToInt32(videoView1.MediaPlayer.Rate * 10);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.LogException(ex, "Media player init");
             }
 
         }
 
-        private void MediaPlayer_TimeChanged(object sender, MediaPlayerTimeChangedEventArgs e)
-        {
-            UISync.Execute(() => lblTime.Text = TimeSpan.FromMilliseconds(e.Time).ToString().Substring(0, 8));
-        }
+        private void MediaPlayer_TimeChanged(object sender, MediaPlayerTimeChangedEventArgs e) => UISync.Execute(() => lblTime.Text = TimeSpan.FromMilliseconds(e.Time).ToString().Substring(0, 8));
 
         private void MediaPlayer_PositionChanged(object sender, MediaPlayerPositionChangedEventArgs e)
         {
@@ -85,7 +80,7 @@ namespace iSpyApplication
             Text = _titleText;
         }
 
-        void vNav_Seek(object sender, float percent)
+        private void vNav_Seek(object sender, float percent)
         {
             if (!videoView1.MediaPlayer.IsPlaying)
             {
@@ -100,7 +95,7 @@ namespace iSpyApplication
 
         private LibVLC _libVLC = null;
         private static bool _coreInitialized = false;
-        private static object _coreLock = new object();
+        private static readonly object _coreLock = new object();
         private LibVLC LibVLC
         {
             get
@@ -152,7 +147,7 @@ namespace iSpyApplication
             {
                 if (!File.Exists(filename))
                 {
-                    MessageBox.Show(this, LocRm.GetString("FileNotFound")+Environment.NewLine + filename);
+                    MessageBox.Show(this, LocRm.GetString("FileNotFound") + Environment.NewLine + filename);
                     return;
                 }
                 _filename = filename;
@@ -162,7 +157,7 @@ namespace iSpyApplication
                     MessageBox.Show(this, LocRm.GetString("CouldNotOpen") + Environment.NewLine + filename);
                     return;
                 }
-                
+
 
                 string[] parts = filename.Split('\\');
                 string fn = parts[parts.Length - 1];
@@ -180,41 +175,31 @@ namespace iSpyApplication
                 else
                 {
                     var cw = ((MainForm)Owner).GetCameraWindow(ObjectID);
-                    if (cw!=null)   {
+                    if (cw != null)
+                    {
                         ff = cw.FileList.FirstOrDefault(p => p.Filename.EndsWith(fn));
                     }
                     vNav.IsAudio = false;
                     videoView1.BackgroundImage = Properties.Resources.ispy1;
                 }
-                
-                if (ff!=null)
+
+                if (ff != null)
                     vNav.Init(ff);
                 Text = titleText;
             }
         }
-        void EventsPlayerStopped(object sender, EventArgs e)
-        {
-            UISync.Execute(InitControls);
-        }
 
-        void EventsMediaEnded(object sender, EventArgs e)
-        {
-            UISync.Execute(InitControls);
-        }
+        private void EventsPlayerStopped(object sender, EventArgs e) => UISync.Execute(InitControls);
 
-        private void InitControls()
-        {
-            lblTime.Text = "00:00:00";
-        }
+        private void EventsMediaEnded(object sender, EventArgs e) => UISync.Execute(InitControls);
 
-        private void trackBar2_Scroll(object sender, EventArgs e)
-        {
-            videoView1.MediaPlayer.Volume = trackBar2.Value;
-        }
+        private void InitControls() => lblTime.Text = "00:00:00";
+
+        private void trackBar2_Scroll(object sender, EventArgs e) => videoView1.MediaPlayer.Volume = trackBar2.Value;
 
         private void button4_Click(object sender, EventArgs e)
         {
-            
+
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -229,27 +214,21 @@ namespace iSpyApplication
         {
             private static ISynchronizeInvoke Sync;
 
-            public static void Init(ISynchronizeInvoke sync)
-            {
-                Sync = sync;
-            }
+            public static void Init(ISynchronizeInvoke sync) => Sync = sync;
 
             public static void Execute(Action action)
             {
-                try {Sync.BeginInvoke(action, null);}
-                catch{}
+                try { Sync.BeginInvoke(action, null); }
+                catch { }
             }
         }
 
         private void Player_FormClosing(object sender, FormClosingEventArgs e)
         {
-            
+
         }
 
-        private void tbSpeed_Scroll(object sender, EventArgs e)
-        {
-            videoView1.MediaPlayer.SetRate(((float) tbSpeed.Value)/10);
-        }
+        private void tbSpeed_Scroll(object sender, EventArgs e) => videoView1.MediaPlayer.SetRate(((float)tbSpeed.Value) / 10);
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -274,22 +253,18 @@ namespace iSpyApplication
             Process.Start("explorer.exe", argument);
         }
 
-        private void btnNext_Click(object sender, EventArgs e)
-        {
-            Go(-1);
-
-        }
+        private void btnNext_Click(object sender, EventArgs e) => Go(-1);
 
         private void Go(int n)
         {
             int j = 0;
             lock (MF.flowPreview.Controls)
             {
-                var lb = (from Control c in MF.flowPreview.Controls select c as PreviewBox into pb where pb != null && pb.Selected select pb).ToList();
-                if (lb.Count==0)
+                var lb = (from Control c in MF.flowPreview.Controls select c as PreviewBox into pb where pb?.Selected == true select pb).ToList();
+                if (lb.Count == 0)
                     lb = (from Control c in MF.flowPreview.Controls select c as PreviewBox into pb where pb != null select pb).ToList();
                 btnNext.Enabled = btnPrevious.Enabled = lb.Count > 1;
-                for (int i = lb.Count-1; i >-1 ; i--)
+                for (int i = lb.Count - 1; i > -1; i--)
                 {
                     var pb = lb[i];
                     if (pb.FileName == _filename)
@@ -305,21 +280,15 @@ namespace iSpyApplication
                         break;
                     }
                 }
-                if (j > -1 && j<lb.Count)
+                if (j > -1 && j < lb.Count)
                 {
                     UISync.Execute(() => lb[j].PlayMedia(Enums.PlaybackMode.iSpy));
                 }
             }
         }
 
-        private void btnPrevious_Click(object sender, EventArgs e)
-        {
-            Go(1);
-        }
+        private void btnPrevious_Click(object sender, EventArgs e) => Go(1);
 
-        private void chkRepeatAll_CheckedChanged(object sender, EventArgs e)
-        {
-            MainForm.VLCRepeatAll = chkRepeatAll.Checked;
-        }
+        private void chkRepeatAll_CheckedChanged(object sender, EventArgs e) => MainForm.VLCRepeatAll = chkRepeatAll.Checked;
     }
 }

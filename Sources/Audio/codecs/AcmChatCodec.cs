@@ -7,7 +7,7 @@ namespace iSpyApplication.Sources.Audio.codecs
     /// <summary>
     /// useful base class for deriving any chat codecs that will use ACM for decode and encode
     /// </summary>
-    abstract class AcmChatCodec : INetworkChatCodec
+    internal abstract class AcmChatCodec : INetworkChatCodec
     {
         private readonly WaveFormat _encodeFormat;
         private AcmStream _encodeStream;
@@ -45,8 +45,7 @@ namespace iSpyApplication.Sources.Audio.codecs
         {
             int bytesInSourceBuffer = length + sourceBytesLeftovers;
             System.Array.Copy(data, offset, conversionStream.SourceBuffer, sourceBytesLeftovers, length);
-            int sourceBytesConverted;
-            int bytesConverted = conversionStream.Convert(bytesInSourceBuffer, out sourceBytesConverted);
+            int bytesConverted = conversionStream.Convert(bytesInSourceBuffer, out int sourceBytesConverted);
             sourceBytesLeftovers = bytesInSourceBuffer - sourceBytesConverted;
             if (sourceBytesLeftovers > 0)
             {

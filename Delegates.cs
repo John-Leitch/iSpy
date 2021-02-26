@@ -2,7 +2,7 @@
 
 namespace iSpyApplication
 {
-    public class Delegates
+    public static class Delegates
     {
         public delegate void NotificationEventHandler(object sender, NotificationType e);
 
@@ -39,5 +39,5 @@ namespace iSpyApplication
         public delegate void SimpleDelegate();
     }
 
-    
+
 }

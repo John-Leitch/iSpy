@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace iSpyApplication.Controls
@@ -11,10 +9,7 @@ namespace iSpyApplication.Controls
         private readonly object _completedEventLock = new object();
         private event EventHandler AppLoopDoWork;
 
-        public WinFormsAppIdleHandler()
-        {
-            Enabled = true;
-        }
+        public WinFormsAppIdleHandler() => Enabled = true;
 
         private static readonly Lazy<WinFormsAppIdleHandler> Lazy = new Lazy<WinFormsAppIdleHandler>(() => new WinFormsAppIdleHandler());
         public static WinFormsAppIdleHandler Instance => Lazy.Value;
@@ -61,19 +56,15 @@ namespace iSpyApplication.Controls
             }
         }
 
-        private void ApplicationIdle(object sender, EventArgs e)
-        {
-            AppLoopDoWork?.Invoke(this, e);
-        }
-        
+        private void ApplicationIdle(object sender, EventArgs e) => AppLoopDoWork?.Invoke(this, e);
+
 
         public static bool IsAppIdle()
         {
             bool isIdle = false;
             try
             {
-                Message msg;
-                isIdle = !PeekMessage(out msg, IntPtr.Zero, 0, 0, 0);
+                isIdle = !PeekMessage(out Message msg, IntPtr.Zero, 0, 0, 0);
             }
             catch
             {

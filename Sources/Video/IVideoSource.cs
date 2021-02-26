@@ -9,7 +9,7 @@ namespace iSpyApplication.Sources.Video
     /// 
     /// <remarks>The interface describes common methods for different type of video sources.</remarks>
     /// 
-    public interface IVideoSource:IDisposable
+    public interface IVideoSource : IDisposable
     {
         /// <summary>
         /// New frame event.

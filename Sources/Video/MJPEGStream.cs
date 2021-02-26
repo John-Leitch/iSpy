@@ -1,11 +1,11 @@
-﻿using System;
+﻿using iSpyApplication.Controls;
+using iSpyApplication.Utilities;
+using System;
 using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
-using iSpyApplication.Controls;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.Sources.Video
 {
@@ -50,7 +50,7 @@ namespace iSpyApplication.Sources.Video
         // if we should use basic authentication when connecting to the video source
 
         // buffer size used to download MJPEG stream
-        private const int BufSize = 1024*1024;
+        private const int BufSize = 1024 * 1024;
         // size of portion to read at once
         private const int ReadSize = 1024;
         private ManualResetEvent _abort;
@@ -130,10 +130,7 @@ namespace iSpyApplication.Sources.Video
 
 
         // Public implementation of Dispose pattern callable by consumers. 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         /// <summary>
         ///     New frame event.
@@ -164,8 +161,8 @@ namespace iSpyApplication.Sources.Video
         /// <remarks>URL, which provides MJPEG stream.</remarks>
         public string Source
         {
-            get { return _source.settings.videosourcestring; }
-            set { _source.settings.videosourcestring = value; }
+            get => _source.settings.videosourcestring;
+            set => _source.settings.videosourcestring = value;
         }
 
         /// <summary>
@@ -248,7 +245,7 @@ namespace iSpyApplication.Sources.Video
                 _res = ReasonToFinishPlaying.DeviceLost;
 
                 // create and start new thread
-                _thread = new Thread(WorkerThread) {Name = _source.settings.videosourcestring, IsBackground = true};
+                _thread = new Thread(WorkerThread) { Name = _source.settings.videosourcestring, IsBackground = true };
                 _thread.Start();
             }
         }
@@ -282,7 +279,7 @@ namespace iSpyApplication.Sources.Video
             // buffer to read stream
             var buffer = new byte[BufSize];
             // JPEG magic number
-            var jpegMagic = new byte[] {0xFF, 0xD8, 0xFF};
+            var jpegMagic = new byte[] { 0xFF, 0xD8, 0xFF };
             _abort = new ManualResetEvent(false);
 
             var encoding = new ASCIIEncoding();
@@ -329,7 +326,7 @@ namespace iSpyApplication.Sources.Video
                     if ((contentTypeArray[0] == "application") && (contentTypeArray[1] == "octet-stream"))
                     {
                         boundaryLen = 0;
-                        boundary = new byte[0];
+                        boundary = Array.Empty<byte>();
                     }
                     else if ((contentTypeArray[0] == "multipart") && contentType.Contains("mixed"))
                     {
@@ -344,7 +341,7 @@ namespace iSpyApplication.Sources.Video
                         {
                             // try same scenario as with octet-stream, i.e. without boundaries
                             boundaryLen = 0;
-                            boundary = new byte[0];
+                            boundary = Array.Empty<byte>();
                         }
                         else
                         {
@@ -408,12 +405,12 @@ namespace iSpyApplication.Sources.Video
                             {
                                 var ch = buffer[i];
 
-                                if ((ch == (byte) '\n') || (ch == (byte) '\r'))
+                                if ((ch == (byte)'\n') || (ch == (byte)'\r'))
                                 {
                                     break;
                                 }
 
-                                boudaryStr = (char) ch + boudaryStr;
+                                boudaryStr = (char)ch + boudaryStr;
                             }
 
                             boundary = encoding.GetBytes(boudaryStr);
@@ -455,55 +452,52 @@ namespace iSpyApplication.Sources.Video
                                 _framesReceived++;
                                 var nf = NewFrame;
                                 // image at stop
-                                if (nf != null)
+                                if (nf != null && ShouldEmitFrame)
                                 {
-                                    if (ShouldEmitFrame)
+                                    if (decode)
                                     {
-                                        if (decode)
+                                        var marker = Encoding.ASCII.GetBytes(_decodeKey);
+
+                                        using (
+                                            var ms = new MemoryStream(buffer, start + jpegMagic.Length,
+                                                jpegMagic.Length + marker.Length))
                                         {
-                                            var marker = Encoding.ASCII.GetBytes(_decodeKey);
+                                            var key = new byte[marker.Length];
+                                            ms.Read(key, 0, marker.Length);
 
-                                            using (
-                                                var ms = new MemoryStream(buffer, start + jpegMagic.Length,
-                                                    jpegMagic.Length + marker.Length))
+                                            if (!ByteArrayUtils.UnsafeCompare(marker, key))
                                             {
-                                                var key = new byte[marker.Length];
-                                                ms.Read(key, 0, marker.Length);
-
-                                                if (!ByteArrayUtils.UnsafeCompare(marker, key))
-                                                {
-                                                    throw new Exception(
-                                                        "Image Decode Failed - Check the decode key matches the encode key on ispy server");
-                                                }
-                                            }
-
-
-                                            using (
-                                                var ms = new MemoryStream(buffer, start + marker.Length,
-                                                    stop - start - marker.Length))
-                                            {
-                                                ms.Seek(0, SeekOrigin.Begin);
-                                                ms.WriteByte(jpegMagic[0]);
-                                                ms.WriteByte(jpegMagic[1]);
-                                                ms.WriteByte(jpegMagic[2]);
-                                                ms.Seek(0, SeekOrigin.Begin);
-
-                                                using (var bmp = (Bitmap) Image.FromStream(ms))
-                                                {
-                                                    var da = new NewFrameEventArgs(bmp);
-                                                    nf.Invoke(this, da);
-                                                }
+                                                throw new Exception(
+                                                    "Image Decode Failed - Check the decode key matches the encode key on ispy server");
                                             }
                                         }
-                                        else
+
+
+                                        using (
+                                            var ms = new MemoryStream(buffer, start + marker.Length,
+                                                stop - start - marker.Length))
                                         {
-                                            using (var ms = new MemoryStream(buffer, start, stop - start))
+                                            ms.Seek(0, SeekOrigin.Begin);
+                                            ms.WriteByte(jpegMagic[0]);
+                                            ms.WriteByte(jpegMagic[1]);
+                                            ms.WriteByte(jpegMagic[2]);
+                                            ms.Seek(0, SeekOrigin.Begin);
+
+                                            using (var bmp = (Bitmap)Image.FromStream(ms))
                                             {
-                                                using (var bmp = (Bitmap) Image.FromStream(ms))
-                                                {
-                                                    var da = new NewFrameEventArgs(bmp);
-                                                    nf.Invoke(this, da);
-                                                }
+                                                var da = new NewFrameEventArgs(bmp);
+                                                nf.Invoke(this, da);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        using (var ms = new MemoryStream(buffer, start, stop - start))
+                                        {
+                                            using (var bmp = (Bitmap)Image.FromStream(ms))
+                                            {
+                                                var da = new NewFrameEventArgs(bmp);
+                                                nf.Invoke(this, da);
                                             }
                                         }
                                     }
@@ -576,7 +570,7 @@ namespace iSpyApplication.Sources.Video
 
             if (disposing)
             {
-                
+
             }
 
             // Free any unmanaged objects here. 

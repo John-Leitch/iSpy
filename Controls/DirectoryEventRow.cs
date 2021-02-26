@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace iSpyApplication.Controls
 {
     public sealed partial class DirectoryEventRow : UserControl
     {
-        public new static int Height = 31;
+        public static new int Height = 31;
         public configurationDirectory Directory;
         public int Index;
 
@@ -24,7 +23,7 @@ namespace iSpyApplication.Controls
             BackColor = DefaultBackColor;
         }
 
-       
+
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {

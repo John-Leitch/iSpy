@@ -1,6 +1,6 @@
-﻿using System;
+﻿using iSpyApplication.Utilities;
+using System;
 using System.Linq;
-using iSpyApplication.Utilities;
 
 namespace iSpyApplication.Cloud
 {
@@ -8,11 +8,7 @@ namespace iSpyApplication.Cloud
     {
         public static int MaxUploadQueue = 999;
 
-        public static string Upload(int otid, int oid, string srcPath)
-        {
-            bool b;
-            return Upload(otid, oid, srcPath, out b);
-        }
+        public static string Upload(int otid, int oid, string srcPath) => Upload(otid, oid, srcPath, out bool b);
         public static string Upload(int otid, int oid, string srcPath, out bool success)
         {
             success = false;

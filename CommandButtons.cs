@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Windows.Forms;
 
 namespace iSpyApplication
@@ -15,14 +10,11 @@ namespace iSpyApplication
         public CommandButtons()
         {
             InitializeComponent();
-            
+
             Resize += CommandButtonsResize;
         }
 
-        void CommandButtonsResize(object sender, EventArgs e)
-        {
-            cb.Invalidate();
-        }
+        private void CommandButtonsResize(object sender, EventArgs e) => cb.Invalidate();
 
         private void CommandButtons_Load(object sender, EventArgs e)
         {
@@ -50,25 +42,13 @@ namespace iSpyApplication
                 Height = maxy;
         }
 
-        private void addToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            cb.Add(p);
-        }
+        private void addToolStripMenuItem_Click(object sender, EventArgs e) => cb.Add(p);
 
-        private void editToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            cb.Edit();
-        }
+        private void editToolStripMenuItem_Click(object sender, EventArgs e) => cb.Edit();
 
-        private void removeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            cb.Remove();
-        }
+        private void removeToolStripMenuItem_Click(object sender, EventArgs e) => cb.Remove();
 
-        private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
-        {
-            editToolStripMenuItem.Visible = removeToolStripMenuItem.Visible = repositionToolStripMenuItem.Visible = cb.CurButton != null;
-        }
+        private void contextMenuStrip1_Opening(object sender, CancelEventArgs e) => editToolStripMenuItem.Visible = removeToolStripMenuItem.Visible = repositionToolStripMenuItem.Visible = cb.CurButton != null;
 
         private Point p;
         private void cb_MouseDown(object sender, MouseEventArgs e)
@@ -84,9 +64,6 @@ namespace iSpyApplication
 
         }
 
-        private void repositionToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            cb.Reposition();
-        }
+        private void repositionToolStripMenuItem_Click(object sender, EventArgs e) => cb.Reposition();
     }
 }

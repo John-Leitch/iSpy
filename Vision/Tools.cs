@@ -1,6 +1,6 @@
-﻿using System.Drawing.Imaging;
-using AForge.Imaging;
+﻿using AForge.Imaging;
 using AForge.Imaging.Filters;
+using System.Drawing.Imaging;
 
 namespace iSpyApplication.Vision
 {
@@ -11,33 +11,26 @@ namespace iSpyApplication.Vision
             int bytesPerPixel;
 
             // calculate bytes per pixel
-            switch ( pixelFormat )
+            switch (pixelFormat)
             {
                 case PixelFormat.Format8bppIndexed:
-                    bytesPerPixel = 1;
-                    break;
+                    return 1;
                 case PixelFormat.Format16bppGrayScale:
-                    bytesPerPixel = 2;
-                    break;
+                    return 2;
                 case PixelFormat.Format24bppRgb:
-                    bytesPerPixel = 3;
-                    break;
+                    return 3;
                 case PixelFormat.Format32bppRgb:
                 case PixelFormat.Format32bppArgb:
                 case PixelFormat.Format32bppPArgb:
-                    bytesPerPixel = 4;
-                    break;
+                    return 4;
                 case PixelFormat.Format48bppRgb:
-                    bytesPerPixel = 6;
-                    break;
+                    return 6;
                 case PixelFormat.Format64bppArgb:
                 case PixelFormat.Format64bppPArgb:
-                    bytesPerPixel = 8;
-                    break;
+                    return 8;
                 default:
-                    throw new UnsupportedImageFormatException( "Can not create image with specified pixel format." );
+                    throw new UnsupportedImageFormatException("Can not create image with specified pixel format.");
             }
-            return bytesPerPixel;
         }
 
         public static void ConvertToGrayscale(UnmanagedImage source, UnmanagedImage destination)

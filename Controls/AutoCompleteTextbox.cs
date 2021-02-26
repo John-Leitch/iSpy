@@ -18,25 +18,25 @@ namespace iSpyApplication.Controls
             AutoCompleteList = new List<TextEntry>();
 
             _listBox = new ListBox
-                      {
-                          Name = "SuggestionListBox",
-                          Font = Font,
-                          Visible = true
-                      };
+            {
+                Name = "SuggestionListBox",
+                Font = Font,
+                Visible = true
+            };
             MaxDropDownItems = 20;
             RowHeight = GetStringHeight("H");
             _panel = new Panel
-                    {
-                        Visible = false,
-                        AutoSizeMode = AutoSizeMode.GrowAndShrink,
-                        ClientSize = new Size(1, 1),
-                        Name = "SuggestionPanel",
-                        Padding = new Padding(0, 0, 0, 0),
-                        Margin = new Padding(0, 0, 0, 0),
-                        BackColor = Color.Transparent,
-                        ForeColor = Color.Transparent,
-                        Text = ""
-                    };
+            {
+                Visible = false,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                ClientSize = new Size(1, 1),
+                Name = "SuggestionPanel",
+                Padding = new Padding(0, 0, 0, 0),
+                Margin = new Padding(0, 0, 0, 0),
+                BackColor = Color.Transparent,
+                ForeColor = Color.Transparent,
+                Text = ""
+            };
             _panel.PerformLayout();
             if (!_panel.Controls.Contains(_listBox))
             {
@@ -73,7 +73,7 @@ namespace iSpyApplication.Controls
         [Browsable(true)]
         public int MaxDropDownItems
         {
-            get { return _maxDropDownItems; }
+            get => _maxDropDownItems;
             set
             {
                 _maxDropDownItems = value;
@@ -98,15 +98,9 @@ namespace iSpyApplication.Controls
                 TextUc = text.ToUpper().Replace("-", "").Replace(" ", "");
             }
 
-            public override string ToString()
-            {
-                return Text;
-            }
+            public override string ToString() => Text;
 
-            public bool Contains(string[] s)
-            {
-                return s.Aggregate(true, (current, t) => current && TextUc.Contains(t));
-            }
+            public bool Contains(string[] s) => s.Aggregate(true, (current, t) => current && TextUc.Contains(t));
         }
 
 
@@ -115,7 +109,7 @@ namespace iSpyApplication.Controls
 
         public int SelectedIndex
         {
-            get { return _listBox.SelectedIndex; }
+            get => _listBox.SelectedIndex;
             set
             {
                 if (_listBox.Items.Count != 0)
@@ -242,34 +236,11 @@ namespace iSpyApplication.Controls
             e.Handled = true;
         }
 
-        private void ListBoxMouseClick(object sender, MouseEventArgs e)
-        {
-            SelectItem();
-        }
+        private void ListBoxMouseClick(object sender, MouseEventArgs e) => SelectItem();
 
-        private void ListBoxMouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            SelectItem();
-        }
+        private void ListBoxMouseDoubleClick(object sender, MouseEventArgs e) => SelectItem();
 
-        private void MoveSelectionInListBox(int index)
-        {
-            if (index <= -1)
-            {
-                SelectedIndex = 0;
-            }
-            else
-            {
-                if (index > _listBox.Items.Count - 1)
-                {
-                    SelectedIndex = _listBox.Items.Count - 1;
-                }
-                else
-                {
-                    SelectedIndex = index;
-                }
-            }
-        }
+        private void MoveSelectionInListBox(int index) => SelectedIndex = index <= -1 ? 0 : index > _listBox.Items.Count - 1 ? _listBox.Items.Count - 1 : index;
 
         private void SelectItem()
         {
@@ -298,7 +269,7 @@ namespace iSpyApplication.Controls
                     UpdateCurrentAutoCompleteList();
                 }
 
-                if ((CurrentAutoCompleteList != null) && CurrentAutoCompleteList.Count > 0)
+                if ((CurrentAutoCompleteList?.Count > 0))
                 {
                     _panel.Show();
                     _panel.BringToFront();
@@ -319,7 +290,7 @@ namespace iSpyApplication.Controls
         private void UpdateCurrentAutoCompleteList()
         {
             CurrentAutoCompleteList.Clear();
-            var words = Text.Replace("-","").ToUpper().Trim().Split(' ');
+            var words = Text.Replace("-", "").ToUpper().Trim().Split(' ');
             foreach (var te in AutoCompleteList)
             {
                 if (te.Contains(words))
@@ -342,7 +313,7 @@ namespace iSpyApplication.Controls
                 {
                     ParentForm.Controls.Add(_panel);
                 }
-                ((CurrencyManager) _listBox.BindingContext[CurrentAutoCompleteList]).Refresh();
+                ((CurrencyManager)_listBox.BindingContext[CurrentAutoCompleteList]).Refresh();
             }
         }
 
@@ -363,7 +334,7 @@ namespace iSpyApplication.Controls
             }
             else if (availableAbove > panel.Height)
             {
-                panel.Location = new Point(p.X, p.Y - panel.Height + (_maxDropDownItems - panel.Height/RowHeight)/3);
+                panel.Location = new Point(p.X, p.Y - panel.Height + (_maxDropDownItems - panel.Height / RowHeight) / 3);
             }
             else if (availableBelow > availableAbove)
             {
@@ -373,11 +344,11 @@ namespace iSpyApplication.Controls
             else
             {
                 panel.Height = availableAbove;
-                panel.Location = new Point(p.X, p.Y - panel.Height + (_maxDropDownItems - panel.Height/RowHeight)/3);
+                panel.Location = new Point(p.X, p.Y - panel.Height + (_maxDropDownItems - panel.Height / RowHeight) / 3);
             }
         }
 
-        private Point GetLocationRelativeToForm(Control c)
+        private static Point GetLocationRelativeToForm(Control c)
         {
             var findForm = c.FindForm();
             if (findForm != null)
@@ -406,7 +377,7 @@ namespace iSpyApplication.Controls
                     }
                     var listHeight = GetStringHeight(currentList);
 
-                    pnl.Height = listHeight == 0 ? 0 : Math.Min(_maxHeight,listHeight);
+                    pnl.Height = listHeight == 0 ? 0 : Math.Min(_maxHeight, listHeight);
                 }
             }
             else

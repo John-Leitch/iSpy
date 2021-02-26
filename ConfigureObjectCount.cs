@@ -20,10 +20,7 @@ namespace iSpyApplication
             button1.Text = LocRm.GetString("OK");
         }
 
-        private void ForSecondsLoad(object sender, EventArgs e)
-        {
-            numObjects.Value = Objects;
-        }
+        private void ForSecondsLoad(object sender, EventArgs e) => numObjects.Value = Objects;
 
         private void Button1Click(object sender, EventArgs e)
         {

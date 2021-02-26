@@ -16,8 +16,8 @@ namespace iSpyPRO.DirectShow.Internals
     /// </summary>
     /// 
     [ComImport,
-    Guid( "56A8689F-0AD4-11CE-B03A-0020AF0BA770" ),
-    InterfaceType( ComInterfaceType.InterfaceIsIUnknown )]
+    Guid("56A8689F-0AD4-11CE-B03A-0020AF0BA770"),
+    InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     internal interface IFilterGraph
     {
         /// <summary>
@@ -30,7 +30,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int AddFilter( [In] IBaseFilter filter, [In, MarshalAs( UnmanagedType.LPWStr )] string name );
+        int AddFilter([In] IBaseFilter filter, [In, MarshalAs(UnmanagedType.LPWStr)] string name);
 
         /// <summary>
         /// Removes a filter from the graph.
@@ -41,7 +41,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int RemoveFilter( [In] IBaseFilter filter );
+        int RemoveFilter([In] IBaseFilter filter);
 
         /// <summary>
         /// Provides an enumerator for all filters in the graph.
@@ -52,7 +52,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int EnumFilters( [Out] out IntPtr enumerator );
+        int EnumFilters([Out] out IntPtr enumerator);
 
         /// <summary>
         /// Finds a filter that was added with a specified name.
@@ -64,7 +64,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int FindFilterByName( [In, MarshalAs( UnmanagedType.LPWStr )] string name, [Out] out IBaseFilter filter );
+        int FindFilterByName([In, MarshalAs(UnmanagedType.LPWStr)] string name, [Out] out IBaseFilter filter);
 
         /// <summary>
         /// Connects two pins directly (without intervening filters).
@@ -77,7 +77,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int ConnectDirect( [In] IPin pinOut, [In] IPin pinIn, [In, MarshalAs( UnmanagedType.LPStruct )] AMMediaType mediaType );
+        int ConnectDirect([In] IPin pinOut, [In] IPin pinIn, [In, MarshalAs(UnmanagedType.LPStruct)] AMMediaType mediaType);
 
         /// <summary>
         /// Breaks the existing pin connection and reconnects it to the same pin.
@@ -88,7 +88,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int Reconnect( [In] IPin pin );
+        int Reconnect([In] IPin pin);
 
         /// <summary>
         /// Disconnects a specified pin.
@@ -99,7 +99,7 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int Disconnect( [In] IPin pin );
+        int Disconnect([In] IPin pin);
 
         /// <summary>
         /// Sets the reference clock to the default clock.
@@ -108,6 +108,6 @@ namespace iSpyPRO.DirectShow.Internals
         /// <returns>Return's <b>HRESULT</b> error code.</returns>
         /// 
         [PreserveSig]
-        int SetDefaultSyncSource( );
+        int SetDefaultSyncSource();
     }
 }

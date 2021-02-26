@@ -10,10 +10,7 @@ namespace iSpyApplication.Controls
 
         public string TagName
         {
-            get
-            {
-                return _tagName;
-            }
+            get => _tagName;
             set
             {
                 _tagName = value;
@@ -22,23 +19,13 @@ namespace iSpyApplication.Controls
         }
 
         public string TagValue;
-        
 
-        public TagEntry()
-        {
-            InitializeComponent();
-            
-        }
 
-        protected override void OnPaint(PaintEventArgs pe)
-        {
-            base.OnPaint(pe);
-        }
+        public TagEntry() => InitializeComponent();
 
-        public void Commit()
-        {
-            TagValue = textBox1.Text;
-        }
+        protected override void OnPaint(PaintEventArgs pe) => base.OnPaint(pe);
+
+        public void Commit() => TagValue = textBox1.Text;
 
         private void TagEntry_Load(object sender, EventArgs e)
         {

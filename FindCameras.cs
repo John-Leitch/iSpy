@@ -1,4 +1,7 @@
-﻿using System;
+﻿using iSpyApplication.Controls;
+using iSpyApplication.Server;
+using iSpyApplication.Utilities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -13,11 +16,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using iSpyApplication.Controls;
-using iSpyApplication.Onvif;
-using iSpyApplication.Pelco;
-using iSpyApplication.Server;
-using iSpyApplication.Utilities;
 using CameraScanner = iSpyApplication.CameraDiscovery.CameraScanner;
 
 namespace iSpyApplication
@@ -57,10 +55,7 @@ namespace iSpyApplication
         {
             private static ISynchronizeInvoke _sync;
 
-            public static void Init(ISynchronizeInvoke sync)
-            {
-                _sync = sync;
-            }
+            public static void Init(ISynchronizeInvoke sync) => _sync = sync;
 
             public static void Execute(Action action)
             {
@@ -109,14 +104,14 @@ namespace iSpyApplication
             chkRTSP.Checked = MainForm.IPRTSP;
             chkHTTP.Checked = MainForm.IPHTTP;
 
-            
+
 
             UISync.Init(this);
             LoadSources();
-            ShowPanel(pnlConfig);           
+            ShowPanel(pnlConfig);
         }
 
-        void ShowPanel(Control p)
+        private void ShowPanel(Control p)
         {
             pnlConfig.Dock = DockStyle.None;
             pnlConfig.Visible = false;
@@ -156,7 +151,7 @@ namespace iSpyApplication
             chkRTSP.Text = LocRm.GetString("ScanRTSPAddresses");
             chkHTTP.Text = LocRm.GetString("ScanHTTPAddresses");
 
-            LocRm.SetString(label15,"EnterUsernamePassword");
+            LocRm.SetString(label15, "EnterUsernamePassword");
             LocRm.SetString(label12, "Channel");
 
             LocRm.SetString(label10, "Port");
@@ -176,11 +171,9 @@ namespace iSpyApplication
 
             foreach (string s in txtPorts.Text.Split(','))
             {
-                int p;
-                if (int.TryParse(s, out p))
+                if (int.TryParse(s, out int p) && p < 65535 && p > 0)
                 {
-                    if (p < 65535 && p > 0)
-                        ports.Add(p);
+                    ports.Add(p);
                 }
             }
             UISync.Execute(() => pbScanner.Value = 0);
@@ -291,7 +284,7 @@ namespace iSpyApplication
             {
                 Logger.LogException(ex);
             }
-            
+
             UISync.Execute(ResetControls);
         }
 
@@ -302,18 +295,18 @@ namespace iSpyApplication
             pbScanner.Value = 0;
             button1.Enabled = true;
         }
-        
+
         public static StreamReader ExecuteCommandLine(String file, String arguments = "")
         {
             var startInfo = new ProcessStartInfo
-                                {
-                                    CreateNoWindow = true,
-                                    WindowStyle = ProcessWindowStyle.Hidden,
-                                    UseShellExecute = false,
-                                    RedirectStandardOutput = true,
-                                    FileName = file,
-                                    Arguments = arguments
-                                };
+            {
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                FileName = file,
+                Arguments = arguments
+            };
 
             Process process = Process.Start(startInfo);
 
@@ -332,7 +325,7 @@ namespace iSpyApplication
                 var netMon = new Ping();
                 var options = new PingOptions(128, true);
                 PingReply pr = netMon.Send(ipaddress, 3000, buffer, options);
-                found = pr != null && pr.Status == IPStatus.Success;
+                found = pr?.Status == IPStatus.Success;
             }
             else
             {
@@ -350,7 +343,7 @@ namespace iSpyApplication
                 catch
                 {
                 }
-                
+
                 foreach (int iport in ports)
                 {
                     try
@@ -437,7 +430,7 @@ namespace iSpyApplication
         private void ScanNetwork()
         {
             _exiting = false;
-            
+
             _dt = new DataTable("Network");
 
             _dt.Columns.Add(new DataColumn(LocRm.GetString("IPAddress")));
@@ -454,7 +447,7 @@ namespace iSpyApplication
             DnsEntries.Clear();
             try
             {
-                foreach (string s1 in nb.GetNetworkComputers())
+                foreach (string s1 in NetworkBrowser.GetNetworkComputers())
                 {
                     var ipEntry = Dns.GetHostEntry(s1.Trim('\\'));
                     var addr = ipEntry.AddressList.Where(p => p.AddressFamily == AddressFamily.InterNetwork);
@@ -534,14 +527,11 @@ namespace iSpyApplication
             }
         }
 
-        private void _deviceScanner_ScanComplete(object sender, EventArgs e)
-        {
-            UISync.Execute(() => tsslCurrent.Text = "finished");
-        }
+        private void _deviceScanner_ScanComplete(object sender, EventArgs e) => UISync.Execute(() => tsslCurrent.Text = "finished");
 
         private void _deviceScanner_URLScan(object sender, EventArgs e)
         {
-            if (sender!=null)
+            if (sender != null)
                 UISync.Execute(() => tsslCurrent.Text = sender.ToString());
         }
 
@@ -561,7 +551,7 @@ namespace iSpyApplication
                 make = mm[0].Trim();
                 if (mm.Length > 1)
                     model = mm[1].Trim().ToUpper();
-                
+
             }
 
             ManufacturersManufacturer m = null;
@@ -584,11 +574,11 @@ namespace iSpyApplication
 
         }
 
-        
+
         private void AddONVIF(string addr, ConnectionOption co)
         {
-            string st = "ONVIF: "+addr;
-            
+            string st = "ONVIF: " + addr;
+
             var rb = new RadioButton { Text = st, AutoSize = true, Tag = co };
             UISync.Execute(() => pnlOptions.Controls.Add(rb));
 
@@ -610,21 +600,21 @@ namespace iSpyApplication
                     st += e.MmUrl.version;
                 else
                     st += "Other";
-                
+
                 if (source == "VLC" && !_vlc)
                     source = "FFMPEG";
                 st += ": " + e.URL.Replace("&", "&&");
             }
 
             var rb = new RadioButton { Text = st, AutoSize = true, Tag = e };
-            if (source == "FFMPEG" || source == "VLC" || source=="ONVIF")
+            if (source == "FFMPEG" || source == "VLC" || source == "ONVIF")
                 rb.Font = new Font(rb.Font, FontStyle.Bold);
 
             UISync.Execute(() => pnlOptions.Controls.Add(rb));
- 
+
         }
 
-        void DeviceScannerURLFound(object sender, CameraDiscovery.ConnectionOptionEventArgs e)
+        private void DeviceScannerURLFound(object sender, CameraDiscovery.ConnectionOptionEventArgs e)
         {
             _devicescanResults.Add(e.Co);
             AddCamera(e.Co);
@@ -659,12 +649,12 @@ namespace iSpyApplication
         {
 
             var d = new downloader
-                        {
-                            Url = MainForm.ContentSource + "Sources.zip",
-                            UnzipTo = Program.AppDataPath + @"XML\"
-                        };
+            {
+                Url = MainForm.ContentSource + "Sources.zip",
+                UnzipTo = Program.AppDataPath + @"XML\"
+            };
             d.ShowDialog(this);
-            if (d.DialogResult==DialogResult.OK)
+            if (d.DialogResult == DialogResult.OK)
             {
                 MainForm.Sources = null;
                 LoadSources();
@@ -684,10 +674,7 @@ namespace iSpyApplication
             Application.DoEvents();
         }
 
-        private void btnNext_Click(object sender, EventArgs e)
-        {
-            Next();
-        }
+        private void btnNext_Click(object sender, EventArgs e) => Next();
 
         private void Next()
         {
@@ -696,7 +683,7 @@ namespace iSpyApplication
                 MainForm.IPLISTED = tbl1.Enabled;
                 MainForm.IPRTSP = chkRTSP.Checked;
                 MainForm.IPHTTP = chkHTTP.Checked;
-                
+
                 if (MainForm.IPLISTED)
                 {
                     if (!_hashdata.Contains(txtFindModel.Text.ToUpper()))
@@ -729,8 +716,7 @@ namespace iSpyApplication
                     MessageBox.Show(this, LocRm.GetString("EnterIPAddress"));
                     return;
                 }
-                Uri nUrl = null;
-                if (!Uri.TryCreate("http://"+addr, UriKind.Absolute, out nUrl))
+                if (!Uri.TryCreate("http://" + addr, UriKind.Absolute, out Uri nUrl))
                 {
                     MessageBox.Show(this, LocRm.GetString("EnterIPDNSOnly"));
                     return;
@@ -741,7 +727,7 @@ namespace iSpyApplication
             }
             if (pnlConnect.Visible)
             {
-                if (MainForm.IPLISTED && txtFindModel.Text == "")
+                if (MainForm.IPLISTED && txtFindModel.Text?.Length == 0)
                 {
                     ShowPanel(pnlConfig);
                     return;
@@ -764,57 +750,54 @@ namespace iSpyApplication
                         model = mm[1].Trim().ToUpper();
                 }
 
-                
+
                 ConnectionOption s = null;
                 for (int j = 0; j < pnlOptions.Controls.Count; j++)
                 {
-                    if (pnlOptions.Controls[j] is RadioButton)
+                    if (pnlOptions.Controls[j] is RadioButton button && button.Checked)
                     {
-                        if (((RadioButton)pnlOptions.Controls[j]).Checked)
+                        var o = (pnlOptions.Controls[j]).Tag;
+                        s = o as ConnectionOption;
+                        if (s == null)
+                            continue;
+                        FinalUrl = s.URL;
+
+                        VideoSourceType = s.VideoSourceTypeID;
+                        AudioSourceType = s.AudioSourceTypeID;
+
+                        Ptzid = -1;
+
+                        if (s.MmUrl?.@fixed == false)
                         {
-                            var o = (pnlOptions.Controls[j]).Tag;
-                            s = o as ConnectionOption;
-                            if (s == null)
-                                continue;
-                            FinalUrl = s.URL;
-
-                            VideoSourceType = s.VideoSourceTypeID;
-                            AudioSourceType = s.AudioSourceTypeID;
-
-                            Ptzid = -1;
-
-                            if (s.MmUrl!=null && !s.MmUrl.@fixed)
+                            string modellc = model.ToLower();
+                            string n = make.ToLower();
+                            bool quit = false;
+                            foreach (var ptz in MainForm.PTZs)
                             {
-                                string modellc = model.ToLower();
-                                string n = make.ToLower();
-                                bool quit = false;
-                                foreach (var ptz in MainForm.PTZs)
+                                int k = 0;
+                                foreach (var m in ptz.Makes)
                                 {
-                                    int k = 0;
-                                    foreach (var m in ptz.Makes)
+                                    if (m.Name.ToLower() == n)
                                     {
-                                        if (m.Name.ToLower() == n)
+                                        Ptzid = ptz.id;
+                                        Ptzentryid = k;
+                                        string mdl = m.Model.ToLower();
+                                        if (mdl == modellc || s.MmUrl.version.ToLower() == mdl)
                                         {
                                             Ptzid = ptz.id;
                                             Ptzentryid = k;
-                                            string mdl = m.Model.ToLower();
-                                            if (mdl == modellc || s.MmUrl.version.ToLower() == mdl)
-                                            {
-                                                Ptzid = ptz.id;
-                                                Ptzentryid = k;
-                                                quit = true;
-                                                break;
-                                            }
+                                            quit = true;
+                                            break;
                                         }
-                                        k++;
                                     }
-                                    if (quit)
-                                        break;
+                                    k++;
                                 }
+                                if (quit)
+                                    break;
                             }
-                            
-                            break;
                         }
+
+                        break;
                     }
                 }
 
@@ -835,7 +818,7 @@ namespace iSpyApplication
                 MainForm.IPCHANNEL = txtChannel.Text.Trim();
 
 
-                LastConfig.PromptSave = !MainForm.IPLISTED && MainForm.IPMODEL.Trim() != "" && VideoSourceType!=9;
+                LastConfig.PromptSave = !MainForm.IPLISTED && MainForm.IPMODEL.Trim() != "" && VideoSourceType != 9;
 
                 LastConfig.Iptype = MainForm.IPTYPE;
                 LastConfig.Ipmodel = MainForm.IPMODEL;
@@ -864,7 +847,7 @@ namespace iSpyApplication
         }
 
 
-        public class LastConfig
+        public static class LastConfig
         {
             public static bool PromptSave = false;
             public static string Iptype;
@@ -877,7 +860,7 @@ namespace iSpyApplication
             public static int Port;
         }
 
-        
+
 
         private void btnBack_Click(object sender, EventArgs e)
         {
@@ -902,7 +885,7 @@ namespace iSpyApplication
         private void llblDownloadVLC_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             if (Program.Platform == "x64")
-                MessageBox.Show(this, LocRm.GetString("InstallVLCx64").Replace("[DIR]",Environment.NewLine+Program.AppPath+"VLC64"+Environment.NewLine));
+                MessageBox.Show(this, LocRm.GetString("InstallVLCx64").Replace("[DIR]", Environment.NewLine + Program.AppPath + "VLC64" + Environment.NewLine));
             else
                 MessageBox.Show(this, LocRm.GetString("InstallVLCx86"));
             MainForm.OpenUrl(Program.Platform == "x64" ? MainForm.VLCx64 : MainForm.VLCx86);
@@ -926,12 +909,9 @@ namespace iSpyApplication
 
         }
 
-        private void quitScannerToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            _scanner.Stop();
-        }
+        private void quitScannerToolStripMenuItem_Click(object sender, EventArgs e) => _scanner.Stop();
 
-        private CameraScanner _scanner = new CameraScanner();
+        private readonly CameraScanner _scanner = new CameraScanner();
 
         private void pnlmain_Paint(object sender, PaintEventArgs e)
         {

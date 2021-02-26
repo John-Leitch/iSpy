@@ -1,11 +1,11 @@
-﻿using System;
-using System.Security.Cryptography.X509Certificates;
-//using CERTENROLLLib;
+﻿//using CERTENROLLLib;
 using iSpyApplication.Utilities;
+using System;
+using System.Security.Cryptography.X509Certificates;
 
 namespace iSpyApplication
 {
-    class X509
+    internal class X509
     {
         private static X509Certificate _sslCertificate;
 

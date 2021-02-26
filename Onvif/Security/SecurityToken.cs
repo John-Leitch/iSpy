@@ -2,7 +2,7 @@
 
 namespace iSpyApplication.Onvif.Security
 {
-    class SecurityToken
+    internal class SecurityToken
     {
         public DateTime ServerTime { get; }
 

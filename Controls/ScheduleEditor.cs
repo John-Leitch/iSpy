@@ -8,12 +8,12 @@ namespace iSpyApplication.Controls
 {
     public partial class ScheduleEditor : UserControl
     {
-        
+
         private ISpyControl io;
 
         public ISpyControl Io
         {
-            get { return io; }
+            get => io;
             set
             {
                 if (value != null)
@@ -25,10 +25,7 @@ namespace iSpyApplication.Controls
             }
         }
 
-        public ScheduleEditor()
-        {
-            InitializeComponent();
-        }
+        public ScheduleEditor() => InitializeComponent();
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -38,7 +35,7 @@ namespace iSpyApplication.Controls
                 objecttypeid = Io.ObjectTypeID,
                 daysofweek = "",
                 parameter = "",
-                time = (int) DateTime.Now.TimeOfDay.TotalMinutes,
+                time = (int)DateTime.Now.TimeOfDay.TotalMinutes,
                 active = true
             };
 
@@ -50,7 +47,7 @@ namespace iSpyApplication.Controls
                     MainForm.Schedule.Add(see.ose);
                     RenderSchedule();
                 }
-            }            
+            }
         }
 
         public void RenderSchedule()
@@ -64,7 +61,7 @@ namespace iSpyApplication.Controls
             int vertScrollWidth = SystemInformation.VerticalScrollBarWidth;
 
             var w = flpSchedule.Width - 2;
-            if (se.Count*AlertEventRow.Height >= flpSchedule.Height)
+            if (se.Count * AlertEventRow.Height >= flpSchedule.Height)
                 w = w - vertScrollWidth;
 
             foreach (var e in se)
@@ -84,7 +81,7 @@ namespace iSpyApplication.Controls
 
         }
 
-        void CMouseOver(object sender, EventArgs e)
+        private void CMouseOver(object sender, EventArgs e)
         {
             foreach (var c in flpSchedule.Controls)
             {
@@ -97,16 +94,16 @@ namespace iSpyApplication.Controls
             }
         }
 
-        void CScheduleEntryDelete(object sender, EventArgs e)
+        private void CScheduleEntryDelete(object sender, EventArgs e)
         {
-            var sr = (ScheduleRow) sender;
+            var sr = (ScheduleRow)sender;
             var oe = sr.Ose;
             MainForm.Schedule.Remove(oe);
             flpSchedule.Controls.Remove(sr);
             flpSchedule.Invalidate();
         }
 
-        void CScheduleEntryEdit(object sender, EventArgs e)
+        private void CScheduleEntryEdit(object sender, EventArgs e)
         {
             var sr = (ScheduleRow)sender;
             var ose = sr.Ose;
@@ -132,14 +129,11 @@ namespace iSpyApplication.Controls
 
             public bool Checked
             {
-                get { return Value.active; }
-                set { Value.active = value; }
+                get => Value.active;
+                set => Value.active = value;
             }
 
-            public override string ToString()
-            {
-                return Name;
-            }
+            public override string ToString() => Name;
 
             public ScheduleItem(objectsScheduleEntry se, int index = 0)
             {
@@ -169,7 +163,7 @@ namespace iSpyApplication.Controls
                     switch (day)
                     {
                         case "1":
-                            r += LocRm.GetString("DOWMon")+",";
+                            r += LocRm.GetString("DOWMon") + ",";
                             break;
                         case "2":
                             r += LocRm.GetString("DOWTue") + ",";
@@ -196,23 +190,14 @@ namespace iSpyApplication.Controls
 
         }
 
-        private void ScheduleEditor_Load(object sender, EventArgs e)
-        {
-            
-
-
-            button1.Text = LocRm.GetString("Add");
-        }
+        private void ScheduleEditor_Load(object sender, EventArgs e) => button1.Text = LocRm.GetString("Add");
 
         private void flpSchedule_Resize(object sender, EventArgs e)
         {
             //RenderSchedule();
         }
 
-        private void flpSchedule_ClientSizeChanged(object sender, EventArgs e)
-        {
-            RenderSchedule();
-        }
+        private void flpSchedule_ClientSizeChanged(object sender, EventArgs e) => RenderSchedule();
 
         private void flpSchedule_Layout(object sender, LayoutEventArgs e)
         {
